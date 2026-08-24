@@ -1,0 +1,5518 @@
+{
+  "shape": {
+    "rows": 3582,
+    "features": 18
+  },
+  "n_classes": 36,
+  "classes": [
+    "Armature Bolt",
+    "Armature Guide",
+    "Armature Plate",
+    "Armature Shim",
+    "Armature Spring",
+    "Back Flow Tube",
+    "Ball Guide",
+    "Blade Terminal",
+    "C Shim",
+    "CRI Injector Body",
+    "CRI Sealing ring",
+    "CRI Shim",
+    "Clamping Saddle",
+    "DFK Shim",
+    "DFK Spring",
+    "Dowel Pin",
+    "Guide Bush",
+    "HP Sealing",
+    "IC Stud",
+    "Locking Sleeve",
+    "M&M HPP Component",
+    "Magnet Coil",
+    "Magnet Core",
+    "Magnet housing",
+    "NR Nut",
+    "Nozzle Spring",
+    "Pille",
+    "RLS Shim",
+    "Sealing Ring",
+    "Support Sealing",
+    "UFK Spring",
+    "VFK Shim",
+    "Valve Nut",
+    "Valve Piece",
+    "Valve Piston",
+    "Valve Spring"
+  ],
+  "class_distribution": {
+    "Armature Bolt": 100,
+    "Armature Guide": 97,
+    "Armature Plate": 105,
+    "Armature Shim": 103,
+    "Armature Spring": 106,
+    "Back Flow Tube": 100,
+    "Ball Guide": 103,
+    "Blade Terminal": 98,
+    "C Shim": 98,
+    "CRI Injector Body": 98,
+    "CRI Sealing ring": 99,
+    "CRI Shim": 101,
+    "Clamping Saddle": 96,
+    "DFK Shim": 101,
+    "DFK Spring": 97,
+    "Dowel Pin": 96,
+    "Guide Bush": 100,
+    "HP Sealing": 101,
+    "IC Stud": 97,
+    "Locking Sleeve": 97,
+    "M&M HPP Component": 105,
+    "Magnet Coil": 106,
+    "Magnet Core": 106,
+    "Magnet housing": 99,
+    "NR Nut": 99,
+    "Nozzle Spring": 94,
+    "Pille": 94,
+    "RLS Shim": 97,
+    "Sealing Ring": 97,
+    "Support Sealing": 96,
+    "UFK Spring": 100,
+    "VFK Shim": 106,
+    "Valve Nut": 105,
+    "Valve Piece": 95,
+    "Valve Piston": 96,
+    "Valve Spring": 94
+  },
+  "feature_columns": [
+    "Al",
+    "Si",
+    "P",
+    "S",
+    "Cr",
+    "Mn",
+    "Ni",
+    "Pb",
+    "Mo",
+    "Cu",
+    "Sn",
+    "Zn",
+    "Au",
+    "K",
+    "N",
+    "Ca",
+    "V",
+    "W"
+  ],
+  "global_feature_stats": {
+    "Al": {
+      "min": 0.0,
+      "max": 2.64,
+      "mean": 0.165441094360693,
+      "nonzero_ratio": 0.44751535455053043
+    },
+    "Si": {
+      "min": 0.0,
+      "max": 2.3,
+      "mean": 0.4218676716917884,
+      "nonzero_ratio": 0.8590173087660525
+    },
+    "P": {
+      "min": 0.0,
+      "max": 9.32,
+      "mean": 0.34737855946398527,
+      "nonzero_ratio": 0.22305974316024568
+    },
+    "S": {
+      "min": 0.0,
+      "max": 0.45,
+      "mean": 0.024357900614182065,
+      "nonzero_ratio": 0.2629815745393635
+    },
+    "Cr": {
+      "min": 0.0,
+      "max": 19.83,
+      "mean": 2.168431044109439,
+      "nonzero_ratio": 0.7453936348408711
+    },
+    "Mn": {
+      "min": 0.0,
+      "max": 2.12,
+      "mean": 0.551878838637632,
+      "nonzero_ratio": 0.830820770519263
+    },
+    "Ni": {
+      "min": 0.0,
+      "max": 84.27,
+      "mean": 3.004868788386377,
+      "nonzero_ratio": 0.21943048576214405
+    },
+    "Pb": {
+      "min": 0.0,
+      "max": 0.31,
+      "mean": 0.005949190396426581,
+      "nonzero_ratio": 0.027359017308766054
+    },
+    "Mo": {
+      "min": 0.0,
+      "max": 6.39,
+      "mean": 0.14461474036850924,
+      "nonzero_ratio": 0.05443886097152429
+    },
+    "Cu": {
+      "min": 0.0,
+      "max": 56.99,
+      "mean": 3.09038246789503,
+      "nonzero_ratio": 0.11278615298715801
+    },
+    "Sn": {
+      "min": 0.0,
+      "max": 8.85,
+      "mean": 0.3512674483528753,
+      "nonzero_ratio": 0.08319374651032943
+    },
+    "Zn": {
+      "min": 0.0,
+      "max": 18.45,
+      "mean": 0.8075572305974336,
+      "nonzero_ratio": 0.08431044109436069
+    },
+    "Au": {
+      "min": 0.0,
+      "max": 90.76,
+      "mean": 3.9253182579564494,
+      "nonzero_ratio": 0.05695142378559464
+    },
+    "K": {
+      "min": 0.0,
+      "max": 0.22,
+      "mean": 0.004302065884980461,
+      "nonzero_ratio": 0.027359017308766054
+    },
+    "N": {
+      "min": 0.0,
+      "max": 4.05,
+      "mean": 0.12431323283082073,
+      "nonzero_ratio": 0.05695142378559464
+    },
+    "Ca": {
+      "min": 0.0,
+      "max": 0.1,
+      "mean": 0.002063093243997767,
+      "nonzero_ratio": 0.02763819095477387
+    },
+    "V": {
+      "min": 0.0,
+      "max": 2.69,
+      "mean": 0.06050809603573421,
+      "nonzero_ratio": 0.02680067001675042
+    },
+    "W": {
+      "min": 0.0,
+      "max": 9.31,
+      "mean": 0.20006700167504188,
+      "nonzero_ratio": 0.02680067001675042
+    }
+  },
+  "discriminating_features": {
+    "Pb": [
+      "CRI Injector Body"
+    ],
+    "Mo": [
+      "Magnet housing",
+      "Valve Piston"
+    ],
+    "Cu": [
+      "Blade Terminal",
+      "CRI Sealing ring",
+      "HP Sealing",
+      "Magnet Coil"
+    ],
+    "Sn": [
+      "Blade Terminal",
+      "CRI Sealing ring",
+      "HP Sealing"
+    ],
+    "Zn": [
+      "IC Stud",
+      "Magnet Core",
+      "NR Nut"
+    ],
+    "Au": [
+      "Blade Terminal",
+      "Magnet Coil"
+    ],
+    "K": [
+      "Blade Terminal"
+    ],
+    "N": [
+      "Blade Terminal",
+      "Magnet Coil"
+    ],
+    "Ca": [
+      "NR Nut"
+    ],
+    "V": [
+      "Valve Piston"
+    ],
+    "W": [
+      "Valve Piston"
+    ]
+  },
+  "n_duplicate_feature_rows": 125,
+  "n_missing_values": 0,
+  "class_feature_stats": {
+    "Armature Bolt": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Si": {
+        "min": 0.17,
+        "max": 0.36,
+        "mean": 0.25549999999999995,
+        "std": 0.03499642838919422,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Cr": {
+        "min": 1.31,
+        "max": 2.0,
+        "mean": 1.6658,
+        "std": 0.13842095217126632,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Mn": {
+        "min": 0.21,
+        "max": 0.39,
+        "mean": 0.2689,
+        "std": 0.03466684294826974,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      }
+    },
+    "Armature Guide": {
+      "Al": {
+        "min": 0.06,
+        "max": 0.11,
+        "mean": 0.07835051546391755,
+        "std": 0.01001858194907739,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Si": {
+        "min": 0.28,
+        "max": 0.48,
+        "mean": 0.3644329896907218,
+        "std": 0.03496593547496005,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "P": {
+        "min": 0.01,
+        "max": 0.01,
+        "mean": 0.010000000000000007,
+        "std": 6.938893903907228e-18,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "S": {
+        "min": 0.01,
+        "max": 0.03,
+        "mean": 0.01948453608247424,
+        "std": 0.003002107170837328,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Cr": {
+        "min": 1.38,
+        "max": 2.04,
+        "mean": 1.6691752577319598,
+        "std": 0.13336771973071554,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Mn": {
+        "min": 0.2,
+        "max": 0.34,
+        "mean": 0.24185567010309272,
+        "std": 0.028296293040055518,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      }
+    },
+    "Armature Plate": {
+      "Al": {
+        "min": 0.04,
+        "max": 0.07,
+        "mean": 0.05542857142857135,
+        "std": 0.007175165029271376,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Si": {
+        "min": 0.23,
+        "max": 0.44,
+        "mean": 0.31304761904761896,
+        "std": 0.042068511230945745,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "P": {
+        "min": 0.01,
+        "max": 0.02,
+        "mean": 0.010666666666666673,
+        "std": 0.0024944382578492895,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "S": {
+        "min": 0.01,
+        "max": 0.01,
+        "mean": 0.010000000000000007,
+        "std": 6.938893903907228e-18,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Cr": {
+        "min": 1.38,
+        "max": 1.96,
+        "mean": 1.680571428571428,
+        "std": 0.13109668239911498,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Mn": {
+        "min": 0.23,
+        "max": 0.44,
+        "mean": 0.3386666666666666,
+        "std": 0.045230976883561445,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      }
+    },
+    "Armature Shim": {
+      "Al": {
+        "min": 0.13,
+        "max": 0.28,
+        "mean": 0.1885436893203884,
+        "std": 0.026269986085135012,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "Si": {
+        "min": 0.14,
+        "max": 0.27,
+        "mean": 0.19922330097087385,
+        "std": 0.025908326823867442,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Cr": {
+        "min": 0.29,
+        "max": 0.49,
+        "mean": 0.37553398058252435,
+        "std": 0.04276211360402008,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "Mn": {
+        "min": 0.52,
+        "max": 0.86,
+        "mean": 0.6814563106796119,
+        "std": 0.07027557084957457,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      }
+    },
+    "Armature Spring": {
+      "Al": {
+        "min": 0.07,
+        "max": 0.12,
+        "mean": 0.09094339622641505,
+        "std": 0.011370957866656125,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Si": {
+        "min": 1.24,
+        "max": 2.18,
+        "mean": 1.663962264150944,
+        "std": 0.20472567584353113,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "P": {
+        "min": 0.01,
+        "max": 0.02,
+        "mean": 0.010754716981132083,
+        "std": 0.0026415094339622656,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "S": {
+        "min": 0.01,
+        "max": 0.01,
+        "mean": 0.010000000000000007,
+        "std": 6.938893903907228e-18,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Cr": {
+        "min": 0.49,
+        "max": 0.88,
+        "mean": 0.7189622641509431,
+        "std": 0.08240408083505239,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Mn": {
+        "min": 0.41,
+        "max": 0.79,
+        "mean": 0.5543396226415094,
+        "std": 0.06960832291274893,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      }
+    },
+    "Back Flow Tube": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Si": {
+        "min": 0.27,
+        "max": 0.49,
+        "mean": 0.4083000000000001,
+        "std": 0.04384187495990562,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "S": {
+        "min": 0.27,
+        "max": 0.45,
+        "mean": 0.3461,
+        "std": 0.033283479385424836,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Cr": {
+        "min": 16.6,
+        "max": 19.83,
+        "mean": 18.1255,
+        "std": 0.6319768587535463,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Mn": {
+        "min": 1.14,
+        "max": 1.76,
+        "mean": 1.4136000000000004,
+        "std": 0.1116738107167477,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Ni": {
+        "min": 7.38,
+        "max": 9.0,
+        "mean": 8.116500000000004,
+        "std": 0.3057658417809288,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      }
+    },
+    "Ball Guide": {
+      "Al": {
+        "min": 0.31,
+        "max": 0.53,
+        "mean": 0.4182524271844661,
+        "std": 0.05558911649549355,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "Si": {
+        "min": 0.15,
+        "max": 0.28,
+        "mean": 0.20378640776699034,
+        "std": 0.028527503501496607,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Cr": {
+        "min": 1.14,
+        "max": 1.85,
+        "mean": 1.5146601941747568,
+        "std": 0.17004748356833585,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "Mn": {
+        "min": 0.23,
+        "max": 0.39,
+        "mean": 0.29271844660194174,
+        "std": 0.03021586334339884,
+        "nonzero_count": 103,
+        "total_count": 103
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 103
+      }
+    },
+    "Blade Terminal": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Si": {
+        "min": 0.16,
+        "max": 0.32,
+        "mean": 0.24459183673469378,
+        "std": 0.027559522497675376,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Mn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Ni": {
+        "min": 0.86,
+        "max": 1.54,
+        "mean": 1.1758163265306125,
+        "std": 0.15663504618260907,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Cu": {
+        "min": 36.09,
+        "max": 56.99,
+        "mean": 47.79561224489796,
+        "std": 3.7966620856356346,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Sn": {
+        "min": 2.0,
+        "max": 3.73,
+        "mean": 2.756326530612245,
+        "std": 0.3782785599105021,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Au": {
+        "min": 36.64,
+        "max": 57.55,
+        "mean": 46.48438775510204,
+        "std": 3.806970799201448,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "K": {
+        "min": 0.12,
+        "max": 0.22,
+        "mean": 0.15724489795918378,
+        "std": 0.01983506543745079,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "N": {
+        "min": 0.68,
+        "max": 1.32,
+        "mean": 0.9739795918367348,
+        "std": 0.11993824768178107,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      }
+    },
+    "C Shim": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Si": {
+        "min": 0.22,
+        "max": 0.37,
+        "mean": 0.27693877551020396,
+        "std": 0.029911712376193618,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Cr": {
+        "min": 1.39,
+        "max": 1.97,
+        "mean": 1.6418367346938774,
+        "std": 0.12447724928410726,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Mn": {
+        "min": 0.26,
+        "max": 0.45,
+        "mean": 0.3442857142857143,
+        "std": 0.04027963479963338,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      }
+    },
+    "CRI Injector Body": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Si": {
+        "min": 0.16,
+        "max": 0.28,
+        "mean": 0.21510204081632658,
+        "std": 0.02696350133047141,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Cr": {
+        "min": 0.22,
+        "max": 0.38,
+        "mean": 0.2743877551020408,
+        "std": 0.02828666400031215,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Mn": {
+        "min": 0.61,
+        "max": 1.05,
+        "mean": 0.8001020408163263,
+        "std": 0.08651406512945062,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Pb": {
+        "min": 0.14,
+        "max": 0.31,
+        "mean": 0.21744897959183687,
+        "std": 0.027601805046335477,
+        "nonzero_count": 98,
+        "total_count": 98
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 98
+      }
+    },
+    "CRI Sealing ring": {
+      "Al": {
+        "min": 1.39,
+        "max": 2.64,
+        "mean": 1.8617171717171717,
+        "std": 0.2712002517952722,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Si": {
+        "min": 0.25,
+        "max": 0.47,
+        "mean": 0.34161616161616154,
+        "std": 0.047048375506408925,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Cr": {
+        "min": 0.68,
+        "max": 1.14,
+        "mean": 0.917272727272727,
+        "std": 0.11225708393042279,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Mn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Cu": {
+        "min": 29.38,
+        "max": 45.67,
+        "mean": 37.432020202020205,
+        "std": 3.2038146391475464,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Sn": {
+        "min": 4.96,
+        "max": 8.85,
+        "mean": 6.5699999999999985,
+        "std": 0.7961092255400003,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      }
+    },
+    "CRI Shim": {
+      "Al": {
+        "min": 0.09,
+        "max": 0.17,
+        "mean": 0.12534653465346532,
+        "std": 0.01638426898490108,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Si": {
+        "min": 0.14,
+        "max": 0.26,
+        "mean": 0.20128712871287138,
+        "std": 0.02448128670406037,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "P": {
+        "min": 0.04,
+        "max": 0.07,
+        "mean": 0.05138613861386135,
+        "std": 0.00820887022897985,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.01,
+        "mean": 0.004356435643564359,
+        "std": 0.00495840951506888,
+        "nonzero_count": 44,
+        "total_count": 101
+      },
+      "Cr": {
+        "min": 0.24,
+        "max": 0.36,
+        "mean": 0.30277227722772265,
+        "std": 0.02729083594354343,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Mn": {
+        "min": 0.55,
+        "max": 0.9,
+        "mean": 0.717920792079208,
+        "std": 0.0711060681941146,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      }
+    },
+    "Clamping Saddle": {
+      "Al": {
+        "min": 0.63,
+        "max": 1.12,
+        "mean": 0.8569791666666666,
+        "std": 0.09790641568681228,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Si": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cr": {
+        "min": 1.85,
+        "max": 3.61,
+        "mean": 2.552708333333333,
+        "std": 0.3219358087112329,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Mn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Ni": {
+        "min": 78.44,
+        "max": 84.27,
+        "mean": 81.4607291666667,
+        "std": 1.2085547884350567,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      }
+    },
+    "DFK Shim": {
+      "Al": {
+        "min": 0.33,
+        "max": 0.61,
+        "mean": 0.44524752475247525,
+        "std": 0.05617501046554279,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Si": {
+        "min": 0.33,
+        "max": 0.54,
+        "mean": 0.4499009900990097,
+        "std": 0.04390572820620032,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Cr": {
+        "min": 0.27,
+        "max": 0.47,
+        "mean": 0.3465346534653464,
+        "std": 0.037770428046037606,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Mn": {
+        "min": 0.49,
+        "max": 0.75,
+        "mean": 0.6102970297029701,
+        "std": 0.060680227349420295,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      }
+    },
+    "DFK Spring": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Si": {
+        "min": 1.01,
+        "max": 1.47,
+        "mean": 1.24340206185567,
+        "std": 0.10112650644132375,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "P": {
+        "min": 0.02,
+        "max": 0.04,
+        "mean": 0.025979381443298966,
+        "std": 0.00530702584586959,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "S": {
+        "min": 0.02,
+        "max": 0.04,
+        "mean": 0.030103092783505116,
+        "std": 0.003365943859240103,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Cr": {
+        "min": 0.59,
+        "max": 0.9,
+        "mean": 0.7224742268041241,
+        "std": 0.07680516155114193,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Mn": {
+        "min": 0.49,
+        "max": 0.8,
+        "mean": 0.632783505154639,
+        "std": 0.061422019424536324,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      }
+    },
+    "Dowel Pin": {
+      "Al": {
+        "min": 0.23,
+        "max": 0.47,
+        "mean": 0.3403125,
+        "std": 0.041619634914504794,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Si": {
+        "min": 0.07,
+        "max": 0.12,
+        "mean": 0.0960416666666666,
+        "std": 0.01149992451666048,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Mn": {
+        "min": 0.5,
+        "max": 0.8,
+        "mean": 0.665625,
+        "std": 0.07369436460815712,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      }
+    },
+    "Guide Bush": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Si": {
+        "min": 0.03,
+        "max": 0.06,
+        "mean": 0.05009999999999994,
+        "std": 0.006081940479813985,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "S": {
+        "min": 0.17,
+        "max": 0.28,
+        "mean": 0.22220000000000004,
+        "std": 0.02138130024109853,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Mn": {
+        "min": 1.12,
+        "max": 1.6,
+        "mean": 1.3029,
+        "std": 0.0957318651233747,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      }
+    },
+    "HP Sealing": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Si": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Cr": {
+        "min": 0.38,
+        "max": 0.61,
+        "mean": 0.4736633663366335,
+        "std": 0.04721391748742484,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Mn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Cu": {
+        "min": 21.7,
+        "max": 28.64,
+        "mean": 25.045049504950498,
+        "std": 1.4424893388163276,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Sn": {
+        "min": 2.14,
+        "max": 4.48,
+        "mean": 3.3434653465346544,
+        "std": 0.43065328142153664,
+        "nonzero_count": 101,
+        "total_count": 101
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 101
+      }
+    },
+    "IC Stud": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Si": {
+        "min": 0.08,
+        "max": 0.16,
+        "mean": 0.11752577319587623,
+        "std": 0.015333470420091387,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "P": {
+        "min": 5.03,
+        "max": 9.32,
+        "mean": 6.37360824742268,
+        "std": 0.7998223843641277,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cr": {
+        "min": 0.19,
+        "max": 0.41,
+        "mean": 0.2944329896907215,
+        "std": 0.04171501428544579,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Mn": {
+        "min": 0.9,
+        "max": 1.7,
+        "mean": 1.3453608247422686,
+        "std": 0.1627854311958815,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Zn": {
+        "min": 10.26,
+        "max": 18.3,
+        "mean": 14.110103092783508,
+        "std": 1.7175206866176336,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      }
+    },
+    "Locking Sleeve": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Si": {
+        "min": 0.31,
+        "max": 0.55,
+        "mean": 0.4117525773195876,
+        "std": 0.05062517016447615,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cr": {
+        "min": 15.61,
+        "max": 19.59,
+        "mean": 17.385670103092785,
+        "std": 0.8415620077079973,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Mn": {
+        "min": 0.67,
+        "max": 1.33,
+        "mean": 0.9810309278350512,
+        "std": 0.12547217653609952,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Ni": {
+        "min": 9.32,
+        "max": 11.46,
+        "mean": 10.321958762886602,
+        "std": 0.4431509462768848,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      }
+    },
+    "M&M HPP Component": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Si": {
+        "min": 0.15,
+        "max": 0.32,
+        "mean": 0.2178095238095239,
+        "std": 0.028012954567177777,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Mn": {
+        "min": 0.7,
+        "max": 1.2,
+        "mean": 0.953619047619048,
+        "std": 0.09828165366288875,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      }
+    },
+    "Magnet Coil": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Si": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Mn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Ni": {
+        "min": 1.32,
+        "max": 1.96,
+        "mean": 1.623584905660378,
+        "std": 0.14031089926091342,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cu": {
+        "min": 1.09,
+        "max": 1.9,
+        "mean": 1.4194339622641508,
+        "std": 0.15089562923436947,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Au": {
+        "min": 88.76,
+        "max": 90.76,
+        "mean": 89.67,
+        "std": 0.4351382343794541,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "N": {
+        "min": 2.83,
+        "max": 4.05,
+        "mean": 3.3003773584905662,
+        "std": 0.24694329242974247,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      }
+    },
+    "Magnet Core": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Si": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Mn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Zn": {
+        "min": 0.12,
+        "max": 0.23,
+        "mean": 0.16867924528301886,
+        "std": 0.021678415998064037,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      }
+    },
+    "Magnet housing": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Si": {
+        "min": 0.35,
+        "max": 0.55,
+        "mean": 0.45484848484848484,
+        "std": 0.04038610713128299,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "S": {
+        "min": 0.13,
+        "max": 0.26,
+        "mean": 0.20161616161616167,
+        "std": 0.027292174136649375,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Cr": {
+        "min": 16.4,
+        "max": 19.45,
+        "mean": 17.834848484848486,
+        "std": 0.7165720355230617,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Mn": {
+        "min": 1.35,
+        "max": 2.12,
+        "mean": 1.687474747474747,
+        "std": 0.13435475003608716,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Ni": {
+        "min": 7.42,
+        "max": 8.91,
+        "mean": 8.093737373737376,
+        "std": 0.3371705975252395,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Mo": {
+        "min": 0.35,
+        "max": 0.62,
+        "mean": 0.47101010101010105,
+        "std": 0.05762110565722872,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      }
+    },
+    "NR Nut": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Si": {
+        "min": 0.19,
+        "max": 0.36,
+        "mean": 0.2536363636363636,
+        "std": 0.03388794802168308,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "P": {
+        "min": 4.34,
+        "max": 8.3,
+        "mean": 6.166767676767678,
+        "std": 0.8177313138075802,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "S": {
+        "min": 0.02,
+        "max": 0.03,
+        "mean": 0.021717171717171725,
+        "std": 0.0037713443843625178,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Mn": {
+        "min": 0.56,
+        "max": 1.57,
+        "mean": 0.9192929292929292,
+        "std": 0.15731492268535763,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Zn": {
+        "min": 11.38,
+        "max": 18.45,
+        "mean": 15.21323232323233,
+        "std": 1.3924724238118404,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "Ca": {
+        "min": 0.05,
+        "max": 0.1,
+        "mean": 0.07464646464646467,
+        "std": 0.010570889254101925,
+        "nonzero_count": 99,
+        "total_count": 99
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 99
+      }
+    },
+    "Nozzle Spring": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Si": {
+        "min": 1.28,
+        "max": 2.21,
+        "mean": 1.6965957446808504,
+        "std": 0.18903198643823713,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Cr": {
+        "min": 0.51,
+        "max": 1.02,
+        "mean": 0.7277659574468083,
+        "std": 0.08849996099673561,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Mn": {
+        "min": 0.23,
+        "max": 0.41,
+        "mean": 0.3276595744680851,
+        "std": 0.04251221431278744,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      }
+    },
+    "Pille": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Si": {
+        "min": 0.28,
+        "max": 0.43,
+        "mean": 0.34797872340425523,
+        "std": 0.03363065304007963,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Cr": {
+        "min": 1.23,
+        "max": 1.86,
+        "mean": 1.560851063829788,
+        "std": 0.13478635241277434,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Mn": {
+        "min": 0.19,
+        "max": 0.36,
+        "mean": 0.2668085106382978,
+        "std": 0.03330110106024056,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Ni": {
+        "min": 0.11,
+        "max": 0.2,
+        "mean": 0.1518085106382979,
+        "std": 0.019944751667002467,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      }
+    },
+    "RLS Shim": {
+      "Al": {
+        "min": 0.2,
+        "max": 0.41,
+        "mean": 0.3085567010309278,
+        "std": 0.04345846911213523,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Si": {
+        "min": 0.22,
+        "max": 0.45,
+        "mean": 0.32989690721649473,
+        "std": 0.04611717137454692,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cr": {
+        "min": 0.18,
+        "max": 0.36,
+        "mean": 0.25185567010309284,
+        "std": 0.035270088869761296,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Mn": {
+        "min": 0.41,
+        "max": 0.86,
+        "mean": 0.6198969072164946,
+        "std": 0.08081409039845423,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      }
+    },
+    "Sealing Ring": {
+      "Al": {
+        "min": 0.34,
+        "max": 0.62,
+        "mean": 0.4464948453608248,
+        "std": 0.0579377774505022,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Si": {
+        "min": 0.17,
+        "max": 0.33,
+        "mean": 0.24020618556701046,
+        "std": 0.03258547464154924,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "P": {
+        "min": 0.03,
+        "max": 0.06,
+        "mean": 0.047628865979381416,
+        "std": 0.006385097965856502,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mn": {
+        "min": 0.17,
+        "max": 0.3,
+        "mean": 0.21896907216494843,
+        "std": 0.02570589150179407,
+        "nonzero_count": 97,
+        "total_count": 97
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 97
+      }
+    },
+    "Support Sealing": {
+      "Al": {
+        "min": 0.32,
+        "max": 0.61,
+        "mean": 0.43791666666666657,
+        "std": 0.057080291889777694,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Si": {
+        "min": 0.22,
+        "max": 0.41,
+        "mean": 0.3123958333333334,
+        "std": 0.036593054659396176,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cr": {
+        "min": 0.17,
+        "max": 0.31,
+        "mean": 0.23125000000000018,
+        "std": 0.025829972899714778,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Mn": {
+        "min": 0.52,
+        "max": 0.81,
+        "mean": 0.6476041666666669,
+        "std": 0.06305990524339183,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      }
+    },
+    "UFK Spring": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Si": {
+        "min": 0.95,
+        "max": 1.81,
+        "mean": 1.406,
+        "std": 0.17669748158929716,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Cr": {
+        "min": 0.52,
+        "max": 0.85,
+        "mean": 0.6753,
+        "std": 0.06891233561562109,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Mn": {
+        "min": 0.58,
+        "max": 0.96,
+        "mean": 0.7238,
+        "std": 0.08039626857012708,
+        "nonzero_count": 100,
+        "total_count": 100
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 100
+      }
+    },
+    "VFK Shim": {
+      "Al": {
+        "min": 0.17,
+        "max": 0.28,
+        "mean": 0.20839622641509448,
+        "std": 0.025481654238710422,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Si": {
+        "min": 0.26,
+        "max": 0.46,
+        "mean": 0.34603773584905667,
+        "std": 0.0433650421179605,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cr": {
+        "min": 0.2,
+        "max": 0.32,
+        "mean": 0.259433962264151,
+        "std": 0.026629186310245113,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Mn": {
+        "min": 0.5,
+        "max": 1.08,
+        "mean": 0.6816981132075473,
+        "std": 0.08888695065328779,
+        "nonzero_count": 106,
+        "total_count": 106
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 106
+      }
+    },
+    "Valve Nut": {
+      "Al": {
+        "min": 0.07,
+        "max": 0.13,
+        "mean": 0.09647619047619037,
+        "std": 0.010865493864344126,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Si": {
+        "min": 0.45,
+        "max": 0.75,
+        "mean": 0.6001904761904763,
+        "std": 0.056635525656957675,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Cr": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Mn": {
+        "min": 0.53,
+        "max": 1.02,
+        "mean": 0.7625714285714283,
+        "std": 0.08634403579290699,
+        "nonzero_count": 105,
+        "total_count": 105
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 105
+      }
+    },
+    "Valve Piece": {
+      "Al": {
+        "min": 0.02,
+        "max": 0.04,
+        "mean": 0.028105263157894713,
+        "std": 0.004876309398694935,
+        "nonzero_count": 95,
+        "total_count": 95
+      },
+      "Si": {
+        "min": 0.23,
+        "max": 0.4,
+        "mean": 0.3097894736842104,
+        "std": 0.03727505013921358,
+        "nonzero_count": 95,
+        "total_count": 95
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "S": {
+        "min": 0.01,
+        "max": 0.01,
+        "mean": 0.010000000000000007,
+        "std": 6.938893903907228e-18,
+        "nonzero_count": 95,
+        "total_count": 95
+      },
+      "Cr": {
+        "min": 1.35,
+        "max": 2.12,
+        "mean": 1.705263157894736,
+        "std": 0.13104311950260902,
+        "nonzero_count": 95,
+        "total_count": 95
+      },
+      "Mn": {
+        "min": 0.14,
+        "max": 0.27,
+        "mean": 0.19842105263157897,
+        "std": 0.024807290501984713,
+        "nonzero_count": 95,
+        "total_count": 95
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 95
+      }
+    },
+    "Valve Piston": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Si": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Cr": {
+        "min": 3.76,
+        "max": 5.14,
+        "mean": 4.297083333333334,
+        "std": 0.26862270887291395,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Mn": {
+        "min": 0.06,
+        "max": 0.11,
+        "mean": 0.07958333333333334,
+        "std": 0.011629404780794043,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Ni": {
+        "min": 0.19,
+        "max": 0.39,
+        "mean": 0.28593750000000007,
+        "std": 0.03618753598155955,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Mo": {
+        "min": 3.48,
+        "max": 6.39,
+        "mean": 4.910208333333334,
+        "std": 0.614230513133212,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 96
+      },
+      "V": {
+        "min": 1.83,
+        "max": 2.69,
+        "mean": 2.257708333333333,
+        "std": 0.1628040691461844,
+        "nonzero_count": 96,
+        "total_count": 96
+      },
+      "W": {
+        "min": 5.75,
+        "max": 9.31,
+        "mean": 7.465,
+        "std": 0.7932567364983423,
+        "nonzero_count": 96,
+        "total_count": 96
+      }
+    },
+    "Valve Spring": {
+      "Al": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Si": {
+        "min": 1.25,
+        "max": 2.3,
+        "mean": 1.7070212765957449,
+        "std": 0.2051508515403531,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "P": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "S": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Cr": {
+        "min": 0.52,
+        "max": 0.81,
+        "mean": 0.6364893617021279,
+        "std": 0.061897434841987675,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Mn": {
+        "min": 0.46,
+        "max": 0.81,
+        "mean": 0.5756382978723404,
+        "std": 0.06953582439073047,
+        "nonzero_count": 94,
+        "total_count": 94
+      },
+      "Ni": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Pb": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Mo": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Cu": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Sn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Zn": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Au": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "K": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "N": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "Ca": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "V": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      },
+      "W": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "std": 0.0,
+        "nonzero_count": 0,
+        "total_count": 94
+      }
+    }
+  }
+}

@@ -1,0 +1,704 @@
+{
+  "rule_engine": {
+    "accuracy": 0.9158,
+    "macro_precision": 0.9178,
+    "macro_recall": 0.8882,
+    "macro_f1": 0.8744,
+    "per_class": {
+      "Armature Bolt": {
+        "precision": 1.0,
+        "recall": 0.1,
+        "f1": 0.1818,
+        "support": 10
+      },
+      "Armature Guide": {
+        "precision": 1.0,
+        "recall": 0.7273,
+        "f1": 0.8421,
+        "support": 11
+      },
+      "Armature Plate": {
+        "precision": 0.7692,
+        "recall": 0.9091,
+        "f1": 0.8333,
+        "support": 11
+      },
+      "Armature Shim": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Armature Spring": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 12
+      },
+      "Back Flow Tube": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "Ball Guide": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Blade Terminal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "C Shim": {
+        "precision": 0.55,
+        "recall": 1.0,
+        "f1": 0.7097,
+        "support": 11
+      },
+      "CRI Injector Body": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "CRI Sealing ring": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "CRI Shim": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Clamping Saddle": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "DFK Shim": {
+        "precision": 0.7857,
+        "recall": 1.0,
+        "f1": 0.88,
+        "support": 11
+      },
+      "DFK Spring": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Dowel Pin": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Guide Bush": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "HP Sealing": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "IC Stud": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Locking Sleeve": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "M&M HPP Component": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Magnet Coil": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 12
+      },
+      "Magnet Core": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 12
+      },
+      "Magnet housing": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "NR Nut": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Nozzle Spring": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "Pille": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "RLS Shim": {
+        "precision": 1.0,
+        "recall": 0.0909,
+        "f1": 0.1667,
+        "support": 11
+      },
+      "Sealing Ring": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Support Sealing": {
+        "precision": 0.6154,
+        "recall": 0.7273,
+        "f1": 0.6667,
+        "support": 11
+      },
+      "UFK Spring": {
+        "precision": 0.625,
+        "recall": 1.0,
+        "f1": 0.7692,
+        "support": 10
+      },
+      "Unknown": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0
+      },
+      "VFK Shim": {
+        "precision": 0.7059,
+        "recall": 1.0,
+        "f1": 0.8276,
+        "support": 12
+      },
+      "Valve Nut": {
+        "precision": 1.0,
+        "recall": 0.9091,
+        "f1": 0.9524,
+        "support": 11
+      },
+      "Valve Piece": {
+        "precision": 0.9091,
+        "recall": 1.0,
+        "f1": 0.9524,
+        "support": 10
+      },
+      "Valve Piston": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "Valve Spring": {
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714,
+        "support": 10
+      }
+    },
+    "total_samples": 392,
+    "correct": 359,
+    "coverage": {
+      "matched": 349,
+      "low_confidence": 42,
+      "no_match": 1,
+      "total": 392
+    },
+    "avg_confidence": 0.8444364795918367
+  },
+  "baselines": {
+    "majority_class": {
+      "accuracy": 0.0281,
+      "macro_precision": 0.0008,
+      "macro_recall": 0.0278,
+      "macro_f1": 0.0015,
+      "per_class": {
+        "Armature Bolt": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Armature Guide": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Armature Plate": {
+          "precision": 0.0281,
+          "recall": 1.0,
+          "f1": 0.0546,
+          "support": 11
+        },
+        "Armature Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Armature Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Back Flow Tube": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Ball Guide": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Blade Terminal": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "C Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "CRI Injector Body": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "CRI Sealing ring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "CRI Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Clamping Saddle": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "DFK Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "DFK Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Dowel Pin": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Guide Bush": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "HP Sealing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "IC Stud": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Locking Sleeve": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "M&M HPP Component": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Magnet Coil": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Magnet Core": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Magnet housing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "NR Nut": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Nozzle Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Pille": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "RLS Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Sealing Ring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Support Sealing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "UFK Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "VFK Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Valve Nut": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Valve Piece": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Valve Piston": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Valve Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        }
+      },
+      "total_samples": 392,
+      "correct": 11,
+      "model": "Majority Class Baseline"
+    },
+    "decision_stump": {
+      "accuracy": 0.0587,
+      "macro_precision": 0.0286,
+      "macro_recall": 0.0556,
+      "macro_f1": 0.0293,
+      "per_class": {
+        "Armature Bolt": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Armature Guide": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Armature Plate": {
+          "precision": 0.0289,
+          "recall": 1.0,
+          "f1": 0.0563,
+          "support": 11
+        },
+        "Armature Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Armature Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Back Flow Tube": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Ball Guide": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Blade Terminal": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "C Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "CRI Injector Body": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "CRI Sealing ring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "CRI Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Clamping Saddle": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "DFK Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "DFK Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Dowel Pin": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Guide Bush": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "HP Sealing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "IC Stud": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Locking Sleeve": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "M&M HPP Component": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Magnet Coil": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "Magnet Core": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Magnet housing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "NR Nut": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Nozzle Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Pille": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "RLS Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Sealing Ring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Support Sealing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "UFK Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "VFK Shim": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 12
+        },
+        "Valve Nut": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Valve Piece": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "Valve Piston": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 11
+        },
+        "Valve Spring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        }
+      },
+      "total_samples": 392,
+      "correct": 23,
+      "model": "Decision Stump (depth=1)",
+      "feature": "Au",
+      "threshold": 71.05000000000001
+    }
+  },
+  "data_split": {
+    "train": 2850,
+    "val": 340,
+    "test": 392
+  }
+}
