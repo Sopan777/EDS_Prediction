@@ -101,3 +101,21 @@ MODEL_REGISTRY = {
 def ensure_dirs() -> None:
     SAVED_MODELS_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# --------------------------------------------------------------------------
+# Rule Engine Configuration
+# --------------------------------------------------------------------------
+
+RULE_ENGINE = {
+    "RULES_DIR": BASE_DIR / "rule_engine" / "rules",
+    "RULES_FILE": BASE_DIR / "rule_engine" / "rules" / "rules.json",
+    "RULE_CONFIDENCE_THRESHOLD": 0.40,
+    "RULE_MIN_SUPPORT": 3,
+    "RULE_ENGINE_VERSION": "1.0.0",
+}
+
+RULES_DIR = RULE_ENGINE["RULES_DIR"]
+RULES_FILE = RULE_ENGINE["RULES_FILE"]
+RULE_CONFIDENCE_THRESHOLD = RULE_ENGINE["RULE_CONFIDENCE_THRESHOLD"]
+RULE_MIN_SUPPORT = RULE_ENGINE["RULE_MIN_SUPPORT"]
