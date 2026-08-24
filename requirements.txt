@@ -1,0 +1,10 @@
+pandas
+numpy
+scikit-learn
+catboost
+xgboost
+joblib
+matplotlib
+seaborn
+openpyxl
+colorama
