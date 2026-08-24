@@ -11,32 +11,41 @@ Pure Python stdlib - no external dependencies.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from rule_engine.engine import RuleEngine
 from rule_engine.models import PredictionResult
 
+# Import config values so changing config.py changes default behavior
+from config import RULES_FILE, RULE_CONFIDENCE_THRESHOLD
+
 # --------------------------------------------------------------------------
-# Cached engine instance - loaded once per process, reused across calls.
+# Cached engine instances - keyed by resolved path, reused across calls.
 # --------------------------------------------------------------------------
 
-_ENGINE: Optional[RuleEngine] = None
+_ENGINE_CACHE: Dict[str, RuleEngine] = {}
 
 
 def _get_engine(rules_path: Optional[str] = None) -> RuleEngine:
-    """Get or create the cached RuleEngine instance."""
-    global _ENGINE
-    if _ENGINE is None:
+    """Get or create a cached RuleEngine instance for the given rules path."""
+    if rules_path:
+        resolved = str(Path(rules_path).resolve())
+    else:
+        resolved = str(Path(RULES_FILE).resolve())
+
+    if resolved not in _ENGINE_CACHE:
         if rules_path:
-            _ENGINE = RuleEngine(rules_path=rules_path)
+            _ENGINE_CACHE[resolved] = RuleEngine(rules_path=rules_path)
         else:
-            _ENGINE = RuleEngine()
-    return _ENGINE
+            _ENGINE_CACHE[resolved] = RuleEngine()
+
+    return _ENGINE_CACHE[resolved]
 
 
 def predict_component_rules(
     eds_values: Dict[str, Any],
-    confidence_threshold: float = 0.40,
+    confidence_threshold: float = RULE_CONFIDENCE_THRESHOLD,
     rules_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
@@ -79,7 +88,7 @@ def predict_component_rules(
 
 def predict_components_batch_rules(
     spectra: List[Dict[str, Any]],
-    confidence_threshold: float = 0.40,
+    confidence_threshold: float = RULE_CONFIDENCE_THRESHOLD,
     rules_path: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
@@ -106,6 +115,6 @@ def predict_components_batch_rules(
 
 
 def reset_engine() -> None:
-    """Reset the cached engine instance (useful for testing or reloading rules)."""
-    global _ENGINE
-    _ENGINE = None
+    """Reset all cached engine instances (useful for testing or reloading rules)."""
+    global _ENGINE_CACHE
+    _ENGINE_CACHE = {}

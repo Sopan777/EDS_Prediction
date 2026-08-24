@@ -17,12 +17,14 @@ from typing import Any, Dict, List, Optional
 from rule_engine.models import Condition, Rule, RuleMatch, RuleSet, PredictionResult
 from rule_engine.preprocessing import FEATURE_COLUMNS, validate_input
 
+# Import config values so that changing config.py changes engine behavior
+from config import RULES_FILE, RULE_CONFIDENCE_THRESHOLD
 
-# Default path to rules file (can be overridden)
-_DEFAULT_RULES_PATH = Path(__file__).resolve().parent / "rules" / "rules.json"
+# Default path to rules file (from config.py, can be overridden per-instance)
+_DEFAULT_RULES_PATH = Path(RULES_FILE)
 
-# Default confidence threshold
-_DEFAULT_CONFIDENCE_THRESHOLD = 0.40
+# Default confidence threshold (from config.py)
+_DEFAULT_CONFIDENCE_THRESHOLD = RULE_CONFIDENCE_THRESHOLD
 
 
 class RuleEngine:

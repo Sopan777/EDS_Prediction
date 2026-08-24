@@ -495,8 +495,12 @@ def train_rules(data_path: Path, output_dir: Path) -> RuleSet:
 
     # Evaluate on test set
     print("\nEvaluating on test set...")
-    test_accuracy = evaluate_on_dataset(final_rules, test_data)
+    eval_result = evaluate_on_dataset(final_rules, test_data)
+    test_accuracy = eval_result["accuracy"]
     print(f"  Test accuracy: {test_accuracy:.2%}")
+    print(f"  Correct: {eval_result['correct']}/{eval_result['total']}")
+    print(f"  Wrong predictions: {eval_result['wrong_predictions']}")
+    print(f"  No match (no rule fired): {eval_result['no_match_count']}")
 
     # Compute dataset hash
     dataset_hash = compute_dataset_hash(data_path)
@@ -526,12 +530,23 @@ def train_rules(data_path: Path, output_dir: Path) -> RuleSet:
     return ruleset
 
 
-def evaluate_on_dataset(rules: List[Rule], data: List[Dict[str, Any]]) -> float:
-    """Evaluate rules on a dataset, returning accuracy."""
+def evaluate_on_dataset(rules: List[Rule], data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Evaluate rules on a dataset, returning accuracy and breakdown metrics.
+
+    Returns a dict with:
+        - accuracy: float (correct / total)
+        - correct: int
+        - wrong_predictions: int (rule fired but predicted wrong class)
+        - no_match_count: int (no rule matched at all)
+        - total: int
+    """
     if not data:
-        return 0.0
+        return {"accuracy": 0.0, "correct": 0, "wrong_predictions": 0, "no_match_count": 0, "total": 0}
 
     correct = 0
+    wrong_predictions = 0
+    no_match_count = 0
     total = len(data)
 
     for row in data:
@@ -550,8 +565,19 @@ def evaluate_on_dataset(rules: List[Rule], data: List[Dict[str, Any]]) -> float:
             )[0]
             if best.prediction == actual:
                 correct += 1
+            else:
+                wrong_predictions += 1
+        else:
+            no_match_count += 1
 
-    return correct / total if total > 0 else 0.0
+    accuracy = correct / total if total > 0 else 0.0
+    return {
+        "accuracy": accuracy,
+        "correct": correct,
+        "wrong_predictions": wrong_predictions,
+        "no_match_count": no_match_count,
+        "total": total,
+    }
 
 
 def _sanitize_name(name: str) -> str:

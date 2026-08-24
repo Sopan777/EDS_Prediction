@@ -149,7 +149,7 @@ def compute_feature_stats(
 
         n = len(values)
         mean_val = sum(values) / n
-        variance = sum((v - mean_val) ** 2 for v in values) / n if n > 1 else 0.0
+        variance = sum((v - mean_val) ** 2 for v in values) / (n - 1) if n > 1 else 0.0
         std_val = variance ** 0.5
 
         stats[col] = {
