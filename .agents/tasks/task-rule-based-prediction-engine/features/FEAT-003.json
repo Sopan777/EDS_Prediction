@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Update README.md to document the rule-based prediction engine and create app_rule.py terminal application that uses the rule engine for predictions.",
+  "status": "completed",
+  "steps": [
+    "Step 1: Update README.md to add a section documenting the rule-based prediction engine, its usage, and how it relates to the ML pipeline",
+    "Step 2: Create app_rule.py - a terminal application following the same pattern as app.py but using the rule engine for predictions, supporting single and batch predictions from the command line",
+    "Step 3: Verify both files work correctly - parse without errors, rule engine predictions succeed"
+  ],
+  "acceptance_criteria": [
+    "README.md documents the rule-based prediction engine module",
+    "app_rule.py exists and uses rule_engine for predictions",
+    "app_rule.py supports single and batch predictions",
+    "app_rule.py follows the same style/pattern as app.py",
+    "All Python files parse without syntax errors",
+    "Rule engine predictions work from app_rule.py"
+  ],
+  "verification": [
+    "Run: python -c \"import ast; ast.parse(open('app_rule.py').read())\" to verify syntax",
+    "Run: python app_rule.py --help or similar to verify it loads",
+    "Run: python -c \"from rule_engine.engine import RuleEngine; e = RuleEngine(); print(e.predict({'Cr': 17.5, 'Ni': 8.5}))\" to verify engine works"
+  ],
+  "blocked_reason": null,
+  "findings": "Both app_rule.py and README.md created/updated successfully. All 158 existing tests continue to pass. The app_rule.py supports --predict, --batch, --list-rules, --rules-for, --info, --threshold flags plus interactive mode. README now documents the rule engine with usage examples, API code snippets, and a comparison table between ML and rule-based approaches."
+}
