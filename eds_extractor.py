@@ -157,13 +157,33 @@ def _normalise_header_token(tok: str) -> str:
     return re.sub(r"\.$", "", tok.strip().lower())
 
 
-def _clean_element_symbol(tok: str) -> Optional[str]:
+def canonical_element_symbol(tok: str) -> Optional[str]:
     """
     Return the canonical element symbol for a header token, or None if the
-    token isn't a recognised element symbol. Handles tokens with stray
-    annotations like 'Cu(wt%)', 'Fe%', 'O ' etc. by stripping non-letters.
+    token isn't a recognised element symbol. Handles tokens carrying stray
+    annotations like 'Cu(wt%)', 'Fe%', 'O ' etc., and accepts case variants
+    such as 'FE' / 'fe'.
+
+    Compound formulae are deliberately rejected rather than reduced to their
+    leading element: an 'Al2O3' or 'FeO' column reports the wt% of the
+    *oxide*, which is not the wt% of Al or Fe (Al is only ~52.9% of Al2O3 by
+    mass), so silently treating it as the bare element would corrupt the
+    composition.
     """
-    bare = re.sub(r"[^A-Za-z]", "", tok)
+    stripped = tok.strip()
+    # A multi-word phrase is never an element symbol. This guard matters:
+    # 'In stats.' is a real column header in these reports, and its first
+    # word is the valid symbol for Indium, so splitting on whitespace alone
+    # would silently invent an Indium column.
+    if re.search(r"\s", stripped):
+        return None
+    # Cut at the first annotation separator, so 'Cu(wt%)' -> 'Cu'. Stripping
+    # every non-letter instead would yield 'Cuwt' and fail to match.
+    head = re.split(r"[(\[{<%/,;:|]", stripped, maxsplit=1)[0]
+    # Element symbols are purely alphabetic; a digit means a compound formula.
+    if not head or any(ch.isdigit() for ch in head):
+        return None
+    bare = re.sub(r"[^A-Za-z]", "", head)
     if not bare:
         return None
     if bare in ELEMENT_SYMBOLS:
@@ -294,7 +314,7 @@ def _try_parse_header(tokens: List[Tuple[int, int, str]]) -> Optional[_HeaderLay
             has_total = True
             element_cols.append((i, "Total"))
             continue
-        sym = _clean_element_symbol(tokens[i][2])
+        sym = canonical_element_symbol(tokens[i][2])
         if sym:
             element_cols.append((i, sym))
 
@@ -448,6 +468,11 @@ def extract_eds_tables(pdf_path: str) -> dict:
         }
 
     return {"eds_tables": all_tables}
+
+
+# Back-compat alias: this helper was private before it was reused by
+# rule_engine.normalize for input canonicalisation.
+_clean_element_symbol = canonical_element_symbol
 
 
 if __name__ == "__main__":

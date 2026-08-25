@@ -1,0 +1,298 @@
+{
+  "version": "1.0.0",
+  "model": "sigma_e(x) = max(sigma_floor_wt, cv_scoring * x)   [wt%, metal basis]",
+  "variance_component": "within-component across particles/sites/surface prep",
+  "rationale": "Conservative choice for assigning a NEW particle. Within-particle repeat noise is smaller and would overstate threshold sharpness (e.g. the F1a/F1b Mn boundary reads 4.7 sigma on within-particle noise but 1.7 sigma on within-component scatter).",
+  "source": {
+    "workbook": "data/EDS Consolidation.xlsx",
+    "sheet": "Components",
+    "n_spectra_total": 173,
+    "n_groups_used": 30,
+    "group_criterion": ">=3 real spectra, surface-treatment variant labels excluded"
+  },
+  "constants": {
+    "sigma_floor_min_wt": 0.05,
+    "low_conc_threshold_wt": 2.0,
+    "cv_fallback": 0.2,
+    "lod_provisional_default_wt": 0.1
+  },
+  "caveats": [
+    "lod_wt is NOT fitted - it is a provisional placeholder and must be confirmed per element against the actual instrument and settings before an unreported element is treated as hard evidence of absence.",
+    "Elements flagged provisional=true were fitted from fewer than 3 component groups; treat their sigma as indicative only.",
+    "cv is the raw observed within-component spread. cv_scoring is the value to use as MEASUREMENT uncertainty: for heterogeneity-dominated elements the raw cv also contains genuine particle-to-particle composition differences, and using it as sigma produced a tolerance wider than the measurement (sigma_Cu = 52 wt% at Cu = 88 wt%).",
+    "Elements with prefer_ratio=true span trace-to-matrix roles (coating versus constituent). Their ABSOLUTE level must not gate identity; use a ratio (e.g. Sn/Cu for bronze), where the dilution cancels.",
+    "C, O, N, F, Ca, K, Cl are excluded from the metal basis and therefore have no fitted sigma here."
+  ],
+  "elements": {
+    "Al": {
+      "sigma_floor_wt": 0.1303,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.2615,
+      "cv_scoring": 0.2362,
+      "cv_scoring_capped": true,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 6,
+      "n_low_conc_groups": 6,
+      "conc_range_wt": [
+        0.382,
+        1.377
+      ],
+      "provisional": false,
+      "heterogeneity_dominated": true,
+      "prefer_ratio": true
+    },
+    "Au": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.2,
+      "cv_scoring": 0.2,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 1,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        96.756,
+        96.756
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Cr": {
+      "sigma_floor_wt": 0.0652,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.0978,
+      "cv_scoring": 0.0978,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 22,
+      "n_low_conc_groups": 19,
+      "conc_range_wt": [
+        0.249,
+        19.975
+      ],
+      "provisional": false,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Cu": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.5901,
+      "cv_scoring": 0.2362,
+      "cv_scoring_capped": true,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 2,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        2.023,
+        47.975
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": true,
+      "prefer_ratio": true
+    },
+    "Fe": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.0032,
+      "cv_scoring": 0.0032,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 28,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        9.314,
+        99.754
+      ],
+      "provisional": false,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Mn": {
+      "sigma_floor_wt": 0.0887,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.1384,
+      "cv_scoring": 0.1384,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 23,
+      "n_low_conc_groups": 23,
+      "conc_range_wt": [
+        0.216,
+        1.356
+      ],
+      "provisional": false,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Mo": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.2311,
+      "cv_scoring": 0.2311,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 1,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        5.334,
+        5.334
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Ni": {
+      "sigma_floor_wt": 0.1165,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.0366,
+      "cv_scoring": 0.0366,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 4,
+      "n_low_conc_groups": 2,
+      "conc_range_wt": [
+        0.416,
+        87.064
+      ],
+      "provisional": false,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "P": {
+      "sigma_floor_wt": 0.05,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.3951,
+      "cv_scoring": 0.2362,
+      "cv_scoring_capped": true,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 2,
+      "n_low_conc_groups": 1,
+      "conc_range_wt": [
+        0.052,
+        10.976
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": true,
+      "prefer_ratio": true
+    },
+    "Pb": {
+      "sigma_floor_wt": 0.0945,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.4319,
+      "cv_scoring": 0.2362,
+      "cv_scoring_capped": true,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 1,
+      "n_low_conc_groups": 1,
+      "conc_range_wt": [
+        0.219,
+        0.219
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": true,
+      "prefer_ratio": true
+    },
+    "S": {
+      "sigma_floor_wt": 0.05,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.226,
+      "cv_scoring": 0.226,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 2,
+      "n_low_conc_groups": 2,
+      "conc_range_wt": [
+        0.03,
+        0.229
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Si": {
+      "sigma_floor_wt": 0.0759,
+      "sigma_floor_source": "fitted_low_conc",
+      "cv": 0.2136,
+      "cv_scoring": 0.2136,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 21,
+      "n_low_conc_groups": 21,
+      "conc_range_wt": [
+        0.2,
+        1.876
+      ],
+      "provisional": false,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "V": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.2,
+      "cv_scoring": 0.2,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 1,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        2.46,
+        2.46
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "W": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.2023,
+      "cv_scoring": 0.2023,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 1,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        8.136,
+        8.136
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    },
+    "Zn": {
+      "sigma_floor_wt": 0.0816,
+      "sigma_floor_source": "pooled_across_elements",
+      "cv": 0.2,
+      "cv_scoring": 0.2,
+      "cv_scoring_capped": false,
+      "lod_wt": 0.1,
+      "lod_provisional": true,
+      "n_groups": 2,
+      "n_low_conc_groups": 0,
+      "conc_range_wt": [
+        22.325,
+        97.542
+      ],
+      "provisional": true,
+      "heterogeneity_dominated": false,
+      "prefer_ratio": false
+    }
+  }
+}
