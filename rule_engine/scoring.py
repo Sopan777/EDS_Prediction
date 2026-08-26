@@ -257,6 +257,7 @@ class KnowledgeBase:
         self.families: Dict[str, dict] = data.get("families", {})
         self.components: Dict[str, dict] = data.get("components", {})
         self.caveats: List[str] = data.get("caveats", [])
+        self._known_elements: Optional[set] = None
 
     @classmethod
     def load(cls, path: Optional[Path] = None) -> "KnowledgeBase":
@@ -289,6 +290,23 @@ class KnowledgeBase:
 
     def components_for(self, family_id: str) -> List[str]:
         return list(self.families.get(family_id, {}).get("components", []))
+
+    def known_elements(self) -> set:
+        """Every alloy element described by ANY family, cached on first use.
+
+        This is the reference set for novelty detection: an alloy element
+        outside it was never seen in any real spectrum this knowledge base was
+        built from, which is a different and stronger signal than being
+        "foreign" to one particular family (§12's OOD-detection gap - no
+        labels needed, since the knowledge base itself already is the
+        reference distribution).
+        """
+        if self._known_elements is None:
+            known: set = set()
+            for fam in self.families.values():
+                known.update(fam.get("elements", {}).keys())
+            self._known_elements = known
+        return self._known_elements
 
 
 _KB: Optional[KnowledgeBase] = None
@@ -575,6 +593,29 @@ def predict_spectrum(
         "Carbon content is not determinable by EDS; grade is assigned on "
         "alloying elements only."
     )
+
+    # Unsupervised novelty signal: an alloy element no family in the whole
+    # knowledge base describes - not merely foreign to one family - means this
+    # element was never seen in ANY real spectrum the knowledge base was built
+    # from. Needs no labels: the knowledge base itself is the reference
+    # distribution (§12 "Detect OOD compositions - legitimate now").
+    novel_elements = sorted(
+        e
+        for e in spectrum.alloy_elements()
+        if e not in kb.known_elements()
+        and (spectrum.metal(e) or 0.0) > FOREIGN_ELEMENT_MAX_PCT
+    )
+    if novel_elements:
+        caveats.append(
+            "Novelty: "
+            + ", ".join(novel_elements)
+            + " above "
+            + str(FOREIGN_ELEMENT_MAX_PCT)
+            + " wt% on the alloy basis is not described by ANY family in the "
+            + "reference set - this composition may be outside what this "
+            + "knowledge base has ever measured, not merely a poor fit to a "
+            + "known family."
+        )
 
     # Gate 1: is there enough metal to talk about a material at all?
     if spectrum.alloy_total < MIN_ALLOY_SIGNAL_PCT:

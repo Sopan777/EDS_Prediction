@@ -392,6 +392,12 @@ material is added by writing one predicate plus its bands.
 **Ambiguity and novelty** are handled by construction here: every matching family
 is returned, so an ambiguous composition yields a *set*, and a composition
 matching nothing is refused rather than forced to a nearest neighbour.
+Unsupervised novelty detection is implemented (`KnowledgeBase.known_elements`,
+`scoring.py`): an alloy element above 2 wt% that no family in the whole
+reference set describes — not merely one it does not fit — raises an explicit
+`Novelty:` caveat, distinguishing "outside anything ever measured" from
+"a poor fit among known elements." Needs no labels; the knowledge base is
+already the reference distribution.
 
 ---
 
@@ -406,7 +412,7 @@ other cannot. Assessed against the evidence:
 | Provide features to ML | No labelled data to train on (6 real particles). |
 | Validate/override ML | There is no trustworthy ML output to validate. |
 | Re-rank within a family | **Legitimate, later** — gated on ≥ 200 adjudicated particles. |
-| Detect OOD compositions | **Legitimate now**, and unsupervised — no labels needed. |
+| Detect OOD compositions | **Implemented** (`known_elements`, §11) — unsupervised, needed no labels. |
 | Impute unreported elements | **Never.** It would manufacture the evidence whose absence should trigger abstention. |
 
 So the correct architecture today is **deterministic-first with ML reserved for
@@ -478,21 +484,28 @@ canonicalisation shared across paths (`canonical_element_symbol`, also fixed so
 suite quarantined and its fixture repaired; `pytest` added and requirements
 pinned.
 
-**P1 — accuracy.** Replace derived bands with DIN/EN specification ranges where
-known (highest remaining accuracy lever, needs no EDS work); confirm per-element
-LOD against the instrument; extend the ratio set; tune the F1a/F1b ambiguity band
-on the real boundary; multi-phase detection for composites like 26-146.
+**P1 — accuracy, partially done.** Extended the ratio set with W/Mo (F3) and
+Zn/P (F8b), both normalisation-invariant fingerprints with real multi-spectrum
+support (`training/derive_knowledge.py`). Investigated tuning the F1a/F1b
+ambiguity band: the real per-spectrum Mn distribution is genuinely continuous
+across many components with no gap to tune against, so the existing ambiguous
+zone was left as the honest answer rather than fabricating a cut. Still open:
+replace derived bands with DIN/EN specification ranges where known (highest
+remaining accuracy lever, needs no EDS work); confirm per-element LOD against
+the instrument; multi-phase detection for composites like 26-146.
 
-**P2 — architecture.** Point `eds_pipeline.py` and `app_rule.py` at the new
-engine and retire `rules.json` as a decision authority; call `validator.py` at
-load so a bad knowledge base fails loudly; correct `README.md` and
-`docs/RULE_ENGINE.md`, which document a `tests/test_rules.py`, a `saved_models/`,
-an `outputs/` and a "98%+ ML ensemble" that do not exist.
+**P2 — done.** Pointed `eds_pipeline.py` and `app_rule.py` at the new engine
+and retired `rules.json` as a decision authority; wired `validator.py` at load
+(`validate_knowledge_base`, `KnowledgeBase.load()`) so a bad knowledge base
+fails loudly; corrected `README.md` and `docs/RULE_ENGINE.md` to describe the
+current architecture, with every code example executed and verified.
 
-**P3 — long term.** Mine the legacy report archive into a real labelled set
-(highest-value ML application today); then novelty detection, family-level
-re-ranking behind an explicit data gate, drift monitoring, analyst-feedback
-capture.
+**P3 — long term, one item done.** Unsupervised novelty/OOD detection is
+implemented (§11, §12) — needed no labelled data. Still open, and still
+data-gated: mining the legacy report archive into a real labelled set (only 3
+real PDF reports exist); family-level ML re-ranking (explicitly gated on ≥ 200
+adjudicated particles with ≥ 20 per family — only 6 exist); drift monitoring
+and analyst-feedback capture (require live production use first).
 
 Success is measured by §15, never by synthetic accuracy.
 

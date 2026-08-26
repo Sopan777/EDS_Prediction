@@ -337,3 +337,47 @@ def test_pooling_agrees_with_a_single_consistent_spectrum():
 
 def test_empty_particle_abstains():
     assert predict_particle([]).decision is Decision.UNKNOWN
+
+
+# ---------------------------------------------------------------------------
+# Unsupervised novelty detection - needs no labels (P3, EDS_AUDIT.md §12)
+# ---------------------------------------------------------------------------
+
+
+def test_element_unknown_to_any_family_is_flagged_as_novel():
+    """An alloy element no family describes at all must raise a novelty flag.
+
+    Distinct from a poor fit among known elements: Ti is never described by
+    ANY family in the reference set, so this is stronger evidence than merely
+    being 'foreign' to one particular family being scored.
+    """
+    prediction = predict_spectrum(
+        {"Ti": 90.0, "Al": 6.0, "V": 4.0},
+        analysed_elements=["Ti", "Al", "V"],
+    )
+    assert prediction.decision is Decision.UNKNOWN
+    assert any(c.startswith("Novelty:") for c in prediction.caveats)
+    assert any("Ti" in c for c in prediction.caveats if c.startswith("Novelty:"))
+
+
+def test_known_elements_never_flagged_as_novel():
+    """A composition built only from elements the knowledge base already has
+
+    must not raise a novelty caveat, even when it is a poor fit or abstains
+    for another reason (evidence, margin, compatibility floor).
+    """
+    prediction = predict_spectrum({"Cu": 99.5}, analysed_elements=["Cu"])
+    assert not any(c.startswith("Novelty:") for c in prediction.caveats)
+
+
+def test_trace_level_novel_element_is_not_flagged():
+    """A trace amount of an unknown element must not trip novelty - only a
+
+    genuine matrix-level presence (above the foreign-element threshold) is
+    real evidence of an out-of-reference composition.
+    """
+    prediction = predict_spectrum(
+        {"Fe": 97.5, "Mn": 0.4, "Si": 0.4, "Ti": 0.05},
+        analysed_elements=["Fe", "Mn", "Si", "Ti"],
+    )
+    assert not any(c.startswith("Novelty:") for c in prediction.caveats)

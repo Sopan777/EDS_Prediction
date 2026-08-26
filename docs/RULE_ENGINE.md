@@ -158,6 +158,22 @@ rewarded over one confirmed by only a few. This replaces the retired
 majority-vote roll-up, which hardcoded its low-confidence flag to `None` and
 averaged probability only over the spectra where the winner already led.
 
+## Novelty detection (`KnowledgeBase.known_elements`)
+
+Unsupervised, needs no labels: an alloy element above 2 wt% (the same
+threshold as the foreign-element check) that no family in the *entire*
+knowledge base describes raises an explicit `Novelty:` caveat on the
+prediction. This is a stronger and different signal than being "foreign" to
+one family being scored — it means the element was never present in any real
+spectrum this knowledge base was derived from, so the composition may be
+outside anything the reference set has ever measured, not merely a poor fit
+to a known family. `KnowledgeBase.known_elements()` unions every family's
+`elements` keys and caches the result.
+
+A trace amount (≤ 2 wt%) of an unfamiliar element does not raise the flag —
+that is consistent with a coating residue or contamination, not evidence the
+whole composition is out of reference.
+
 ## Knowledge base format (`rule_engine/knowledge/materials.json`)
 
 ```json
