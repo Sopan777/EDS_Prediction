@@ -268,9 +268,23 @@ class KnowledgeBase:
                 + "    python training/derive_sigma_model.py\n"
                 + "    python training/derive_knowledge.py"
             )
-        kb = cls(json.loads(p.read_text(encoding="utf-8")))
-        if not kb.families:
-            raise ValueError(str(p) + " contains no families; refusing to run.")
+        data = json.loads(p.read_text(encoding="utf-8"))
+
+        # validator.py's checks were audited as never being called at
+        # runtime for the retired rules.json either - fixing that here so
+        # a structurally broken knowledge base fails loudly at load time
+        # instead of scoring silently wrong deep inside score_family.
+        from rule_engine.validator import validate_knowledge_base
+
+        report = validate_knowledge_base(data)
+        if not report["is_valid"]:
+            raise ValueError(
+                str(p)
+                + " failed validation:\n  "
+                + "\n  ".join(report["issues"])
+            )
+
+        kb = cls(data)
         return kb
 
     def components_for(self, family_id: str) -> List[str]:
@@ -312,6 +326,11 @@ def score_family(
     unevaluable: List[str] = []
     unexplained: List[str] = []
     z_terms: List[Tuple[float, float]] = []  # (z, weight)
+    # Count of z_terms that CONFIRM the family (a required/discriminating
+    # element measured in-band, or a ratio in-band) - as opposed to the cost
+    # applied for an incidental, non-decisive element sitting out of band.
+    # The verdict must not promote to FEASIBLE on cost-only evidence.
+    confirming = 0
 
     elements: Dict[str, dict] = family.get("elements", {})
     discriminators: List[str] = family.get("discriminators", [])
@@ -381,9 +400,19 @@ def score_family(
             )
             continue
         if out_of_band:
-            # Not a veto, but genuinely unexplained: it must cost compatibility.
-            z = (value - min(max(value, lo), hi)) / sigma if sigma > 0 else 0.0
-            z_terms.append((z, 1.0))
+            # Not a veto, but genuinely unexplained: it must cost something.
+            # The raw z is unbounded (the value can sit arbitrarily far outside
+            # a thin band), and an element we just decided is NOT decisive
+            # enough to veto the family must not be allowed to dominate the
+            # distance term either - that defeats the reason it was exempted
+            # from vetoing in the first place. On the real bronze particle an
+            # incidental Cr reading (z=5.13, one-spectrum band) outweighed
+            # near-perfect fits on Cu, Sn and the Sn/Cu ratio and pushed
+            # compatibility to 0.02. Capping the z and down-weighting the term
+            # keeps it a real but bounded cost.
+            raw_z = (value - min(max(value, lo), hi)) / sigma if sigma > 0 else 0.0
+            z = min(abs(raw_z), K_HARD)
+            z_terms.append((z, 0.3))  # cost only - NOT confirming evidence
             checks.append(
                 Check(
                     "band",
@@ -393,7 +422,7 @@ def score_family(
                     + " outside "
                     + str([lo, hi])
                     + " (unexplained, not decisive for this family)",
-                    z=z,
+                    z=raw_z,
                 )
             )
             unexplained.append(element)
@@ -406,6 +435,14 @@ def score_family(
         if element in discriminators:
             weight *= 2.0
         z_terms.append((z, weight))
+        # Only DECISIVE elements confirm this family. Fe sits inside almost
+        # every steel family's band, so an in-band Fe reading must not by
+        # itself promote a family - {Fe:68,Cr:30,Ni:1} once did exactly that
+        # for F8a (Zn-coated steel) purely because Fe fell in its wide band,
+        # even though Zn and Si, the elements that actually define it, were
+        # never analysed.
+        if decisive:
+            confirming += 1
         checks.append(Check("band", element, True, "in band", z=z))
 
     # -- 3. foreign elements: something the family does not contain ---------
@@ -451,12 +488,18 @@ def score_family(
             clamped = min(max(value, lo), hi)
             z = (value - clamped) / sigma if sigma > 0 else 0.0
             z_terms.append((z, 3.0))  # ratios are the strongest evidence
+            confirming += 1
             checks.append(Check("ratio", name, True, str(round(value, 3)), z=z))
 
     # -- 5. verdict --------------------------------------------------------
     if blocking:
         verdict = Verdict.CONTRADICTED
-    elif unevaluable and not z_terms:
+    elif unevaluable and not confirming:
+        # A required/discriminating element was never analysed, and nothing
+        # else measured actually confirms this family. A cost-only penalty
+        # from an incidental unexplained element does not count as support -
+        # {Fe:68,Cr:30,Ni:1} once promoted F8a (Zn-coated steel) to FEASIBLE
+        # this way despite Zn and Si, both required, never being analysed.
         verdict = Verdict.UNEVALUABLE
     else:
         verdict = Verdict.FEASIBLE
@@ -758,6 +801,28 @@ def predict_particle(
     top = survivors[0]
     runner = survivors[1] if len(survivors) > 1 else None
     margin = top.compatibility - (runner.compatibility if runner else 0.0)
+
+    # Same floor as predict_spectrum's Gate 2b: clearing the hard constraints
+    # is necessary but not sufficient. Without this, a particle where every
+    # family fits terribly (e.g. compatibility 0.11) could still be reported
+    # as AMBIGUOUS between two poor fits rather than an honest abstention -
+    # the pooled path had no equivalent of the single-spectrum floor.
+    if top.compatibility < MIN_COMPATIBILITY:
+        return Prediction(
+            decision=Decision.UNKNOWN,
+            families=survivors,
+            margin=margin,
+            reason=(
+                "no material fits well enough across the pooled spectra: "
+                "best candidate ("
+                + top.label
+                + ") reaches only "
+                + str(round(top.compatibility, 3))
+                + " compatibility"
+            ),
+            caveats=caveats,
+            quality=quality,
+        )
 
     if top.evidence < MIN_EVIDENCE:
         decision, reason = Decision.UNKNOWN, (

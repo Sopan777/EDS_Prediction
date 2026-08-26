@@ -2,31 +2,38 @@
 eds_pipeline.py
 ================
 End-to-end pipeline: EDS/EDAX report (PDF or DOCX) -> extracted tables ->
-component prediction for EVERY spectrum in EVERY table.
+material-family identification for EVERY spectrum table in the report.
 
     PDF/DOCX
-       │  eds_extractor.extract_eds_tables()
-       ▼
-    { eds_tables: [ { spectra: [ {element: value, ...}, ... ] }, ... ] }
-       │  predictor.predict_component() per spectrum
-       ▼
-    predictions attached back onto each spectrum + printed / saved as JSON
+       |  eds_geometry.extract_tables()            (word-geometry; falls back
+       |    -> eds_extractor.extract_eds_tables()      to character-offset
+       v                                               parsing if PyMuPDF is
+    { eds_tables: [ { spectra: [...] }, ... ] }        unavailable)
+       |  rule_engine.scoring.predict_particle()   per table (spectra pooled)
+       |  rule_engine.scoring.predict_spectrum()   per spectrum (detail)
+       v
+    family / grade / ranked candidates + caveats, printed / saved as JSON
 
-Options (all exposed as CLI flags, see --help):
-  --model            which trained model to use (random_forest / extra_trees
-                      / catboost / xgboost). Defaults to the most
-                      noise-robust model chosen during training.
-  --noise / --no-noise   on/off toggle for injecting simulated measurement
-                      noise into each spectrum before predicting.
-  --noise-level       how much noise (relative to training std) when
-                      --noise is on.
-  --top-k             how many candidate components to return per spectrum.
-  --confidence-threshold  below this, flagged "Unknown / needs review".
+This previously called predictor.predict_component(), the machine-learning
+path. That path cannot run: no trained model artifacts exist anywhere on disk
+(saved_models/ is absent), so every call raised FileNotFoundError before a
+single prediction was made. It has been replaced with the deterministic
+compatibility engine in rule_engine/scoring.py, which is described in
+docs/EDS_AUDIT.md and is the only functioning predictor in this project.
+
+Two answers are produced per table, and they read differently on purpose:
+  - a POOLED answer, treating every spectrum in the table as repeat
+    measurements of one particle (the previous engine's majority-vote
+    equivalent, but combining evidence instead of voting on it)
+  - a PER-SPECTRUM answer for each row, useful when a table in fact covers
+    more than one physical location (see 26-130's "Ball Damage" site, which
+    is a different particle from the seat-area sites on the same PDF)
 
 Usage:
     python eds_pipeline.py report.pdf
-    python eds_pipeline.py report.docx --model catboost --noise --noise-level 0.25
+    python eds_pipeline.py report.docx
     python eds_pipeline.py report.pdf --save-json outputs/report_predictions.json
+    python eds_pipeline.py report.pdf --per-spectrum
 """
 
 from __future__ import annotations
@@ -34,12 +41,17 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-import config
-from docx_to_pdf import convert_file, _pick_method, DOC_EXTENSIONS
-from eds_extractor import extract_eds_tables
-import predictor
+from docx_to_pdf import DOC_EXTENSIONS, _pick_method, convert_file
+from rule_engine.scoring import Decision, Prediction, predict_particle, predict_spectrum
+
+try:
+    import eds_geometry
+except ImportError:  # pragma: no cover - PyMuPDF genuinely absent
+    eds_geometry = None
+
+from eds_extractor import extract_eds_tables as _extract_eds_tables_text
 
 PDF_EXTENSION = ".pdf"
 
@@ -52,125 +64,180 @@ def resolve_to_pdf(input_path: Path) -> Path:
     if suffix in DOC_EXTENSIONS:
         method = _pick_method("auto")
         return convert_file(input_path, input_path.parent, method)
-    raise ValueError(f"Unsupported file type '{suffix}'. Please provide a .pdf, .docx, or .doc file.")
+    raise ValueError(
+        "Unsupported file type '" + suffix + "'. Please provide a .pdf, .docx, or .doc file."
+    )
 
 
-def fmt_pct(p: float) -> str:
-    return f"{p * 100:.1f}%"
+def extract_tables(pdf_path: str) -> dict:
+    """Extract every composition table, preferring word-geometry parsing.
 
+    The character-offset extractor in eds_extractor.py mis-parses these
+    reports: narrow columns are separated by a single space rather than the
+    2+ spaces it requires, and numeric cells are not aligned to the header's
+    character offsets. Confirmed on all three sample reports - the 26-146
+    table came back as elements=['O','F'] with every value None against a
+    real C/O/F/Cr/Cu/Sn table. eds_geometry.py fixes this by anchoring columns
+    to each word's bounding-box centre instead of character position.
 
-def run_pipeline(
-    input_path: str,
-    model_key: str = None,
-    top_k: int = config.DEFAULT_TOP_K,
-    confidence_threshold: float = config.CONFIDENCE_THRESHOLD,
-    noise_enabled: bool = config.NOISE_ENABLED_DEFAULT,
-    noise_level: float = config.NOISE_LEVEL_DEFAULT,
-) -> dict:
+    Falls back to the text-based extractor only when PyMuPDF is unavailable,
+    so this pipeline still runs (with degraded ingest) rather than failing
+    outright on an incomplete environment.
     """
-    Run extraction + prediction end-to-end and return a JSON-serialisable
-    dict: the extractor's own table structure, with a "predictions" list
-    added onto every spectrum.
+    if eds_geometry is not None and eds_geometry.available():
+        result = eds_geometry.extract_tables(pdf_path)
+        if result is not None:
+            return result
+    return _extract_eds_tables_text(pdf_path)
+
+
+def _clean_values(raw_values: dict) -> dict:
+    """Drop the pseudo-element 'Total' and any value the extractor left blank.
+
+    A blank cell means the element was analysed but not reported for that
+    spectrum - that is exactly the state normalize_spectrum needs to see as
+    "below detection limit" rather than "not analysed", which is why it is
+    dropped from the values dict rather than coerced to 0.0: the analysed_
+    elements list (the table's column set) still carries the fact that this
+    element WAS in the analysed set.
+    """
+    return {
+        element: value
+        for element, value in raw_values.items()
+        if element != "Total" and value is not None
+    }
+
+
+def _prediction_to_json(prediction: Prediction) -> dict:
+    return prediction.to_dict()
+
+
+def run_pipeline(input_path: str, per_spectrum: bool = False) -> dict:
+    """Run extraction + identification end-to-end.
+
+    Returns a JSON-serialisable dict: the extractor's own table structure,
+    with a "pooled_prediction" added to every table (all its spectra treated
+    as repeat measurements of one particle) and, if requested, a
+    "prediction" added to every individual spectrum.
     """
     path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+        raise FileNotFoundError("File not found: " + str(path))
 
     pdf_path = resolve_to_pdf(path)
-    extraction = extract_eds_tables(str(pdf_path))
-
-    model_key = model_key or predictor.default_model_key()
+    extraction = extract_tables(str(pdf_path))
 
     for table in extraction.get("eds_tables", []):
-        for spectrum in table.get("spectra", []):
-            preds_df = predictor.predict_component(
-                spectrum["values"],
-                model_key=model_key,
-                top_k=top_k,
-                confidence_threshold=confidence_threshold,
-                noise_enabled=noise_enabled,
-                noise_level=noise_level,
-            )
-            spectrum["predictions"] = {
-                "model": preds_df.attrs.get("model_display_name"),
-                "noise_enabled": preds_df.attrs.get("noise_enabled"),
-                "noise_level": preds_df.attrs.get("noise_level"),
-                "top_k": [
-                    {"component": row.Component, "probability": float(row.Probability)}
-                    for row in preds_df.itertuples()
-                ],
-                "flag": preds_df.attrs.get("flag"),
-            }
+        columns = [e for e in table.get("elements", []) if e != "Total"]
+        spectra = table.get("spectra", [])
+        cleaned = [_clean_values(s.get("values", {})) for s in spectra]
+        non_empty = [v for v in cleaned if v]
+
+        if non_empty:
+            pooled = predict_particle(non_empty, analysed_elements=columns)
+        else:
+            pooled = Prediction(decision=Decision.UNKNOWN, reason="no measured values in this table")
+        table["pooled_prediction"] = _prediction_to_json(pooled)
+
+        if per_spectrum:
+            for spectrum, values in zip(spectra, cleaned):
+                if values:
+                    result = predict_spectrum(values, analysed_elements=columns)
+                else:
+                    result = Prediction(decision=Decision.UNKNOWN, reason="no measured values")
+                spectrum["prediction"] = _prediction_to_json(result)
 
     extraction["prediction_settings"] = {
-        "model": predictor.get_model(model_key).display_name,
-        "noise_enabled": noise_enabled,
-        "noise_level": noise_level if noise_enabled else 0.0,
-        "top_k": top_k,
-        "confidence_threshold": confidence_threshold,
+        "engine": "rule_engine.scoring (deterministic compatibility scoring)",
+        "knowledge_base_version": _knowledge_base_version(),
+        "per_spectrum": per_spectrum,
     }
     return extraction
 
 
-def print_result(result: dict):
+def _knowledge_base_version() -> Optional[str]:
+    try:
+        from rule_engine.scoring import get_knowledge_base
+
+        return get_knowledge_base().version
+    except Exception:
+        return None
+
+
+def print_result(result: dict, per_spectrum: bool = False):
     tables = result.get("eds_tables", [])
     if not tables:
         print(result.get("message", "No EDS table found."))
         return
 
     settings = result.get("prediction_settings", {})
-    print(f"Model: {settings.get('model')}   "
-          f"Noise: {'ON (' + str(settings.get('noise_level')) + ')' if settings.get('noise_enabled') else 'OFF'}")
+    print("Engine: " + str(settings.get("engine")))
+    kb_version = settings.get("knowledge_base_version")
+    if kb_version:
+        print("Knowledge base version: " + str(kb_version))
 
     for t_idx, table in enumerate(tables, start=1):
-        print(f"\nTable {t_idx}: {table.get('table_name')} (page {table.get('page')})")
-        for spectrum in table.get("spectra", []):
-            preds = spectrum.get("predictions", {})
-            print(f"  Spectrum {spectrum['spectrum']}:")
-            for rank, p in enumerate(preds.get("top_k", []), start=1):
-                print(f"    {rank}. {p['component']:<30s} {fmt_pct(p['probability'])}")
-            if preds.get("flag"):
-                print(f"    ⚠️  {preds['flag']}")
+        print("\nTable " + str(t_idx) + ": " + str(table.get("table_name")) + " (page " + str(table.get("page")) + ")")
+        pooled = table.get("pooled_prediction", {})
+        _print_prediction(pooled, indent="  ", label="Pooled (" + str(len(table.get("spectra", []))) + " spectra)")
+
+        if per_spectrum:
+            for spectrum in table.get("spectra", []):
+                pred = spectrum.get("prediction")
+                if pred:
+                    _print_prediction(pred, indent="    ", label="Spectrum " + str(spectrum.get("spectrum")))
+
+
+def _print_prediction(pred: dict, indent: str, label: str):
+    print(indent + label + ": " + pred.get("decision", "?").upper())
+    if pred.get("material_family"):
+        print(indent + "  family:        " + pred["material_family"])
+        if pred.get("grade_hint"):
+            print(indent + "  grade hint:    " + pred["grade_hint"])
+        print(
+            indent
+            + "  compatibility: "
+            + str(round(pred.get("compatibility", 0.0), 3))
+            + "   margin: "
+            + str(round(pred.get("margin", 0.0), 3))
+        )
+        candidates = pred.get("candidate_components", [])
+        if candidates:
+            shown = ", ".join(candidates[:6])
+            more = " (+" + str(len(candidates) - 6) + " more)" if len(candidates) > 6 else ""
+            print(indent + "  candidates:    " + shown + more)
+    else:
+        print(indent + "  reason: " + str(pred.get("reason", "")))
+    for caveat in pred.get("caveats", [])[:2]:
+        print(indent + "  caveat: " + caveat)
 
 
 def save_json(result: dict, out_path: str):
-    out_path = Path(out_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as f:
+    out_path_obj = Path(out_path)
+    out_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path_obj, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2, default=str)
-    print(f"\nSaved predictions to {out_path}")
+    print("\nSaved results to " + str(out_path_obj))
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract EDS spectra from a PDF/DOCX report and predict the component for each one."
+        description=(
+            "Extract EDS spectra from a PDF/DOCX report and identify the "
+            "material family for each table (and optionally each spectrum)."
+        )
     )
     parser.add_argument("input", help="Path to a PDF or DOCX EDS/EDAX report.")
-    parser.add_argument("--model", default=None,
-                         choices=list(config.MODEL_REGISTRY.keys()),
-                         help="Model to use for prediction (default: most noise-robust model from training).")
-    noise_group = parser.add_mutually_exclusive_group()
-    noise_group.add_argument("--noise", dest="noise", action="store_true",
-                              help="Inject simulated measurement noise into each spectrum before predicting.")
-    noise_group.add_argument("--no-noise", dest="noise", action="store_false",
-                              help="Predict on the extracted values as-is (default).")
-    parser.set_defaults(noise=config.NOISE_ENABLED_DEFAULT)
-    parser.add_argument("--noise-level", type=float, default=config.NOISE_LEVEL_DEFAULT,
-                         help="Noise magnitude relative to each element's training std (used only with --noise).")
-    parser.add_argument("--top-k", type=int, default=config.DEFAULT_TOP_K)
-    parser.add_argument("--confidence-threshold", type=float, default=config.CONFIDENCE_THRESHOLD)
+    parser.add_argument(
+        "--per-spectrum",
+        action="store_true",
+        help="Also report a family for each individual spectrum, not just the pooled table result.",
+    )
     parser.add_argument("--save-json", default=None, help="Path to save the full result as JSON.")
     args = parser.parse_args()
 
-    result = run_pipeline(
-        args.input,
-        model_key=args.model,
-        top_k=args.top_k,
-        confidence_threshold=args.confidence_threshold,
-        noise_enabled=args.noise,
-        noise_level=args.noise_level,
-    )
-    print_result(result)
+    result = run_pipeline(args.input, per_spectrum=args.per_spectrum)
+    print_result(result, per_spectrum=args.per_spectrum)
 
     if args.save_json:
         save_json(result, args.save_json)

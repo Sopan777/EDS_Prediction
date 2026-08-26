@@ -200,7 +200,6 @@
       "grade_hint": "CuSn overlay on steel backing",
       "discriminators": [
         "Cu",
-        "Fe",
         "Sn",
         "Sn/Cu"
       ],
@@ -292,8 +291,7 @@
       "grade_hint": "Ni-Cr alloy",
       "discriminators": [
         "Ni",
-        "Cr",
-        "Fe"
+        "Cr"
       ],
       "note": "Ni is the matrix, not an addition.",
       "ratios": [],
@@ -649,8 +647,7 @@
       "label": "Zn-coated steel (galvanic / electroplated)",
       "grade_hint": "Zn plating on steel",
       "discriminators": [
-        "Zn",
-        "Fe"
+        "Zn"
       ],
       "note": "A measured coating LAYER, distinct from a coating trace. Fe is deliberately unconstrained: it reads ~72 wt% through a thin layer but under 2 wt% through a thick one, where the substrate is simply not in the interaction volume. Requiring Fe>40 lost every thick-coating spectrum. Substrate grade is NOT determinable here.",
       "ratios": [],
@@ -750,8 +747,7 @@
       "grade_hint": "Zn phosphating",
       "discriminators": [
         "P",
-        "Zn",
-        "Fe"
+        "Zn"
       ],
       "note": "Zn + P together at layer level, with high oxygen in the as-measured spectrum (phosphate anion). Distinguished from F8a by P, and from plain steel by both. Substrate grade is NOT determinable.",
       "ratios": [],
@@ -1246,8 +1242,7 @@
       "label": "Plain / low-Mn carbon steel",
       "grade_hint": "plain C steel, C45PbK, En1A and similar",
       "discriminators": [
-        "Mn",
-        "Fe"
+        "Mn"
       ],
       "note": "The largest and least specific family. Many components share it, so component identity is not recoverable here by composition alone.",
       "ratios": [],

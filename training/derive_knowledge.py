@@ -103,7 +103,7 @@ FAMILY_DEFS: List[dict] = [
         "predicate": lambda m: 8.0 <= _g(m, "Cu") <= 40.0
         and 20.0 <= _g(m, "Fe") <= 85.0
         and _g(m, "Sn") > 0.5,
-        "discriminators": ["Cu", "Fe", "Sn", "Sn/Cu"],
+        "discriminators": ["Cu", "Sn", "Sn/Cu"],
         "note": (
             "The interaction volume spans a bronze overlay and its steel backing, "
             "so BOTH Cu and Fe are matrix-level. Real HP-sealing references sit at "
@@ -117,7 +117,7 @@ FAMILY_DEFS: List[dict] = [
         "label": "Ni-base alloy",
         "grade_hint": "Ni-Cr alloy",
         "predicate": lambda m: _g(m, "Ni") > 50.0,
-        "discriminators": ["Ni", "Cr", "Fe"],
+        "discriminators": ["Ni", "Cr"],
         "note": "Ni is the matrix, not an addition.",
     },
     {
@@ -146,7 +146,7 @@ FAMILY_DEFS: List[dict] = [
         "label": "Zn-coated steel (galvanic / electroplated)",
         "grade_hint": "Zn plating on steel",
         "predicate": lambda m: _g(m, "Zn") > 5.0 and _g(m, "P") <= 5.0,
-        "discriminators": ["Zn", "Fe"],
+        "discriminators": ["Zn"],
         "note": (
             "A measured coating LAYER, distinct from a coating trace. Fe is "
             "deliberately unconstrained: it reads ~72 wt% through a thin layer "
@@ -160,7 +160,7 @@ FAMILY_DEFS: List[dict] = [
         "label": "Zn-phosphate conversion coating on steel",
         "grade_hint": "Zn phosphating",
         "predicate": lambda m: _g(m, "P") > 5.0 and _g(m, "Zn") > 3.0,
-        "discriminators": ["P", "Zn", "Fe"],
+        "discriminators": ["P", "Zn"],
         "note": (
             "Zn + P together at layer level, with high oxygen in the as-measured "
             "spectrum (phosphate anion). Distinguished from F8a by P, and from "
@@ -211,7 +211,7 @@ FAMILY_DEFS: List[dict] = [
         and _g(m, "Cr") < 1.2
         and _g(m, "Si") < 1.2
         and _g(m, "Fe") > 90.0,
-        "discriminators": ["Mn", "Fe"],
+        "discriminators": ["Mn"],
         "note": (
             "The largest and least specific family. Many components share it, "
             "so component identity is not recoverable here by composition alone."

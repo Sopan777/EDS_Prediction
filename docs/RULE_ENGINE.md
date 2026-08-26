@@ -1,229 +1,252 @@
-# Rule-Based Prediction Engine
+# Material-Family Scoring Engine — Architecture
+
+This document describes the **current** prediction engine
+(`rule_engine/scoring.py`), which replaced the conjunctive rule engine
+originally documented here. The old engine (`rule_engine/engine.py` +
+`rule_engine/rules/rules.json`) is retired as a decision authority; see
+[EDS_AUDIT.md](EDS_AUDIT.md) for the full history and why. It is kept in the
+repo only so the quarantined legacy test suite has something to exercise
+(`pytest --run-legacy`).
 
 ## Overview
 
-The rule-based prediction engine is an alternative to the ML model pipeline for EDS
-(Energy Dispersive Spectroscopy) component classification. It uses interpretable
-range-based rules derived from elemental composition patterns to predict component
-classes.
+The engine takes a spectrum's elemental composition (weight %) and identifies
+a **material family** — never a single component name — with an explicit
+grade hint, a ranked list of candidate components, and abstention as a
+first-class answer.
 
 **Key properties:**
-- Pure Python stdlib implementation (no pandas, numpy, or scikit-learn required)
-- Deterministic predictions with full explainability
-- 91%+ test accuracy on the synthetic EDS dataset (36 classes)
-- Rules generated automatically from training data
-- Versioned rule files for reproducibility
+
+- Pure Python stdlib implementation (no pandas, numpy, or scikit-learn)
+- Deterministic and fully explainable — every check that ran is retained
+- Scored, not filtered: compatibility is computed per input, never a stored
+  constant
+- Absence is never treated as evidence for or against anything by default —
+  see "Three-state missingness" below
+- 6/6 correct on the real analyst-labelled particles; 99.3% family accuracy
+  under leave-one-component-out (see [EDS_AUDIT.md](EDS_AUDIT.md) §15)
 
 ## Architecture
 
 ```
+data/EDS Consolidation.xlsx (Components sheet, 173 real spectra)
+        |
+        v
+training/derive_sigma_model.py --> rule_engine/knowledge/sigma_model.json
+        |                          (per-element measurement uncertainty,
+        |                           fitted from real repeat spectra)
+        v
+training/derive_knowledge.py  --> rule_engine/knowledge/materials.json
+        |                          (family predicates: metallurgical, not
+        |                           fitted + element bands: derived from
+        |                           real spectra, widened by sigma)
+        v
 rule_engine/
-  __init__.py          - Package entry point, exports main classes
-  models.py            - Data classes: Rule, RuleSet, RuleMatch, PredictionResult
-  preprocessing.py     - CSV loading, feature extraction, input validation
-  engine.py            - Production RuleEngine class (load, evaluate, resolve)
-  validator.py         - Rule quality checks and coverage statistics
-  predictor.py         - Integration layer (matches predictor.py pattern)
-  rules/
-    rules.json         - Generated rule set (versioned, reproducible)
-
-training/
-  __init__.py          - Package entry point
-  analyze_dataset.py   - Dataset profiling and analysis
-  train_rules.py       - Rule generation from CSV data
-  evaluate_rules.py    - Evaluation and baseline comparison
+  real_data.py       - loads the 173 real spectra (stdlib zipfile + ElementTree)
+  normalize.py        - canonicalise element names, 3-state missingness,
+                        metal-basis renormalisation, sigma lookup
+  scoring.py           - score_family(), predict_spectrum(), predict_particle()
+  validator.py         - validate_knowledge_base(); called at KnowledgeBase.load()
 ```
 
-## Algorithm
+`eds_pipeline.py` and `app_rule.py` are the two entry points; both call
+`rule_engine.scoring` directly.
 
-### Why Range-Based Rules?
+## Why family, not component
 
-The EDS dataset has 36 component classes, each with distinctive elemental
-composition fingerprints. Many classes are uniquely identifiable by:
-- Presence/absence of specific elements (K only in Blade Terminal, Ca only in NR Nut)
-- Distinct concentration ranges (high Ni >78 only in Clamping Saddle)
-- Combinations of elements at specific levels
+Component identity turns out not to be recoverable from EDS composition
+alone. Measured on real component centroids with concentration-dependent
+measurement uncertainty (`sigma(x) = max(floor, cv * x)`, fitted from repeat
+spectra): of 630 component pairs, colliding pairs at every noise level tested
+stay **entirely within a single material family** — zero cross-family
+collisions. The source reports agree: they assign a chemistry class plus a
+*list* of probable source components, sometimes explicitly marked uncertain
+("Magnet Nut, NR nut??"), never one component name.
 
-Range-based rules are ideal because:
-1. They directly encode the domain knowledge (elemental fingerprints)
-2. They are fully interpretable (each prediction can be explained)
-3. They handle the highly separable class structure efficiently
-4. No external dependencies required for inference
+## Three-state missingness
 
-### Rule Generation Process
+Every element in every spectrum is one of:
 
-1. **Data Loading**: CSV parsed with stdlib `csv` module
-2. **Stratified Split**: 80/10/10 train/validation/test split
-3. **Feature Analysis**: Per-class min/max/mean/std computed for each element
-4. **Condition Generation**: For each class, identify discriminating features:
-   - Features uniquely non-zero for the class (score: 1.0)
-   - Features with ranges above or below all other classes (score: 0.95)
-   - Features with non-overlapping ranges (score: 0.85)
-   - Features with partially separable ranges (score proportional to discrimination)
-5. **Validation**: Rules evaluated on validation set for precision/recall
-6. **Pruning**: Remove conditions that do not improve precision
-7. **Priority Assignment**: Based on validation accuracy + specificity + support
-8. **Fallback Generation**: Simpler rules for classes not well covered by primary rules
+| State | Meaning | Effect on a family requiring this element |
+|---|---|---|
+| `MEASURED` | a real quantity, with a real uncertainty | checked against the band |
+| `BELOW_LOD` | analysed, not detected | **contradicts** the family — positive evidence of absence |
+| `NOT_ANALYSED` | never in the analysed column set | family is **unevaluable** on this element — never passes, never confirms |
 
-### Conflict Resolution
+Collapsing these into a single `0.0` — as the retired engine did — meant a
+"forbidden element" check written as `<= 0.0` passed **vacuously** for any
+unreported element, and a family requiring an element that was simply never
+measured could still match. That is the direct mechanism behind
+`{"S": 0.2}` → "Guide Bush" at confidence 1.00 in the old engine, for a
+material whose every reference spectrum carried 1.12–1.60 wt% Mn.
 
-When multiple rules match an input, conflicts are resolved deterministically:
+## Metal-basis normalisation
 
-1. **Highest validation_accuracy** (primary criterion)
-2. **Highest confidence** (first tiebreaker)
-3. **Highest support** (second tiebreaker)
-4. **Most specific** - more conditions (third tiebreaker)
-5. **Alphabetical rule_id** (final deterministic tiebreaker)
+EDS reports here use "All elements analysed (Normalised)", forcing every
+spectrum to sum to 100%. C, O, N, F come largely from carbon tape, surface
+oxide and mounting medium rather than the material, so absolute weight % are
+not comparable between spectra — within one real particle, C alone ranges
+3.81 to 15.82 wt%, dragging every other element with it.
 
-## Usage
+`rule_engine/normalize.py` renormalises over alloy elements only (excluding
+C, O, N, F, Ca, K, Na, Cl, Mg) before any comparison happens. On seven repeat
+spectra of one real particle, this collapsed Fe's coefficient of variation
+from 5.96% to 0.67%.
 
-### Basic Prediction
+A separate **coating channel** captures elements that are usually a surface
+treatment rather than an alloying addition (Zn, P, Au, Cd) *when* their
+share of the alloy-candidate basis is below a threshold (3.0%, versioned in
+`normalize.py` as `COATING_TRACE_MAX_BASIS_PCT`) — distinguishing a 0.84 wt%
+Zn coating trace from a measured Zn coating layer at tens of percent.
 
-```python
-from rule_engine.engine import RuleEngine
+## Scoring (`rule_engine/scoring.py: score_family`)
 
-engine = RuleEngine()
-result = engine.predict({"Cr": 4.5, "Mo": 5.0, "V": 2.2, "W": 7.5, "Ni": 0.3})
+For each family and each spectrum:
 
-print(result.prediction)    # "Valve Piston"
-print(result.confidence)    # 1.0
-print(result.status)        # "matched"
-print(result.rule_id)       # "rule_valve_piston_primary"
-```
+1. **Required elements** must be `MEASURED` and in-band, or the family is
+   `CONTRADICTED` (if `BELOW_LOD`) or `UNEVALUABLE` (if `NOT_ANALYSED`).
+2. **Band checks** on every element the family describes. Only a *decisive*
+   element (required, or listed as a discriminator) whose band rests on
+   sufficient data may **veto** the family when out of band; an incidental
+   element out of band instead costs compatibility as `unexplained`, capped
+   so it cannot outweigh strong evidence elsewhere. This asymmetry matters:
+   without it, a one-spectrum incidental Cr band once rejected a real bronze
+   particle outright despite Cu, Sn and the Sn/Cu ratio all matching; and
+   without the opposite guard, an in-band but non-decisive Fe reading could
+   wrongly confirm a family whose actual defining elements were never
+   measured.
+3. **Foreign-element rejection**: an alloy element the family does not
+   describe at all, present above 2.0 wt%, contradicts the family.
+4. **Ratio gates** — e.g. `Sn/Cu` for CuSn bronze, `Cr/Ni` for austenitic
+   stainless. Ratios survive the closure/dilution error that makes absolute
+   weight % unreliable, and are the strongest evidence term when they pass.
+5. **Verdict**: `CONTRADICTED` if anything blocked; `UNEVALUABLE` if a
+   required/discriminating element was never analysed and nothing else
+   *confirms* the family (cost-only penalties from non-decisive elements do
+   not count as confirmation); otherwise `FEASIBLE`.
+6. **Compatibility** (only for `FEASIBLE`):
+   `exp(-0.5 * distance²) * evidence * quality`, capped at 0.95. It is a
+   goodness-of-fit statistic, never a probability — with six real labelled
+   particles no honest calibration is possible.
 
-### Using the Integration Layer
+## Decision (`predict_spectrum` / `predict_particle`)
 
-```python
-from rule_engine.predictor import predict_component_rules
+Four gates, checked in order, any of which produces `UNKNOWN`:
 
-result = predict_component_rules({"Pb": 3.0, "Cr": 1.5})
-print(result["prediction"])   # "CRI Injector Body"
-print(result["explanation"])  # Human-readable explanation
-```
+1. **Insufficient metal signal** — alloy elements are below 8% of the
+   as-measured spectrum (below the ~24% seen in the real PTFE-diluted bronze
+   particle, so this only fires on genuinely non-metallic input).
+2. **No feasible family**, or the best feasible family's compatibility is
+   below 0.15 (clearing the hard constraints is necessary but not sufficient
+   — a family can be non-contradicted and still fit badly).
+3. **Insufficient evidence** — fewer than half of the leading family's
+   discriminators were actually measured.
+4. **Insufficient margin** — the top two families' compatibility differ by
+   less than 0.15. This produces `AMBIGUOUS`, not `UNKNOWN`: the tied
+   families are returned as a set, matching how the source reports
+   themselves record uncertainty.
 
-### Batch Prediction
+Input carrying a data-quality problem (a negative weight %, a total above
+100, a duplicated element key) may still be identified, but its compatibility
+is capped at 0.45 and a caveat is attached — such input must never present as
+a clean high-confidence result.
 
-```python
-from rule_engine.predictor import predict_components_batch_rules
+`predict_particle` pools evidence across a table's spectra rather than
+voting on them: a family contradicted by *any* spectrum is disqualified
+outright, and compatibility for a family confirmed by more spectra is
+rewarded over one confirmed by only a few. This replaces the retired
+majority-vote roll-up, which hardcoded its low-confidence flag to `None` and
+averaged probability only over the spectra where the winner already led.
 
-spectra = [
-    {"Cr": 4.5, "Mo": 5.0, "V": 2.2, "W": 7.5, "Ni": 0.3},
-    {"Pb": 3.0, "Cr": 1.5},
-    {"K": 2.0, "Cu": 5.0},
-]
-results = predict_components_batch_rules(spectra)
-```
-
-### Custom Configuration
-
-```python
-engine = RuleEngine(
-    rules_path="path/to/custom_rules.json",
-    confidence_threshold=0.6,  # Stricter threshold
-)
-```
-
-## Rule Format (rules.json)
+## Knowledge base format (`rule_engine/knowledge/materials.json`)
 
 ```json
 {
   "version": "1.0.0",
-  "generated_at": "2024-01-01T00:00:00+00:00",
-  "dataset_hash": "abc123...",
-  "algorithm": "range_based_with_pruning",
-  "validation_score": 0.92,
-  "rules_count": 36,
-  "rules": [
-    {
-      "id": "rule_valve_piston_primary",
-      "conditions": [
-        {"feature": "V", "operator": ">=", "threshold": 1.5},
-        {"feature": "W", "operator": ">=", "threshold": 5.0}
+  "families": {
+    "F6a": {
+      "label": "Cu-Sn bronze / Cu-Sn metal matrix composite",
+      "grade_hint": "CuSn8 and similar",
+      "discriminators": ["Cu", "Sn", "Sn/Cu"],
+      "ratios": [
+        {"ratio": "Sn/Cu", "min": 0.04, "max": 0.16, "rationale": "..."}
       ],
-      "prediction": "Valve Piston",
-      "confidence": 1.0,
-      "support": 80,
-      "validation_accuracy": 1.0,
-      "priority": 950,
-      "description": "Range-based rule for Valve Piston (2 conditions)"
+      "elements": {
+        "Cu": {"band_wt": [29.7, 134.5], "required": true, "prefer_ratio": false, "n_spectra": 3},
+        "Sn": {"band_wt": [3.0, 9.5],   "required": true, "prefer_ratio": false, "n_spectra": 3}
+      },
+      "components": ["Blade Terminal", "CRI Sealing ring"],
+      "provisional": false
     }
-  ],
-  "metadata": {
-    "feature_columns": ["Al", "Si", "P", "S", "Cr", ...],
-    "n_classes": 36,
-    "classes": ["Armature Bolt", ...],
-    "train_size": 2850,
-    "test_accuracy": 0.92
   }
 }
 ```
 
-## Regenerating Rules
+- `discriminators` — every non-ratio entry must be a key in that same
+  family's `elements`; every ratio entry (`"Sn/Cu"`) must have a matching
+  entry in that family's `ratios`. Enforced by `validate_knowledge_base` at
+  load time (see below).
+- `elements[e].required` — `true` only if every spectrum behind this family
+  showed the element at a materially significant level.
+- `elements[e].prefer_ratio` — `true` for elements whose absolute level spans
+  a trace-to-matrix role (from the fitted sigma model); such elements are
+  checked loosely and carry their real weight through a ratio instead.
+- `provisional` — fewer than 2 distinct real components back this family
+  (e.g. F3 tool steel, F5 Ni-base, F6b bronze-on-steel each have exactly one);
+  bands should be treated as indicative, not firm.
 
-To regenerate rules from the training data:
+This file is **generated** by `training/derive_knowledge.py` — never
+hand-edit it. Family *predicates* (the metallurgical logic deciding which
+family a spectrum belongs to, e.g. "Cr > 12 and Ni > 5 ⇒ austenitic 18/8")
+live in `training/derive_knowledge.py` itself, not in the JSON: they are
+standing domain knowledge, not fitted, which is what makes a single-member
+family usable at all.
+
+## Validation at load time
+
+`KnowledgeBase.load()` calls `rule_engine.validator.validate_knowledge_base`
+before returning, and raises `ValueError` if the file is structurally broken
+— an inverted band (`lo > hi`), a discriminator naming an element or ratio
+absent from that same family's own data, or an empty `families` dict. This
+closes a gap the audit found in the *retired* engine too: nothing ever called
+`validator.py`'s checks against `rules.json` at runtime, so a broken rule
+file would have failed silently, deep inside scoring, rather than loudly at
+load time.
+
+## Regenerating the knowledge base
 
 ```bash
-python training/train_rules.py
+python training/derive_sigma_model.py   # fits sigma_model.json from real repeat spectra
+python training/derive_knowledge.py     # builds materials.json (predicates + bands)
+python training/validate_loco.py        # leave-one-component-out: honest generalisation check
 ```
 
-This will:
-1. Load `data/synthetic_eds_data.csv`
-2. Split into train/validation/test sets (deterministic, seed=42)
-3. Generate and validate rules
-4. Save rules to `rule_engine/rules/rules.json`
-5. Save report to `outputs/rule_generation_report.json`
+Run all three after changing `rule_engine/real_data.py`'s source data, adding
+a family predicate, or adjusting a tuning constant in `normalize.py` or
+`derive_sigma_model.py`.
 
-To evaluate the rule engine:
+## Regenerating the retired rules.json (legacy only)
 
 ```bash
+python training/train_rules.py       # only relevant to the retired engine.py path
 python training/evaluate_rules.py
-```
-
-To analyze the dataset:
-
-```bash
 python training/analyze_dataset.py
 ```
 
-## Confidence and Fallback Behavior
+These operate on `data/synthetic_eds_data.csv` — the old reference table plus
+multiplicative jitter, with no independent measurement information — and
+feed the retired conjunctive engine. Kept for the quarantined legacy test
+suite only; do not build new functionality on this path.
 
-- **matched** (confidence >= threshold): High-confidence prediction. The rule matched
-  and has good validation accuracy.
-- **low_confidence** (confidence < threshold, but rule matched): A rule fired but its
-  precision during validation was below the configured threshold (default: 0.40).
-  Manual review is recommended.
-- **no_match**: No rules matched the input composition. The input does not match any
-  known component elemental pattern. Returns "Unknown" as the prediction.
+## Comparison with the retired engine
 
-## Configuration
-
-Configuration is centralized in `config.py`:
-
-```python
-RULE_ENGINE = {
-    "RULES_DIR": BASE_DIR / "rule_engine" / "rules",
-    "RULES_FILE": BASE_DIR / "rule_engine" / "rules" / "rules.json",
-    "RULE_CONFIDENCE_THRESHOLD": 0.40,
-    "RULE_MIN_SUPPORT": 3,
-    "RULE_ENGINE_VERSION": "1.0.0",
-}
-```
-
-## Comparison with ML Models
-
-| Aspect | Rule Engine | ML Models (RF, XGBoost, etc.) |
-|--------|-------------|-------------------------------|
-| Dependencies | Python stdlib only | pandas, numpy, sklearn, etc. |
-| Interpretability | Full (rule conditions shown) | Limited (feature importance) |
-| Accuracy | ~92% | ~98%+ (with ensemble) |
-| Inference speed | Fast (rule matching) | Fast (tree traversal) |
-| Training speed | Seconds | Minutes |
-| Reproducibility | Deterministic from CSV | Depends on random state |
-| Deployment | Single JSON file | Pickle files |
-
-The rule engine trades some accuracy for full interpretability and zero external
-dependencies. It is ideal for:
-- Environments where installing ML libraries is not possible
-- Cases where prediction explanations are required
-- Quick prototyping and baseline comparisons
-- Edge/embedded deployment with minimal Python installations
+| Aspect | Retired (`engine.py`) | Current (`scoring.py`) |
+|---|---|---|
+| Matching | conjunctive AND filter | hard feasibility + soft distance + ratios |
+| Confidence | constant, frozen at training time | computed per input, capped at 0.95 |
+| Missing element | coerced to `0.0` | three states: measured / below-LOD / not-analysed |
+| Target | one of 36 component names | family → grade hint → ranked candidates |
+| Abstention | only on zero matching rules | four explicit gates; ambiguous sets supported |
+| Reference data | synthetic CSV (jittered lookup table) | 173 real spectra |
+| Validated by | self-selecting test fixture | leave-one-component-out (99.3% family accuracy) |
+| Real-particle accuracy | 0/5 | 6/6 |
