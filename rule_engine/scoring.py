@@ -880,19 +880,25 @@ def predict_particle(
     else:
         decision, reason = Decision.IDENTIFIED, ("compatible with " + top.label)
         report = survivors
-        if len(top.candidate_components) > 1:
-            caveats.append(
-                "Component identity is not determinable from EDS composition "
-                "alone: "
-                + str(len(top.candidate_components))
-                + " components share this material family."
-            )
-        if top.provisional:
-            caveats.append(
-                "Family '"
-                + top.label
-                + "' rests on limited reference data; bands are indicative."
-            )
+        # These may already be present from a per-spectrum prediction's own
+        # caveats (deduped above) - append only if genuinely new, otherwise
+        # a pooled particle whose top family also won each individual
+        # spectrum ends up with the exact same caveat text twice.
+        candidate_caveat = (
+            "Component identity is not determinable from EDS composition "
+            "alone: "
+            + str(len(top.candidate_components))
+            + " components share this material family."
+        )
+        if len(top.candidate_components) > 1 and candidate_caveat not in caveats:
+            caveats.append(candidate_caveat)
+        provisional_caveat = (
+            "Family '"
+            + top.label
+            + "' rests on limited reference data; bands are indicative."
+        )
+        if top.provisional and provisional_caveat not in caveats:
+            caveats.append(provisional_caveat)
 
     return Prediction(
         decision=decision,

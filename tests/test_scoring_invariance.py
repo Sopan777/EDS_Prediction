@@ -339,6 +339,23 @@ def test_empty_particle_abstains():
     assert predict_particle([]).decision is Decision.UNKNOWN
 
 
+def test_pooled_caveats_are_not_duplicated():
+    """Each distinct caveat text must appear once, even when every spectrum
+
+    in the particle already carries it individually. The bronze particle
+    (26-146 in the real truth set) triggered this: the pooled IDENTIFIED
+    branch unconditionally appended the same "component identity" caveat
+    that each per-spectrum prediction had already contributed, doubling it.
+    """
+    spectra = [
+        {"C": 33.71, "O": 2.34, "F": 35.47, "Cr": 0.68, "Cu": 25.06, "Sn": 2.74},
+        {"C": 36.81, "O": 2.88, "F": 40.01, "Cr": 0.5, "Cu": 17.91, "Sn": 1.89},
+    ]
+    prediction = predict_particle(spectra, analysed_elements=list(spectra[0]))
+    assert prediction.decision is Decision.IDENTIFIED
+    assert len(prediction.caveats) == len(set(prediction.caveats))
+
+
 # ---------------------------------------------------------------------------
 # Unsupervised novelty detection - needs no labels (P3, EDS_AUDIT.md §12)
 # ---------------------------------------------------------------------------
