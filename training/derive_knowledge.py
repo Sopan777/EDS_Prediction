@@ -138,8 +138,12 @@ FAMILY_DEFS: List[dict] = [
         "grade_hint": "HSS M2 / Sl2b17 (S6-5-2)",
         "predicate": lambda m: (_g(m, "W") > 3.0 or _g(m, "Mo") > 3.0)
         and _g(m, "Fe") > 50.0,
-        "discriminators": ["W", "Mo", "V", "Cr"],
-        "note": "W-Mo-V carbide formers are decisive and near-unique in this domain.",
+        "discriminators": ["W", "Mo", "V", "Cr", "W/Mo"],
+        "note": (
+            "W-Mo-V carbide formers are decisive and near-unique in this domain. "
+            "W/Mo is a tight fingerprint (1.47-1.58 on all 4 real spectra) but "
+            "rests on a single component - provisional, not a hard cut."
+        ),
     },
     {
         "id": "F8a",
@@ -160,11 +164,14 @@ FAMILY_DEFS: List[dict] = [
         "label": "Zn-phosphate conversion coating on steel",
         "grade_hint": "Zn phosphating",
         "predicate": lambda m: _g(m, "P") > 5.0 and _g(m, "Zn") > 3.0,
-        "discriminators": ["P", "Zn"],
+        "discriminators": ["P", "Zn", "Zn/P"],
         "note": (
             "Zn + P together at layer level, with high oxygen in the as-measured "
             "spectrum (phosphate anion). Distinguished from F8a by P, and from "
-            "plain steel by both. Substrate grade is NOT determinable."
+            "plain steel by both. Substrate grade is NOT determinable. Zn/P is "
+            "normalisation-invariant across coating thickness: 1.66-2.71 on 17 of "
+            "18 real spectra across 6 components; one measurement (8.32) is "
+            "excluded as a clear outlier rather than widening the band to cover it."
         ),
     },
     {
@@ -245,6 +252,31 @@ FAMILY_RATIOS: Dict[str, List[dict]] = {
     # case dilutes Cu and Sn together, so their ratio is unchanged.
     "F6a": [_SN_CU_BRONZE],
     "F6b": [_SN_CU_BRONZE],
+    "F3": [
+        {
+            "ratio": "W/Mo",
+            "min": 1.1,
+            "max": 2.0,
+            "rationale": (
+                "Observed 1.47-1.58 on all 4 real spectra of the one component "
+                "behind this family; widened generously since it rests on a "
+                "single component and should not be treated as a hard cut."
+            ),
+        }
+    ],
+    "F8b": [
+        {
+            "ratio": "Zn/P",
+            "min": 1.4,
+            "max": 3.0,
+            "rationale": (
+                "Observed 1.66-2.71 on 17 of 18 real spectra across 6 components; "
+                "one spectrum (8.32) excluded as an outlier rather than widening "
+                "the band to cover it. Normalisation-invariant across coating "
+                "thickness, unlike absolute Zn or P."
+            ),
+        }
+    ],
 }
 
 

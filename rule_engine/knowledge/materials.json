@@ -517,10 +517,18 @@
         "W",
         "Mo",
         "V",
-        "Cr"
+        "Cr",
+        "W/Mo"
       ],
-      "note": "W-Mo-V carbide formers are decisive and near-unique in this domain.",
-      "ratios": [],
+      "note": "W-Mo-V carbide formers are decisive and near-unique in this domain. W/Mo is a tight fingerprint (1.47-1.58 on all 4 real spectra) but rests on a single component - provisional, not a hard cut.",
+      "ratios": [
+        {
+          "ratio": "W/Mo",
+          "min": 1.1,
+          "max": 2.0,
+          "rationale": "Observed 1.47-1.58 on all 4 real spectra of the one component behind this family; widened generously since it rests on a single component and should not be treated as a hard cut."
+        }
+      ],
       "n_spectra": 4,
       "n_components": 1,
       "components": [
@@ -747,10 +755,18 @@
       "grade_hint": "Zn phosphating",
       "discriminators": [
         "P",
-        "Zn"
+        "Zn",
+        "Zn/P"
       ],
-      "note": "Zn + P together at layer level, with high oxygen in the as-measured spectrum (phosphate anion). Distinguished from F8a by P, and from plain steel by both. Substrate grade is NOT determinable.",
-      "ratios": [],
+      "note": "Zn + P together at layer level, with high oxygen in the as-measured spectrum (phosphate anion). Distinguished from F8a by P, and from plain steel by both. Substrate grade is NOT determinable. Zn/P is normalisation-invariant across coating thickness: 1.66-2.71 on 17 of 18 real spectra across 6 components; one measurement (8.32) is excluded as a clear outlier rather than widening the band to cover it.",
+      "ratios": [
+        {
+          "ratio": "Zn/P",
+          "min": 1.4,
+          "max": 3.0,
+          "rationale": "Observed 1.66-2.71 on 17 of 18 real spectra across 6 components; one spectrum (8.32) excluded as an outlier rather than widening the band to cover it. Normalisation-invariant across coating thickness, unlike absolute Zn or P."
+        }
+      ],
       "n_spectra": 19,
       "n_components": 2,
       "components": [
