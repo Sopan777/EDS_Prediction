@@ -1,0 +1,27 @@
+# Requirements for the integrated Spectral-Lab MaterialID web app.
+#
+# This installs only what the ACTIVE flow needs:
+#   FastAPI backend  ->  eds_core PDF ingest  ->  eds_core rule_engine (stdlib)
+#
+# The ML packages listed in eds_core/requirements.txt (pandas, scikit-learn,
+# catboost, xgboost, ...) are intentionally NOT installed here - per the
+# integration requirements, no ML prediction path is part of the active
+# flow. Their code is left untouched under eds_core/models and
+# eds_core/predictor.py for reference; install eds_core/requirements.txt
+# separately if you ever want to run the retired ML scripts.
+
+# --- Web backend ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+pydantic>=2.7.0
+
+# --- PDF ingest (eds_core/eds_geometry.py) ---
+PyMuPDF>=1.27.2.3
+
+# --- Excel reference data (eds_core/rule_engine/real_data.py) ---
+openpyxl>=3.1.0
+
+# --- Tests ---
+pytest>=9.1.1
+httpx>=0.27.0

@@ -1,0 +1,1896 @@
+{
+  "version": "1.0.0",
+  "target": "material family -> grade hint -> ranked candidate components",
+  "design": {
+    "family_predicates": "Metallurgical and standing domain knowledge, NOT fitted. This is what makes single-member families usable: the system tests a specification rather than fitting a distribution.",
+    "element_bands": "Derived from real measured spectra on the metal basis, widened by 2.0 sigma from the fitted sigma model.",
+    "why_not_component_level": "On real component centroids with heteroscedastic sigma, 20 of 630 component pairs are indistinguishable at 3 sigma and ALL of them are within a single family - zero cross-family collisions. Component identity is therefore not recoverable from EDS composition alone; family is."
+  },
+  "source": {
+    "workbook": "data/EDS Consolidation.xlsx",
+    "sheet": "Components",
+    "n_spectra": 173,
+    "n_spectra_normalised": 173,
+    "sigma_model_version": "1.0.0"
+  },
+  "caveats": [
+    "Carbon content is NOT determinable by EDS (light element, carbon tape, coating), so grades are separated by alloying elements only. A family label such as 'plain carbon steel' must never be reported as a specific carbon grade.",
+    "Bands describe the real spectra available, not the full alloy specification. Where a DIN/EN grade range is known it should replace the derived band; entries flagged provisional rest on <3 spectra.",
+    "Families flagged provisional have fewer than 2 distinct components and their bands should be treated as indicative.",
+    "Elements flagged prefer_ratio span trace-to-matrix roles; their absolute level must not gate identity."
+  ],
+  "families": {
+    "F7": {
+      "label": "Au-plated electrical contact",
+      "grade_hint": "Au plating on Cu/Ni substrate",
+      "discriminators": [
+        "Au"
+      ],
+      "note": "Plating dominates the analysed volume; substrate may be visible beneath.",
+      "ratios": [],
+      "n_spectra": 6,
+      "n_components": 2,
+      "components": [
+        "Blade Terminal",
+        "Magnet Coil"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Au": {
+          "band_wt": [
+            56.76,
+            136.713
+          ],
+          "observed_wt": [
+            95.287,
+            98.186
+          ],
+          "mean_wt": 96.318,
+          "sigma_at_mean": 19.2635,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Cu": {
+          "band_wt": [
+            0.886,
+            3.315
+          ],
+          "observed_wt": [
+            1.87,
+            2.331
+          ],
+          "mean_wt": 2.083,
+          "sigma_at_mean": 0.4921,
+          "n_spectra": 5,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "Ni": {
+          "band_wt": [
+            1.309,
+            2.621
+          ],
+          "observed_wt": [
+            1.542,
+            2.388
+          ],
+          "mean_wt": 1.946,
+          "sigma_at_mean": 0.1165,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F6a": {
+      "label": "Cu-Sn bronze / Cu-Sn metal matrix composite",
+      "grade_hint": "CuSn8 and similar",
+      "discriminators": [
+        "Cu",
+        "Sn",
+        "Sn/Cu"
+      ],
+      "note": "Sn/Cu is the stable fingerprint; absolute Cu is unreliable because the seal-ring matrix is PTFE-loaded and dilutes every metal reading.",
+      "ratios": [
+        {
+          "ratio": "Sn/Cu",
+          "min": 0.04,
+          "max": 0.16,
+          "rationale": "CuSn bronze. Observed 0.106-0.109 on the real bronze particle and 0.10-0.12 on the two seal-ring references. Normalisation-invariant, so it survives the PTFE dilution that makes absolute Cu unreliable."
+        }
+      ],
+      "n_spectra": 3,
+      "n_components": 2,
+      "components": [
+        "Blade Terminal",
+        "CRI Sealing ring"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Cr": {
+          "band_wt": [
+            0.8,
+            1.189
+          ],
+          "observed_wt": [
+            0.995,
+            0.995
+          ],
+          "mean_wt": 0.995,
+          "sigma_at_mean": 0.0973,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Cu": {
+          "band_wt": [
+            29.698,
+            134.462
+          ],
+          "observed_wt": [
+            70.301,
+            93.859
+          ],
+          "mean_wt": 85.95,
+          "sigma_at_mean": 20.3014,
+          "n_spectra": 3,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "Fe": {
+          "band_wt": [
+            0.127,
+            21.747
+          ],
+          "observed_wt": [
+            0.29,
+            21.584
+          ],
+          "mean_wt": 7.388,
+          "sigma_at_mean": 0.0816,
+          "n_spectra": 3,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.233,
+            0.737
+          ],
+          "observed_wt": [
+            0.44,
+            0.53
+          ],
+          "mean_wt": 0.485,
+          "sigma_at_mean": 0.1036,
+          "n_spectra": 2,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Sn": {
+          "band_wt": [
+            3.008,
+            9.523
+          ],
+          "observed_wt": [
+            5.411,
+            7.12
+          ],
+          "mean_wt": 6.007,
+          "sigma_at_mean": 1.2014,
+          "n_spectra": 3,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F6b": {
+      "label": "Cu-Sn bronze layer on steel (bimetallic seal ring)",
+      "grade_hint": "CuSn overlay on steel backing",
+      "discriminators": [
+        "Cu",
+        "Sn",
+        "Sn/Cu"
+      ],
+      "note": "The interaction volume spans a bronze overlay and its steel backing, so BOTH Cu and Fe are matrix-level. Real HP-sealing references sit at Fe 58-64 / Cu 32-36 on the metal basis - between the Cu-rich and steel families, which is why a single-material predicate set missed them entirely. Report as a layered/bimetallic result, not one alloy.",
+      "ratios": [
+        {
+          "ratio": "Sn/Cu",
+          "min": 0.04,
+          "max": 0.16,
+          "rationale": "CuSn bronze. Observed 0.106-0.109 on the real bronze particle and 0.10-0.12 on the two seal-ring references. Normalisation-invariant, so it survives the PTFE dilution that makes absolute Cu unreliable."
+        }
+      ],
+      "n_spectra": 2,
+      "n_components": 1,
+      "components": [
+        "HP Sealing"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Cr": {
+          "band_wt": [
+            0.435,
+            0.859
+          ],
+          "observed_wt": [
+            0.566,
+            0.728
+          ],
+          "mean_wt": 0.647,
+          "sigma_at_mean": 0.0652,
+          "n_spectra": 2,
+          "required": true,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Cu": {
+          "band_wt": [
+            15.67,
+            52.69
+          ],
+          "observed_wt": [
+            31.817,
+            36.544
+          ],
+          "mean_wt": 34.18,
+          "sigma_at_mean": 8.0734,
+          "n_spectra": 2,
+          "required": true,
+          "provisional": true,
+          "prefer_ratio": true
+        },
+        "Fe": {
+          "band_wt": [
+            57.437,
+            63.967
+          ],
+          "observed_wt": [
+            57.826,
+            63.579
+          ],
+          "mean_wt": 60.702,
+          "sigma_at_mean": 0.1942,
+          "n_spectra": 2,
+          "required": true,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Sn": {
+          "band_wt": [
+            2.088,
+            6.853
+          ],
+          "observed_wt": [
+            3.876,
+            5.065
+          ],
+          "mean_wt": 4.47,
+          "sigma_at_mean": 0.894,
+          "n_spectra": 2,
+          "required": true,
+          "provisional": true,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": true
+    },
+    "F5": {
+      "label": "Ni-base alloy",
+      "grade_hint": "Ni-Cr alloy",
+      "discriminators": [
+        "Ni",
+        "Cr"
+      ],
+      "note": "Ni is the matrix, not an addition.",
+      "ratios": [],
+      "n_spectra": 6,
+      "n_components": 1,
+      "components": [
+        "Clamping Saddle"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Al": {
+          "band_wt": [
+            0.0,
+            4.407
+          ],
+          "observed_wt": [
+            0.27,
+            3.756
+          ],
+          "mean_wt": 1.377,
+          "sigma_at_mean": 0.3253,
+          "n_spectra": 4,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "Cr": {
+          "band_wt": [
+            0.582,
+            4.52
+          ],
+          "observed_wt": [
+            1.111,
+            3.992
+          ],
+          "mean_wt": 2.704,
+          "sigma_at_mean": 0.2644,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            4.472,
+            13.178
+          ],
+          "observed_wt": [
+            4.635,
+            13.015
+          ],
+          "mean_wt": 9.314,
+          "sigma_at_mean": 0.0816,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Ni": {
+          "band_wt": [
+            76.281,
+            99.484
+          ],
+          "observed_wt": [
+            82.654,
+            93.111
+          ],
+          "mean_wt": 87.064,
+          "sigma_at_mean": 3.1865,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": true
+    },
+    "F4": {
+      "label": "Austenitic stainless steel 18/8",
+      "grade_hint": "X8CrNiS18-9 / X12CrNiS19-8",
+      "discriminators": [
+        "Cr",
+        "Ni",
+        "Cr/Ni"
+      ],
+      "note": "Requires BOTH Cr and Ni at alloy level. If either was not analysed this family is unevaluable, never a match - the failure that produced 'Magnet housing' for a plain 1.5Mn steel.",
+      "ratios": [
+        {
+          "ratio": "Cr/Ni",
+          "min": 1.4,
+          "max": 3.2,
+          "rationale": "18/8 austenitic stoichiometry; observed 1.6-2.2 in real spectra."
+        }
+      ],
+      "n_spectra": 10,
+      "n_components": 3,
+      "components": [
+        "Back Flow Tube",
+        "Locking Sleeve",
+        "Magnet housing"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Cr": {
+          "band_wt": [
+            14.264,
+            24.369
+          ],
+          "observed_wt": [
+            18.038,
+            20.594
+          ],
+          "mean_wt": 19.298,
+          "sigma_at_mean": 1.8874,
+          "n_spectra": 10,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            65.402,
+            71.301
+          ],
+          "observed_wt": [
+            65.838,
+            70.864
+          ],
+          "mean_wt": 68.232,
+          "sigma_at_mean": 0.2183,
+          "n_spectra": 10,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.736,
+            2.111
+          ],
+          "observed_wt": [
+            1.135,
+            1.712
+          ],
+          "mean_wt": 1.441,
+          "sigma_at_mean": 0.1995,
+          "n_spectra": 9,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mo": {
+          "band_wt": [
+            0.445,
+            1.512
+          ],
+          "observed_wt": [
+            0.897,
+            1.06
+          ],
+          "mean_wt": 0.979,
+          "sigma_at_mean": 0.2262,
+          "n_spectra": 2,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Ni": {
+          "band_wt": [
+            7.436,
+            13.118
+          ],
+          "observed_wt": [
+            8.199,
+            12.355
+          ],
+          "mean_wt": 10.43,
+          "sigma_at_mean": 0.3818,
+          "n_spectra": 10,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "S": {
+          "band_wt": [
+            0.153,
+            0.535
+          ],
+          "observed_wt": [
+            0.308,
+            0.379
+          ],
+          "mean_wt": 0.344,
+          "sigma_at_mean": 0.0777,
+          "n_spectra": 2,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.068,
+            0.782
+          ],
+          "observed_wt": [
+            0.272,
+            0.578
+          ],
+          "mean_wt": 0.478,
+          "sigma_at_mean": 0.1021,
+          "n_spectra": 10,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F3": {
+      "label": "Tool / high-speed steel",
+      "grade_hint": "HSS M2 / Sl2b17 (S6-5-2)",
+      "discriminators": [
+        "W",
+        "Mo",
+        "V",
+        "Cr",
+        "W/Mo"
+      ],
+      "note": "W-Mo-V carbide formers are decisive and near-unique in this domain. W/Mo is a tight fingerprint (1.47-1.58 on all 4 real spectra) but rests on a single component - provisional, not a hard cut.",
+      "ratios": [
+        {
+          "ratio": "W/Mo",
+          "min": 1.1,
+          "max": 2.0,
+          "rationale": "Observed 1.47-1.58 on all 4 real spectra of the one component behind this family; widened generously since it rests on a single component and should not be treated as a hard cut."
+        }
+      ],
+      "n_spectra": 4,
+      "n_components": 1,
+      "components": [
+        "Valve Piston"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Cr": {
+          "band_wt": [
+            3.569,
+            5.827
+          ],
+          "observed_wt": [
+            4.487,
+            4.909
+          ],
+          "mean_wt": 4.694,
+          "sigma_at_mean": 0.4591,
+          "n_spectra": 4,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            75.515,
+            83.246
+          ],
+          "observed_wt": [
+            76.021,
+            82.741
+          ],
+          "mean_wt": 78.977,
+          "sigma_at_mean": 0.2527,
+          "n_spectra": 4,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.17,
+            0.525
+          ],
+          "observed_wt": [
+            0.348,
+            0.348
+          ],
+          "mean_wt": 0.348,
+          "sigma_at_mean": 0.0887,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Mo": {
+          "band_wt": [
+            1.478,
+            8.981
+          ],
+          "observed_wt": [
+            3.943,
+            6.516
+          ],
+          "mean_wt": 5.334,
+          "sigma_at_mean": 1.2326,
+          "n_spectra": 4,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Ni": {
+          "band_wt": [
+            0.171,
+            0.657
+          ],
+          "observed_wt": [
+            0.404,
+            0.424
+          ],
+          "mean_wt": 0.416,
+          "sigma_at_mean": 0.1165,
+          "n_spectra": 3,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "V": {
+          "band_wt": [
+            1.386,
+            3.593
+          ],
+          "observed_wt": [
+            2.37,
+            2.609
+          ],
+          "mean_wt": 2.46,
+          "sigma_at_mean": 0.492,
+          "n_spectra": 4,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "W": {
+          "band_wt": [
+            2.914,
+            13.104
+          ],
+          "observed_wt": [
+            6.206,
+            9.812
+          ],
+          "mean_wt": 8.136,
+          "sigma_at_mean": 1.646,
+          "n_spectra": 4,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": true
+    },
+    "F8a": {
+      "label": "Zn-coated steel (galvanic / electroplated)",
+      "grade_hint": "Zn plating on steel",
+      "discriminators": [
+        "Zn"
+      ],
+      "note": "A measured coating LAYER, distinct from a coating trace. Fe is deliberately unconstrained: it reads ~72 wt% through a thin layer but under 2 wt% through a thick one, where the substrate is simply not in the interaction volume. Requiring Fe>40 lost every thick-coating spectrum. Substrate grade is NOT determinable here.",
+      "ratios": [],
+      "n_spectra": 6,
+      "n_components": 2,
+      "components": [
+        "M&M HPP Component",
+        "NR Nut"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Cr": {
+          "band_wt": [
+            0.071,
+            0.938
+          ],
+          "observed_wt": [
+            0.201,
+            0.808
+          ],
+          "mean_wt": 0.481,
+          "sigma_at_mean": 0.0652,
+          "n_spectra": 5,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            0.308,
+            72.811
+          ],
+          "observed_wt": [
+            0.471,
+            72.648
+          ],
+          "mean_wt": 13.123,
+          "sigma_at_mean": 0.0816,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            1.16,
+            2.048
+          ],
+          "observed_wt": [
+            1.604,
+            1.604
+          ],
+          "mean_wt": 1.604,
+          "sigma_at_mean": 0.2219,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.0,
+            1.961
+          ],
+          "observed_wt": [
+            0.021,
+            1.67
+          ],
+          "mean_wt": 0.682,
+          "sigma_at_mean": 0.1458,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Zn": {
+          "band_wt": [
+            0.0,
+            133.018
+          ],
+          "observed_wt": [
+            25.446,
+            98.808
+          ],
+          "mean_wt": 85.526,
+          "sigma_at_mean": 17.1052,
+          "n_spectra": 6,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F8b": {
+      "label": "Zn-phosphate conversion coating on steel",
+      "grade_hint": "Zn phosphating",
+      "discriminators": [
+        "P",
+        "Zn",
+        "Zn/P"
+      ],
+      "note": "Zn + P together at layer level, with high oxygen in the as-measured spectrum (phosphate anion). Distinguished from F8a by P, and from plain steel by both. Substrate grade is NOT determinable. Zn/P is normalisation-invariant across coating thickness: 1.66-2.71 on 17 of 18 real spectra across 6 components; one measurement (8.32) is excluded as a clear outlier rather than widening the band to cover it.",
+      "ratios": [
+        {
+          "ratio": "Zn/P",
+          "min": 1.4,
+          "max": 3.0,
+          "rationale": "Observed 1.66-2.71 on 17 of 18 real spectra across 6 components; one spectrum (8.32) excluded as an outlier rather than widening the band to cover it. Normalisation-invariant across coating thickness, unlike absolute Zn or P."
+        }
+      ],
+      "n_spectra": 19,
+      "n_components": 2,
+      "components": [
+        "IC Stud",
+        "NR Nut"
+      ],
+      "surface_variants": [
+        "CRI  Body Preclened in HNO3",
+        "CRI NHB - RBTR",
+        "CRI Phosphated Body From Turkey",
+        "HSX 110 NR nut",
+        "Zinc Phosphating of CRI-BaP",
+        "ZnP on NaP CRI NHB"
+      ],
+      "elements": {
+        "Al": {
+          "band_wt": [
+            0.077,
+            1.478
+          ],
+          "observed_wt": [
+            0.42,
+            1.135
+          ],
+          "mean_wt": 0.728,
+          "sigma_at_mean": 0.1719,
+          "n_spectra": 3,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "Cr": {
+          "band_wt": [
+            0.312,
+            0.573
+          ],
+          "observed_wt": [
+            0.443,
+            0.443
+          ],
+          "mean_wt": 0.443,
+          "sigma_at_mean": 0.0652,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            25.259,
+            82.587
+          ],
+          "observed_wt": [
+            25.631,
+            82.214
+          ],
+          "mean_wt": 58.244,
+          "sigma_at_mean": 0.1864,
+          "n_spectra": 19,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.408,
+            3.337
+          ],
+          "observed_wt": [
+            0.771,
+            2.974
+          ],
+          "mean_wt": 1.311,
+          "sigma_at_mean": 0.1814,
+          "n_spectra": 19,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "P": {
+          "band_wt": [
+            0.009,
+            27.018
+          ],
+          "observed_wt": [
+            5.729,
+            21.297
+          ],
+          "mean_wt": 12.11,
+          "sigma_at_mean": 2.8604,
+          "n_spectra": 19,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "S": {
+          "band_wt": [
+            0.076,
+            0.276
+          ],
+          "observed_wt": [
+            0.176,
+            0.176
+          ],
+          "mean_wt": 0.176,
+          "sigma_at_mean": 0.05,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.035,
+            2.791
+          ],
+          "observed_wt": [
+            0.317,
+            2.509
+          ],
+          "mean_wt": 0.659,
+          "sigma_at_mean": 0.1407,
+          "n_spectra": 14,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Zn": {
+          "band_wt": [
+            0.0,
+            59.37
+          ],
+          "observed_wt": [
+            10.123,
+            48.289
+          ],
+          "mean_wt": 27.702,
+          "sigma_at_mean": 5.5404,
+          "n_spectra": 19,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F2": {
+      "label": "Low-alloy Cr bearing steel",
+      "grade_hint": "100Cr6 / Sl2 B1",
+      "discriminators": [
+        "Cr",
+        "Mn",
+        "Si"
+      ],
+      "note": "Cr ~1.3-1.9 with low Mn. Carbon content is not determinable by EDS.",
+      "ratios": [],
+      "n_spectra": 31,
+      "n_components": 7,
+      "components": [
+        "Armature Bolt",
+        "Armature Guide",
+        "Armature Plate",
+        "Ball Guide",
+        "C Shim",
+        "Pille",
+        "Valve Piece"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Al": {
+          "band_wt": [
+            0.0,
+            0.99
+          ],
+          "observed_wt": [
+            0.178,
+            0.729
+          ],
+          "mean_wt": 0.39,
+          "sigma_at_mean": 0.1303,
+          "n_spectra": 7,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "Cr": {
+          "band_wt": [
+            1.11,
+            2.29
+          ],
+          "observed_wt": [
+            1.447,
+            1.953
+          ],
+          "mean_wt": 1.721,
+          "sigma_at_mean": 0.1684,
+          "n_spectra": 31,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            96.19,
+            98.816
+          ],
+          "observed_wt": [
+            96.815,
+            98.191
+          ],
+          "mean_wt": 97.581,
+          "sigma_at_mean": 0.3123,
+          "n_spectra": 31,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.115,
+            0.722
+          ],
+          "observed_wt": [
+            0.292,
+            0.545
+          ],
+          "mean_wt": 0.394,
+          "sigma_at_mean": 0.0887,
+          "n_spectra": 22,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Ni": {
+          "band_wt": [
+            0.272,
+            0.738
+          ],
+          "observed_wt": [
+            0.505,
+            0.505
+          ],
+          "mean_wt": 0.505,
+          "sigma_at_mean": 0.1165,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "S": {
+          "band_wt": [
+            0.0,
+            0.17
+          ],
+          "observed_wt": [
+            0.04,
+            0.07
+          ],
+          "mean_wt": 0.06,
+          "sigma_at_mean": 0.05,
+          "n_spectra": 3,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.038,
+            0.612
+          ],
+          "observed_wt": [
+            0.19,
+            0.46
+          ],
+          "mean_wt": 0.341,
+          "sigma_at_mean": 0.0759,
+          "n_spectra": 28,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F1c": {
+      "label": "Si-Cr spring steel",
+      "grade_hint": "VDSiCr / DIN 17223",
+      "discriminators": [
+        "Si",
+        "Cr",
+        "Mn"
+      ],
+      "note": "Elevated Si with only residual Cr.",
+      "ratios": [],
+      "n_spectra": 17,
+      "n_components": 5,
+      "components": [
+        "Armature Spring",
+        "DFK Spring",
+        "Nozzle Spring",
+        "UFK Spring",
+        "Valve Spring"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Al": {
+          "band_wt": [
+            0.112,
+            0.633
+          ],
+          "observed_wt": [
+            0.372,
+            0.372
+          ],
+          "mean_wt": 0.372,
+          "sigma_at_mean": 0.1303,
+          "n_spectra": 1,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": true
+        },
+        "Cr": {
+          "band_wt": [
+            0.439,
+            1.021
+          ],
+          "observed_wt": [
+            0.581,
+            0.879
+          ],
+          "mean_wt": 0.727,
+          "sigma_at_mean": 0.0711,
+          "n_spectra": 17,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            95.531,
+            98.242
+          ],
+          "observed_wt": [
+            96.151,
+            97.621
+          ],
+          "mean_wt": 96.986,
+          "sigma_at_mean": 0.3104,
+          "n_spectra": 17,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.218,
+            0.957
+          ],
+          "observed_wt": [
+            0.395,
+            0.78
+          ],
+          "mean_wt": 0.621,
+          "sigma_at_mean": 0.0887,
+          "n_spectra": 15,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "S": {
+          "band_wt": [
+            0.0,
+            0.14
+          ],
+          "observed_wt": [
+            0.03,
+            0.04
+          ],
+          "mean_wt": 0.035,
+          "sigma_at_mean": 0.05,
+          "n_spectra": 2,
+          "required": false,
+          "provisional": true,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.473,
+            3.032
+          ],
+          "observed_wt": [
+            1.205,
+            2.3
+          ],
+          "mean_wt": 1.713,
+          "sigma_at_mean": 0.3659,
+          "n_spectra": 17,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F1b": {
+      "label": "~1.5 Mn plain carbon steel",
+      "grade_hint": "16MnCr5-family / 1.5Mn steel",
+      "discriminators": [
+        "Mn"
+      ],
+      "note": "Separated from F1a only by Mn. The boundary is ~1.7 sigma on within-component scatter, so it needs an ambiguity band, not a cut.",
+      "ratios": [],
+      "n_spectra": 7,
+      "n_components": 2,
+      "components": [
+        "Guide Bush",
+        "M&M HPP Component"
+      ],
+      "surface_variants": [],
+      "elements": {
+        "Fe": {
+          "band_wt": [
+            97.324,
+            99.144
+          ],
+          "observed_wt": [
+            97.953,
+            98.515
+          ],
+          "mean_wt": 98.309,
+          "sigma_at_mean": 0.3146,
+          "n_spectra": 7,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.888,
+            2.162
+          ],
+          "observed_wt": [
+            1.291,
+            1.759
+          ],
+          "mean_wt": 1.456,
+          "sigma_at_mean": 0.2015,
+          "n_spectra": 7,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "S": {
+          "band_wt": [
+            0.091,
+            0.364
+          ],
+          "observed_wt": [
+            0.195,
+            0.261
+          ],
+          "mean_wt": 0.229,
+          "sigma_at_mean": 0.0517,
+          "n_spectra": 4,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.0,
+            0.44
+          ],
+          "observed_wt": [
+            0.102,
+            0.288
+          ],
+          "mean_wt": 0.184,
+          "sigma_at_mean": 0.0759,
+          "n_spectra": 4,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    },
+    "F1a": {
+      "label": "Plain / low-Mn carbon steel",
+      "grade_hint": "plain C steel, C45PbK, En1A and similar",
+      "discriminators": [
+        "Mn"
+      ],
+      "note": "The largest and least specific family. Many components share it, so component identity is not recoverable here by composition alone.",
+      "ratios": [],
+      "n_spectra": 61,
+      "n_components": 15,
+      "components": [
+        "Armature Shim",
+        "CRI Injector Body",
+        "CRI Shim",
+        "DFK Shim",
+        "DFK Spring",
+        "Dowel Pin",
+        "IC Stud",
+        "M&M HPP Component",
+        "Magnet Core",
+        "RLS Shim",
+        "Sealing Ring",
+        "Support Sealing",
+        "UFK Spring",
+        "VFK Shim",
+        "Valve Nut"
+      ],
+      "surface_variants": [
+        "Pinning Wire for DLLA"
+      ],
+      "elements": {
+        "Al": {
+          "band_wt": [
+            0.0,
+            1.471
+          ],
+          "observed_wt": [
+            0.24,
+            1.211
+          ],
+          "mean_wt": 0.531,
+          "sigma_at_mean": 0.1303,
+          "n_spectra": 23,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "Cr": {
+          "band_wt": [
+            0.0,
+            0.8
+          ],
+          "observed_wt": [
+            0.01,
+            0.67
+          ],
+          "mean_wt": 0.312,
+          "sigma_at_mean": 0.0652,
+          "n_spectra": 36,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Fe": {
+          "band_wt": [
+            96.589,
+            100.631
+          ],
+          "observed_wt": [
+            97.22,
+            100.0
+          ],
+          "mean_wt": 98.619,
+          "sigma_at_mean": 0.3156,
+          "n_spectra": 61,
+          "required": true,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Mn": {
+          "band_wt": [
+            0.0,
+            1.182
+          ],
+          "observed_wt": [
+            0.172,
+            0.991
+          ],
+          "mean_wt": 0.691,
+          "sigma_at_mean": 0.0956,
+          "n_spectra": 56,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Pb": {
+          "band_wt": [
+            0.0,
+            0.499
+          ],
+          "observed_wt": [
+            0.09,
+            0.31
+          ],
+          "mean_wt": 0.219,
+          "sigma_at_mean": 0.0945,
+          "n_spectra": 8,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": true
+        },
+        "S": {
+          "band_wt": [
+            0.0,
+            0.19
+          ],
+          "observed_wt": [
+            0.02,
+            0.09
+          ],
+          "mean_wt": 0.048,
+          "sigma_at_mean": 0.05,
+          "n_spectra": 4,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        },
+        "Si": {
+          "band_wt": [
+            0.0,
+            1.358
+          ],
+          "observed_wt": [
+            0.12,
+            1.186
+          ],
+          "mean_wt": 0.403,
+          "sigma_at_mean": 0.0861,
+          "n_spectra": 50,
+          "required": false,
+          "provisional": false,
+          "prefer_ratio": false
+        }
+      },
+      "provisional": false
+    }
+  },
+  "components": {
+    "Armature Bolt": {
+      "n_spectra": 6,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 6
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Armature Guide": {
+      "n_spectra": 4,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Armature Plate": {
+      "n_spectra": 7,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 7
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Armature Shim": {
+      "n_spectra": 4,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Armature Spring": {
+      "n_spectra": 4,
+      "families": [
+        "F1c"
+      ],
+      "family_spectrum_counts": {
+        "F1c": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Back Flow Tube": {
+      "n_spectra": 2,
+      "families": [
+        "F4"
+      ],
+      "family_spectrum_counts": {
+        "F4": 2
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Ball Guide": {
+      "n_spectra": 3,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 3
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Blade Terminal": {
+      "n_spectra": 4,
+      "families": [
+        "F6a",
+        "F7"
+      ],
+      "family_spectrum_counts": {
+        "F6a": 2,
+        "F7": 2
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": true
+    },
+    "C Shim": {
+      "n_spectra": 2,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 2
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "CRI  Body Preclened in HNO3": {
+      "n_spectra": 1,
+      "families": [
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 1
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    },
+    "CRI Injector Body": {
+      "n_spectra": 8,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 8
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "CRI NHB - RBTR": {
+      "n_spectra": 3,
+      "families": [
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 3
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    },
+    "CRI Phosphated Body From Turkey": {
+      "n_spectra": 3,
+      "families": [
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 3
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    },
+    "CRI Sealing ring": {
+      "n_spectra": 2,
+      "families": [
+        "F6a"
+      ],
+      "family_spectrum_counts": {
+        "F6a": 1
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "CRI Shim": {
+      "n_spectra": 4,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Clamping Saddle": {
+      "n_spectra": 6,
+      "families": [
+        "F5"
+      ],
+      "family_spectrum_counts": {
+        "F5": 6
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "DFK Shim": {
+      "n_spectra": 5,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 5
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "DFK Spring": {
+      "n_spectra": 3,
+      "families": [
+        "F1c",
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1c": 2,
+        "F1a": 1
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": true
+    },
+    "Dowel Pin": {
+      "n_spectra": 3,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 3
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Guide Bush": {
+      "n_spectra": 4,
+      "families": [
+        "F1b"
+      ],
+      "family_spectrum_counts": {
+        "F1b": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "HP Sealing": {
+      "n_spectra": 2,
+      "families": [
+        "F6b"
+      ],
+      "family_spectrum_counts": {
+        "F6b": 2
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "HSX 110 NR nut": {
+      "n_spectra": 1,
+      "families": [
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 1
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    },
+    "IC Stud": {
+      "n_spectra": 2,
+      "families": [
+        "F1a",
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 1,
+        "F8b": 1
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": true
+    },
+    "Locking Sleeve": {
+      "n_spectra": 6,
+      "families": [
+        "F4"
+      ],
+      "family_spectrum_counts": {
+        "F4": 6
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "M&M HPP Component": {
+      "n_spectra": 14,
+      "families": [
+        "F1a",
+        "F8a",
+        "F1b"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 6,
+        "F1b": 3,
+        "F8a": 5
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": true
+    },
+    "Magnet Coil": {
+      "n_spectra": 4,
+      "families": [
+        "F7"
+      ],
+      "family_spectrum_counts": {
+        "F7": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Magnet Core": {
+      "n_spectra": 5,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 5
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Magnet housing": {
+      "n_spectra": 2,
+      "families": [
+        "F4"
+      ],
+      "family_spectrum_counts": {
+        "F4": 2
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "NR Nut": {
+      "n_spectra": 6,
+      "families": [
+        "F8b",
+        "F8a"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 5,
+        "F8a": 1
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": true
+    },
+    "Nozzle Spring": {
+      "n_spectra": 4,
+      "families": [
+        "F1c"
+      ],
+      "family_spectrum_counts": {
+        "F1c": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Pille": {
+      "n_spectra": 3,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 3
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Pinning Wire for DLLA": {
+      "n_spectra": 1,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 1
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    },
+    "RLS Shim": {
+      "n_spectra": 3,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 3
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Sealing Ring": {
+      "n_spectra": 4,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Support Sealing": {
+      "n_spectra": 4,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "UFK Spring": {
+      "n_spectra": 3,
+      "families": [
+        "F1c",
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1c": 2,
+        "F1a": 1
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": true
+    },
+    "VFK Shim": {
+      "n_spectra": 4,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Valve Nut": {
+      "n_spectra": 7,
+      "families": [
+        "F1a"
+      ],
+      "family_spectrum_counts": {
+        "F1a": 7
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Valve Piece": {
+      "n_spectra": 6,
+      "families": [
+        "F2"
+      ],
+      "family_spectrum_counts": {
+        "F2": 6
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Valve Piston": {
+      "n_spectra": 4,
+      "families": [
+        "F3"
+      ],
+      "family_spectrum_counts": {
+        "F3": 4
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Valve Spring": {
+      "n_spectra": 5,
+      "families": [
+        "F1c"
+      ],
+      "family_spectrum_counts": {
+        "F1c": 5
+      },
+      "surface_treatment_variant": false,
+      "ambiguous": false
+    },
+    "Zinc Phosphating of CRI-BaP": {
+      "n_spectra": 3,
+      "families": [
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 3
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    },
+    "ZnP on NaP CRI NHB": {
+      "n_spectra": 2,
+      "families": [
+        "F8b"
+      ],
+      "family_spectrum_counts": {
+        "F8b": 2
+      },
+      "surface_treatment_variant": true,
+      "ambiguous": false
+    }
+  },
+  "unassigned_spectra_components": [
+    "CRI Sealing ring"
+  ]
+}
