@@ -19,7 +19,10 @@ import webbrowser
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent
-FRONTEND_DIST = REPO_ROOT / "spectral-lab---materialid" / "dist"
+FRONTEND_DIR = REPO_ROOT / "frontend"
+if not FRONTEND_DIR.exists():
+    FRONTEND_DIR = REPO_ROOT / "spectral-lab---materialid"
+FRONTEND_DIST = FRONTEND_DIR / "dist"
 
 
 def ensure_frontend_built():
@@ -27,7 +30,7 @@ def ensure_frontend_built():
     if not (FRONTEND_DIST / "index.html").exists():
         print("Frontend distribution not found. Building with Vite...")
         npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"
-        subprocess.run([npm_cmd, "run", "build"], cwd=str(REPO_ROOT / "spectral-lab---materialid"), check=True)
+        subprocess.run([npm_cmd, "run", "build"], cwd=str(FRONTEND_DIR), check=True)
         print("Frontend built successfully.")
 
 
@@ -58,7 +61,7 @@ def main():
         threading.Thread(target=open_browser, daemon=True).start()
 
     os.environ["PORT"] = str(args.port)
-    from server import app
+    from backend.server import app
     app.run(host="0.0.0.0", port=args.port, debug=False)
 
 

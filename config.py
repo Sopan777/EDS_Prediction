@@ -18,7 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent
 
 DATA_DIR = BASE_DIR / "data"
 DEFAULT_DATA_FILE = DATA_DIR / "synthetic_eds_data.csv"  # .csv or .xlsx both supported
+REPORTS_DIR = DATA_DIR / "reports"
 
+FRONTEND_DIR = BASE_DIR / "frontend"
 OUTPUTS_DIR = BASE_DIR / "outputs"
 
 # --------------------------------------------------------------------------

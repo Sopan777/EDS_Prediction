@@ -32,8 +32,12 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from eds_geometry import available as geometry_available  # noqa: E402
-from eds_geometry import extract_tables  # noqa: E402
+try:
+    from backend.ingestion.eds_geometry import available as geometry_available  # noqa: E402
+    from backend.ingestion.eds_geometry import extract_tables  # noqa: E402
+except ImportError:
+    from eds_geometry import available as geometry_available  # noqa: E402
+    from eds_geometry import extract_tables  # noqa: E402
 from rule_engine.scoring import Decision, predict_particle, predict_spectrum  # noqa: E402
 
 FIXTURE = Path(__file__).resolve().parent / "data" / "real_particles.json"
@@ -256,10 +260,13 @@ def test_extraction_reproduces_the_truth_set(particles, pid):
     space and the numerals are not aligned to the header's character offsets.
     """
     particle = particles[pid]
-    pdf = ROOT / particle["source_pdf"]
+    pdf = ROOT / "data" / "reports" / particle["source_pdf"]
+    if not pdf.exists():
+        pdf = ROOT / particle["source_pdf"]
     if not pdf.exists():  # tolerate the odd whitespace in these filenames
         tag = particle["complaint_no"].replace("CRI.I. ", "")
-        matches = [p for p in ROOT.glob("*.pdf") if tag in p.name]
+        candidates = list((ROOT / "data" / "reports").glob("*.pdf")) + list(ROOT.glob("*.pdf"))
+        matches = [p for p in candidates if tag in p.name]
         assert matches, "no PDF found for " + tag
         pdf = matches[0]
 
@@ -296,7 +303,8 @@ def test_end_to_end_pdf_to_family(particles):
         if expected is None:
             continue
         tag = particle["complaint_no"].replace("CRI.I. ", "")
-        matches = [p for p in ROOT.glob("*.pdf") if tag in p.name]
+        candidates = list((ROOT / "data" / "reports").glob("*.pdf")) + list(ROOT.glob("*.pdf"))
+        matches = [p for p in candidates if tag in p.name]
         if not matches:
             continue
         tables = [

@@ -26,7 +26,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from server import app, get_db_connection
+try:
+    from backend.server import app, get_db_connection
+except ImportError:
+    from server import app, get_db_connection
 
 
 @pytest.fixture
@@ -154,7 +157,9 @@ def test_analyze_pdf_upload(client):
     Field CRI.I. 26-108 Particle In IC Stud (ISUZU) ......14.pdf
     Should extract EDS table and identify plain carbon steel.
     """
-    pdf_path = REPO_ROOT / "Field CRI.I. 26-108 Particle In IC Stud (ISUZU) ......14.pdf"
+    pdf_path = REPO_ROOT / "data" / "reports" / "Field CRI.I. 26-108 Particle In IC Stud (ISUZU) ......14.pdf"
+    if not pdf_path.exists():
+        pdf_path = REPO_ROOT / "Field CRI.I. 26-108 Particle In IC Stud (ISUZU) ......14.pdf"
     if not pdf_path.exists():
         pytest.skip("Sample PDF file not found")
 

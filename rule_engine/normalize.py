@@ -54,7 +54,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from eds_extractor import canonical_element_symbol  # noqa: E402
+from rule_engine.elements import canonical_element_symbol  # noqa: E402
 
 SIGMA_MODEL_PATH = Path(__file__).resolve().parent / "knowledge" / "sigma_model.json"
 

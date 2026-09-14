@@ -41,53 +41,57 @@ standard library.
 
 ```
 .
-├── eds_pipeline.py             # PDF/DOCX -> extracted tables -> family predictions (CURRENT)
-├── app_rule.py                 # terminal app for the current engine (CURRENT)
-├── eds_geometry.py              # word-geometry PDF table extraction (CURRENT, needs PyMuPDF)
-├── eds_extractor.py            # character-offset PDF extraction; fallback if PyMuPDF is absent
-├── docx_to_pdf.py               # DOCX -> PDF conversion
+├── run_app.py                      # One-click full-stack launcher (Flask + React SPA)
+├── requirements.txt                # Python dependencies
+├── config.py                       # Central project paths & settings
 │
-├── rule_engine/                 # the current prediction engine (stdlib only)
-│   ├── real_data.py             # loads the 173 real spectra from data/EDS Consolidation.xlsx
-│   ├── normalize.py             # 3-state missingness, canonicalisation, metal-basis normalisation
-│   ├── scoring.py                # compatibility scoring, abstention, KnowledgeBase
-│   ├── validator.py              # validate_knowledge_base(); legacy Rule/RuleSet checks kept for tests
+├── backend/                        # Backend web service & pipelines
+│   ├── server.py                   # Production Flask REST API & static file serving
+│   ├── ingestion/                  # Document parsing and table extraction
+│   │   ├── eds_geometry.py         # Word-geometry PDF table extractor (PyMuPDF)
+│   │   ├── eds_extractor.py        # Character-offset PDF table extraction fallback
+│   │   ├── docx_to_pdf.py          # DOCX -> PDF conversion utility
+│   │   └── eds_pipeline.py         # Batch report processing pipeline
+│   └── cli/                        # Terminal CLI applications
+│       └── app_rule.py             # CLI rule evaluation and batch identification
+│
+├── frontend/                       # Modern React + Vite + Tailwind web application
+│   ├── src/                        # Interactive analysis views, gauges & modals
+│   ├── dist/                       # Built static SPA distribution
+│   └── package.json
+│
+├── rule_engine/                    # Core metallurgical domain engine (stdlib only)
+│   ├── elements.py                 # Chemical element symbols & canonicalization
+│   ├── real_data.py                # Loads the 173 real spectra from data/EDS Consolidation.xlsx
+│   ├── normalize.py                # 3-state missingness, contamination isolation, metal-basis
+│   ├── scoring.py                  # Probabilistic log-likelihood scoring, abstention, KnowledgeBase
+│   ├── validator.py                # Knowledge base integrity validator
 │   ├── knowledge/
-│   │   ├── sigma_model.json      # measurement-uncertainty model, fitted from real spectra
-│   │   └── materials.json        # family definitions + element bands (generated, do not hand-edit)
-│   │
-│   ├── engine.py, models.py, preprocessing.py, predictor.py, rules/rules.json
-│   │                              # RETIRED - the old conjunctive-rule engine. Kept only so the
-│   │                              # quarantined legacy test suite (--run-legacy) has something to
-│   │                              # exercise. See docs/EDS_AUDIT.md.
+│   │   ├── sigma_model.json        # Measurement-uncertainty model fitted from real spectra
+│   │   └── materials.json          # Family definitions + element bands (generated)
+│   └── rules/                      # Retired conjunctive rules (kept for legacy test compatibility)
 │
-├── training/
-│   ├── derive_sigma_model.py     # fits sigma_model.json from real repeat spectra
-│   ├── derive_knowledge.py       # builds materials.json from real spectra + metallurgical predicates
-│   ├── validate_loco.py          # leave-one-component-out validation (the honest accuracy number)
-│   ├── train_rules.py, evaluate_rules.py, analyze_dataset.py
-│   │                              # RETIRED - generated the old rules.json from synthetic data.
+├── data/                           # Ground-truth datasets & sample reports
+│   ├── EDS Consolidation.xlsx      # 173 REAL spectra ("Components" sheet) - source of truth
+│   ├── EDS Consolidation - Priority.xlsx  # 37-row reference table, one spectrum per component
+│   ├── synthetic_eds_data.csv      # Baseline synthetic dataset
+│   └── reports/                    # Sample real-world EDS PDF reports
 │
-├── tests/
-│   ├── data/real_particles.json    # hand-verified transcription of the 6 real labelled particles
-│   ├── test_real_particles.py      # THE PRIMARY GATE - scores against the real particles
-│   ├── test_scoring_invariance.py  # invariance + negative-control property tests
-│   ├── test_knowledge_validation.py
-│   ├── conftest.py                 # quarantines the legacy suite behind --run-legacy
-│   ├── test_predictions.py, test_preprocessing.py, test_rule_engine.py, test_validator.py,
-│   │   test_integration.py         # LEGACY - exercise the retired engine; skipped by default
+├── tests/                          # Automated test suite (all passing)
+│   ├── data/real_particles.json    # Ground-truth transcription of 6 real labelled particles
+│   ├── test_real_particles.py      # THE PRIMARY GATE - scores against real particles
+│   ├── test_spectral_lab_web.py    # Web API endpoints, CRUD, and frontend serving tests
+│   ├── test_scoring_invariance.py  # Mathematical invariance and negative controls
+│   └── test_knowledge_validation.py # Material bounds and schema integrity
 │
-├── models/, model_registry.py, predictor.py, data_utils.py, noise.py, train_all_models.py,
-│   compare_models.py, app.py       # RETIRED ML path - no trained artifacts exist on disk
+├── training/                       # Derivation & validation scripts
+│   ├── derive_sigma_model.py       # Fits sigma_model.json from real repeat spectra
+│   ├── derive_knowledge.py         # Builds materials.json from real spectra + predicates
+│   └── validate_loco.py            # Leave-one-component-out validation
 │
-├── docs/
-│   ├── EDS_AUDIT.md               # full audit: findings, root causes, roadmap, validation results
-│   └── RULE_ENGINE.md             # architecture of the CURRENT scoring engine (renamed content)
-│
-└── data/
-    ├── EDS Consolidation.xlsx      # 173 REAL spectra ("Components" sheet) - the source of truth
-    ├── EDS Consolidation - Priority.xlsx  # 37-row reference table, one spectrum per component
-    └── synthetic_eds_data.csv      # the OLD reference table + jitter; not used by the current engine
+└── docs/                           # Documentation
+    ├── EDS_AUDIT.md                # Full audit: findings, root causes, roadmap
+    └── RULE_ENGINE.md              # Architectural specification
 ```
 
 ## Setup
