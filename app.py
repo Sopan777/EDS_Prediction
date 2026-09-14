@@ -3,11 +3,12 @@ app.py
 ======
 Unified Streamlit Application for Spectral Lab - MaterialID v2.4.
 Complete deterministic metallurgical microanalysis pipeline with:
-  1. Particle Microanalysis (Analyzer) - Manual wt% inputs, presets, PDF report table extraction
-  2. Ratio Gate Editor - Calibrated thresholds with live ground-truth dataset validation
-  3. Metallurgical Knowledge Base - 12 material families, element bands & candidate components
-  4. System Audit Log - Historical scans, calibrations, and traceability
-  5. User & Analyst Management - Lab personnel roster and role permissions
+  1. Particle Microanalysis (Analyzer) - Live manual wt% input, alloy presets, PDF table extraction
+  2. Stored Reports & Analysis Archive - Specimen records, Certificates of Analysis, and status workflows
+  3. Ratio Gate Editor - Calibrated thresholds with live ground-truth dataset validation
+  4. Metallurgical Knowledge Base - 12 material families, element bands & candidate components
+  5. System Audit Log - Automated traceability of all scans, calibrations, and report events
+  6. User & Analyst Management - Lab personnel roster and role permissions
 """
 
 from __future__ import annotations
@@ -16,7 +17,6 @@ import io
 import json
 import math
 import os
-import sqlite3
 import sys
 import tempfile
 import time
@@ -35,6 +35,7 @@ REPO_ROOT = Path(__file__).resolve().parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+import database
 from rule_engine.scoring import (
     Decision,
     FamilyScore,
@@ -56,7 +57,6 @@ except ImportError:
         extract_pdf_tables = None
         geometry_available = lambda: False
 
-DB_PATH = REPO_ROOT / "spectral_lab.db"
 REFERENCE_DATA_PATH = REPO_ROOT / "data" / "EDS Consolidation.xlsx"
 
 # --------------------------------------------------------------------------
@@ -213,100 +213,6 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
 # --------------------------------------------------------------------------
-# Database Initialization & SQLite Persistence
-# --------------------------------------------------------------------------
-def get_db():
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def init_db():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            role TEXT NOT NULL,
-            department TEXT NOT NULL,
-            permissions TEXT NOT NULL,
-            initials TEXT,
-            is_active INTEGER NOT NULL DEFAULT 1,
-            last_active TEXT
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS audit_logs (
-            id TEXT PRIMARY KEY,
-            timestamp TEXT NOT NULL,
-            user TEXT NOT NULL,
-            user_role TEXT NOT NULL,
-            action TEXT NOT NULL,
-            action_type TEXT NOT NULL,
-            family_code TEXT NOT NULL,
-            from_val TEXT,
-            to_val TEXT,
-            impact_text TEXT,
-            impact_type TEXT NOT NULL DEFAULT 'neutral'
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS ratio_gates (
-            id TEXT PRIMARY KEY,
-            family_id TEXT NOT NULL,
-            name TEXT NOT NULL,
-            numerator TEXT NOT NULL,
-            denominator TEXT NOT NULL,
-            min_val REAL NOT NULL,
-            max_val REAL NOT NULL,
-            rationale TEXT,
-            enabled INTEGER NOT NULL DEFAULT 1
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS analysis_history (
-            id TEXT PRIMARY KEY,
-            timestamp TEXT NOT NULL,
-            source_type TEXT NOT NULL,
-            filename TEXT,
-            composition_json TEXT NOT NULL,
-            decision TEXT NOT NULL,
-            material_family TEXT,
-            grade_hint TEXT,
-            compatibility REAL,
-            candidate_components_json TEXT,
-            processing_time_s REAL
-        )
-    """)
-    cur.execute("SELECT COUNT(*) FROM users")
-    if cur.fetchone()[0] == 0:
-        initial_users = [
-            ("user-1", "Dr. Marcus Vance", "m.vance@spectrallab.io", "Snr. Metallurgist", "Metallurgy", "Full Edit", "MV", 1, "Just now"),
-            ("user-2", "Sarah Jenkins", "s.jenkins@spectrallab.io", "Lab Tech", "Operations", "Read-only", "SJ", 1, "15m ago"),
-            ("user-3", "Alex Rivera", "a.rivera@spectrallab.io", "Lab Tech", "Operations", "Read-only", "AR", 1, "1h ago"),
-            ("user-4", "David Chen", "d.chen@spectrallab.io", "Auditor", "Quality Control", "Read-only", "DC", 1, "3h ago"),
-            ("user-5", "Spectrometer ETL Daemon", "service-eds@spectrallab.io", "Service Acct", "System", "System Execution", "SE", 1, "Continuous"),
-        ]
-        cur.executemany("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", initial_users)
-
-    cur.execute("SELECT COUNT(*) FROM audit_logs")
-    if cur.fetchone()[0] == 0:
-        initial_logs = [
-            ("audit-1", "2026-09-14 08:30:00", "Dr. Marcus Vance", "Snr. Metallurgist", "Calibrated baseline ratio gate Cr/Ni for F4", "Gate Edit", "F4", "Cr/Ni: [1.4, 3.2]", "Cr/Ni: [1.85, 2.30]", "Tighter differentiation from 316L and duplex stainless grades", "positive"),
-            ("audit-2", "2026-09-14 07:15:22", "Spectrometer ETL Daemon", "Service Acct", "Ingested and validated 173 reference spectra from EDS Consolidation", "Calibration", "All", "Uncalibrated", "173 spectra normalised", "Reference database active", "positive"),
-            ("audit-3", "2026-09-13 16:45:10", "Sarah Jenkins", "Lab Tech", "Microanalysis scan on Particle In IC Stud (ISUZU)", "Override", "F1b", "Unknown", "F1b (~1.5 Mn plain carbon steel)", "Guide Bush candidate confirmed", "neutral"),
-        ]
-        cur.executemany("INSERT INTO audit_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", initial_logs)
-
-    conn.commit()
-    conn.close()
-
-init_db()
-
-
-# --------------------------------------------------------------------------
 # Cached Resource Loaders
 # --------------------------------------------------------------------------
 @st.cache_resource
@@ -334,29 +240,6 @@ def get_reference_spectra() -> List[Dict[str, Any]]:
         ]
     except Exception:
         return []
-
-
-def get_db_gates_for_family(family_id: str) -> Optional[List[Dict[str, Any]]]:
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM ratio_gates WHERE family_id = ?", (family_id,))
-    rows = cur.fetchall()
-    conn.close()
-    if not rows:
-        return None
-    return [
-        {
-            "id": r["id"],
-            "name": r["name"],
-            "numerator": r["numerator"],
-            "denominator": r["denominator"],
-            "min": r["min_val"],
-            "max": r["max_val"],
-            "rationale": r["rationale"] or "",
-            "enabled": bool(r["enabled"]),
-        }
-        for r in rows
-    ]
 
 
 # --------------------------------------------------------------------------
@@ -432,8 +315,13 @@ def render_ranked_families_chart(families: List[FamilyScore]):
 
 
 # --------------------------------------------------------------------------
-# Main Navigation Sidebar
+# Main Navigation Sidebar & Active Session
 # --------------------------------------------------------------------------
+users_list = database.get_users()
+if not users_list:
+    database.init_db()
+    users_list = database.get_users()
+
 with st.sidebar:
     st.markdown("""
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
@@ -445,19 +333,34 @@ with st.sidebar:
                 <div class="brand-sub">Spectral Lab v2.4</div>
             </div>
         </div>
-        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #34d399; font-weight: 600; margin-bottom: 20px; display: inline-block;">
-            ● Deterministic Rule Engine Active
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #34d399; font-weight: 600; margin-bottom: 16px; display: inline-block;">
+            ● SQLite Persistence Engine Active
         </div>
     """, unsafe_allow_html=True)
+
+    # Active Analyst Session Attribution
+    st.markdown("<p style='font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;'>ACTIVE ANALYST SESSION:</p>", unsafe_allow_html=True)
+    user_names = [u["name"] for u in users_list]
+    active_idx = 0
+    if "active_user_name" in st.session_state and st.session_state.active_user_name in user_names:
+        active_idx = user_names.index(st.session_state.active_user_name)
+
+    sel_user_name = st.selectbox("Active Analyst", options=user_names, index=active_idx, label_visibility="collapsed")
+    st.session_state.active_user_name = sel_user_name
+    active_user = next((u for u in users_list if u["name"] == sel_user_name), users_list[0])
+    st.session_state.active_user = active_user
+
+    st.markdown(f"<p style='font-size: 12px; color: #38bdf8; margin: 0 0 16px 0;'>Role: {active_user['role']} ({active_user['department']})</p>", unsafe_allow_html=True)
 
     nav_choice = st.radio(
         "Navigation",
         options=[
-            "🔬 Microanalysis Analyzer",
+            "🔬 Particle Microanalysis",
+            "📑 Analysis Reports Archive",
             "⚖️ Ratio Gate Editor",
             "📚 Knowledge Base Catalog",
             "📜 System Audit Log",
-            "👥 User Management",
+            "👥 User & Personnel Management",
         ],
         label_visibility="collapsed",
     )
@@ -465,19 +368,19 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("""
         <div style="font-size: 11px; color: #64748b; line-height: 1.5;">
-            <b>Metallurgical Standards:</b><br>
-            • ASTM E1508 Microanalysis<br>
-            • Metal-basis Renormalization<br>
-            • 3-State Missingness Engine<br>
-            • 12 Validated Material Families
+            <b>Standards Compliance:</b><br>
+            • ASTM E1508 / ISO 22309<br>
+            • Metal-basis Normalization<br>
+            • Full SQLite Audit Traceability<br>
+            • 12 Certified Material Families
         </div>
     """, unsafe_allow_html=True)
 
 
 # ==========================================================================
-# VIEW 1: MICROANALYSIS ANALYZER
+# VIEW 1: PARTICLE MICROANALYSIS (ANALYZER)
 # ==========================================================================
-if nav_choice == "🔬 Microanalysis Analyzer":
+if nav_choice == "🔬 Particle Microanalysis":
     st.markdown("""
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <div>
@@ -507,36 +410,29 @@ if nav_choice == "🔬 Microanalysis Analyzer":
         st.session_state.extra_elements = {}
 
     selected_spectra_data: Optional[Dict[str, float]] = None
-    uploaded_source_name = "Manual Input"
+    uploaded_source_name = "Manual Entry"
 
     if input_mode == "✍️ Manual wt% Entry":
-        # Quick Presets Buttons
-        st.markdown("<p style='font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; margin-top: 10px;'>Quick Alloy Presets:</p>", unsafe_allow_html=True)
-        p_cols = st.columns(6)
-        if p_cols[0].button("Austenitic 304 SS", key="p_304"):
-            st.session_state.composition_inputs = {"Cr": 18.2, "Ni": 8.4, "Mn": 1.6, "Si": 0.5, "Fe": 71.3}
-            st.session_state.extra_elements = {}
-            st.rerun()
-        if p_cols[1].button("Cu-Sn Bronze (F6a)", key="p_bronze"):
-            st.session_state.composition_inputs = {"Cr": 0.0, "Ni": 0.0, "Mn": 0.0, "Si": 0.0, "Fe": 0.3}
-            st.session_state.extra_elements = {"Cu": 88.5, "Sn": 10.5, "P": 0.4}
-            st.rerun()
-        if p_cols[2].button("1.5Mn Steel (F1b)", key="p_15mn"):
-            st.session_state.composition_inputs = {"Cr": 0.1, "Ni": 0.0, "Mn": 1.48, "Si": 0.25, "Fe": 97.7}
-            st.session_state.extra_elements = {"C": 0.45}
-            st.rerun()
-        if p_cols[3].button("Cr Bearing (F2)", key="p_f2"):
-            st.session_state.composition_inputs = {"Cr": 1.45, "Ni": 0.05, "Mn": 0.35, "Si": 0.25, "Fe": 96.9}
-            st.session_state.extra_elements = {"C": 1.0}
-            st.rerun()
-        if p_cols[4].button("Zn Coating (F8b)", key="p_zn"):
-            st.session_state.composition_inputs = {"Cr": 0.0, "Ni": 0.0, "Mn": 0.3, "Si": 0.2, "Fe": 83.0}
-            st.session_state.extra_elements = {"Zn": 12.0, "P": 4.5}
-            st.rerun()
-        if p_cols[5].button("Sparse Input (S 0.2)", key="p_sparse"):
-            st.session_state.composition_inputs = {"Cr": 0.0, "Ni": 0.0, "Mn": 0.0, "Si": 0.0, "Fe": 0.0}
-            st.session_state.extra_elements = {"S": 0.2}
-            st.rerun()
+        # Database-stored Alloy Presets
+        presets = database.get_presets()
+        if presets:
+            st.markdown("<p style='font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; margin-top: 10px;'>Official Alloy Reference Templates:</p>", unsafe_allow_html=True)
+            preset_cols = st.columns(len(presets))
+            for i, p in enumerate(presets):
+                with preset_cols[i]:
+                    if st.button(p["name"], key=f"btn_p_{p['id']}"):
+                        comp = p["composition"]
+                        st.session_state.composition_inputs = {
+                            "Cr": comp.get("Cr", 0.0),
+                            "Ni": comp.get("Ni", 0.0),
+                            "Mn": comp.get("Mn", 0.0),
+                            "Si": comp.get("Si", 0.0),
+                            "Fe": comp.get("Fe", 0.0),
+                        }
+                        st.session_state.extra_elements = {
+                            k: v for k, v in comp.items() if k not in ("Cr", "Ni", "Mn", "Si", "Fe")
+                        }
+                        st.rerun()
 
         # Core element numerical inputs
         with st.container():
@@ -718,32 +614,48 @@ if nav_choice == "🔬 Microanalysis Analyzer":
         decision_str = prediction.decision.value  # "identified", "ambiguous", "unknown"
         top_fam = prediction.top
 
-        # Save to SQLite history
-        try:
-            conn = get_db()
-            cur = conn.cursor()
-            cur.execute("""
-                INSERT INTO analysis_history VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                f"scan-{int(time.time()*1000)}",
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                input_mode,
-                uploaded_source_name,
-                json.dumps(filtered_input),
-                decision_str,
-                top_fam.label if top_fam else "Unknown",
-                top_fam.grade_hint if top_fam else "",
-                top_fam.compatibility if top_fam else 0.0,
-                json.dumps(prediction.candidate_components),
-                duration_s,
-            ))
-            conn.commit()
-            conn.close()
-        except Exception:
-            pass
+        # Cache last prediction in session state for report saving
+        norm_res = normalize_spectrum(filtered_input)
+        table_rows = []
+        for elem, reading in norm_res.readings.items():
+            table_rows.append({
+                "Element": elem,
+                "Raw Input (wt%)": f"{reading.raw_wt:.2f}" if reading.raw_wt is not None else "--",
+                "Metal-Basis (wt%)": f"{reading.metal_wt:.2f}" if reading.metal_wt is not None else "--",
+                "Status": reading.state.name,
+            })
+
+        st.session_state.last_analysis = {
+            "filtered_input": filtered_input,
+            "prediction": prediction,
+            "duration_s": duration_s,
+            "decision_str": decision_str,
+            "top_fam": top_fam,
+            "table_rows": table_rows,
+            "source_type": input_mode,
+            "source_filename": uploaded_source_name,
+        }
+
+        # Log automated audit event for analysis
+        database.log_audit(
+            user_id=active_user["id"],
+            user_name=active_user["name"],
+            user_role=active_user["role"],
+            action=f"Evaluated microanalysis scan ({decision_str.upper()}: {top_fam.label if top_fam else 'Abstained'})",
+            action_type="ANALYSIS_EVALUATION",
+            details={"decision": decision_str, "elements": list(filtered_input.keys())},
+        )
+
+    # Render results if available in session state
+    if "last_analysis" in st.session_state:
+        res = st.session_state.last_analysis
+        filtered_input = res["filtered_input"]
+        prediction = res["prediction"]
+        decision_str = res["decision_str"]
+        top_fam = res["top_fam"]
+        table_rows = res["table_rows"]
 
         st.markdown("---")
-        # Display Results Layout
         r_col1, r_col2 = st.columns([5, 7])
 
         with r_col1:
@@ -803,15 +715,6 @@ if nav_choice == "🔬 Microanalysis Analyzer":
 
             # Normalization Table
             st.markdown("<h4 style='margin: 0 0 8px 0; color: #ffffff;'>Metal-Basis Composition Breakdown</h4>", unsafe_allow_html=True)
-            norm_res = normalize_spectrum(filtered_input, sigma_model=KB.sigma_model)
-            table_rows = []
-            for elem, reading in norm_res.readings.items():
-                table_rows.append({
-                    "Element": elem,
-                    "Raw Input (wt%)": f"{reading.raw_wt:.2f}" if reading.raw_wt is not None else "--",
-                    "Metal-Basis (wt%)": f"{reading.metal_wt:.2f}" if reading.metal_wt is not None else "--",
-                    "Status": reading.state.name,
-                })
             st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
 
             # Ranked Candidate Families
@@ -822,43 +725,193 @@ if nav_choice == "🔬 Microanalysis Analyzer":
 
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Download Export
-        st.markdown("<div style='display: flex; gap: 12px; margin-top: 10px;'>", unsafe_allow_html=True)
-        exp_col1, exp_col2 = st.columns(2)
-        with exp_col1:
-            report_dict = {
-                "scan_id": f"scan-{int(time.time())}",
-                "timestamp": datetime.now().isoformat(),
-                "source": uploaded_source_name,
-                "input_composition": filtered_input,
-                "decision": decision_str,
-                "top_family": top_fam.to_dict() if top_fam else None,
-                "candidates": prediction.candidate_components,
-                "caveats": prediction.caveats,
-            }
-            st.download_button(
-                "📥 Export Full Analysis (JSON)",
-                data=json.dumps(report_dict, indent=2),
-                file_name=f"spectral_analysis_{int(time.time())}.json",
-                mime="application/json",
-            )
-        with exp_col2:
-            st.download_button(
-                "📊 Export Composition Table (CSV)",
-                data=pd.DataFrame(table_rows).to_csv(index=False),
-                file_name=f"composition_table_{int(time.time())}.csv",
-                mime="text/csv",
-            )
+        # ------------------------------------------------------------------
+        # Official Report Saving Section (Persistent SQLite Database)
+        # ------------------------------------------------------------------
+        st.markdown("<div class='lab-card'>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin: 0 0 8px 0; color: #ffffff;'>💾 Save Official Analysis Report</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 13px; color: #94a3b8;'>Store this evaluation into the SQLite database archive with full specimen metadata.</p>", unsafe_allow_html=True)
+
+        with st.form("save_report_form"):
+            rep_c1, rep_c2, rep_c3 = st.columns(3)
+            with rep_c1:
+                sample_id_input = st.text_input("Specimen / Sample ID*:", value=f"SMP-{int(time.time()%100000):05d}")
+                report_title_input = st.text_input("Report Title:", value=f"Microanalysis of {sample_id_input}")
+            with rep_c2:
+                lot_number_input = st.text_input("Heat / Lot Number:", value="LOT-2026-A1")
+                customer_input = st.text_input("Customer / Project:", value="Internal Failure Analysis")
+            with rep_c3:
+                status_input = st.selectbox("Report Status:", ["Completed", "Under Review", "Approved"])
+                analyst_notes_input = st.text_area("Analyst Remarks:", value="Verified against deterministic rule-engine bands.")
+
+            save_submitted = st.form_submit_button("💾 Commit Official Report to Database")
+            if save_submitted:
+                rep_id = database.save_report(
+                    title=report_title_input,
+                    sample_id=sample_id_input,
+                    analyst_id=active_user["id"],
+                    analyst_name=active_user["name"],
+                    source_type=res["source_type"],
+                    raw_composition=filtered_input,
+                    normalized_composition=table_rows,
+                    decision=decision_str,
+                    family_id=top_fam.family_id if top_fam else None,
+                    family_label=top_fam.label if top_fam else "Unknown",
+                    grade_hint=top_fam.grade_hint if top_fam else "",
+                    compatibility_pct=float(comp_score),
+                    candidates=prediction.candidate_components,
+                    caveats=prediction.caveats,
+                    lot_number=lot_number_input,
+                    customer=customer_input,
+                    source_filename=res["source_filename"],
+                    analyst_notes=analyst_notes_input,
+                    status=status_input,
+                )
+                st.success(f"Official Analysis Report '{rep_id}' saved successfully to SQLite database archive!")
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ==========================================================================
-# VIEW 2: RATIO GATE EDITOR & VALIDATION ENGINE
+# VIEW 2: STORED REPORTS & ANALYSIS ARCHIVE (DATABASE ARCHIVE)
+# ==========================================================================
+elif nav_choice == "📑 Analysis Reports Archive":
+    st.markdown("""
+        <div>
+            <h2 style="margin: 0; color: #ffffff; font-weight: 700;">Stored Reports & Analysis Archive</h2>
+            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Browse, inspect, verify, and export official metallurgical analysis certificates stored in SQLite.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Search and Filter
+    s_col1, s_col2 = st.columns([4, 2])
+    with s_col1:
+        rep_search = st.text_input("🔍 Search reports by Sample ID, Title, Family, or Customer:", "")
+    with s_col2:
+        rep_status_filter = st.selectbox("Filter Status:", ["All", "Completed", "Under Review", "Approved"])
+
+    all_reports = database.get_reports(status=rep_status_filter, search_query=rep_search)
+
+    # Metric Cards
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        st.markdown(f"<div class='stat-lbl'>TOTAL STORED REPORTS</div><div class='stat-val'>{len(all_reports)}</div>", unsafe_allow_html=True)
+    with m2:
+        id_cnt = sum(1 for r in all_reports if r['decision'] == 'identified')
+        st.markdown(f"<div class='stat-lbl'>IDENTIFIED ALLOYS</div><div class='stat-val' style='color: #34d399;'>{id_cnt}</div>", unsafe_allow_html=True)
+    with m3:
+        amb_cnt = sum(1 for r in all_reports if r['decision'] == 'ambiguous')
+        st.markdown(f"<div class='stat-lbl'>AMBIGUOUS SETS</div><div class='stat-val' style='color: #fbbf24;'>{amb_cnt}</div>", unsafe_allow_html=True)
+    with m4:
+        appr_cnt = sum(1 for r in all_reports if r['status'] == 'Approved')
+        st.markdown(f"<div class='stat-lbl'>APPROVED CERTIFICATES</div><div class='stat-val' style='color: #38bdf8;'>{appr_cnt}</div>", unsafe_allow_html=True)
+
+    st.markdown("<hr style='border-color: #334155; margin: 16px 0;'>", unsafe_allow_html=True)
+
+    if not all_reports:
+        st.info("No reports found matching criteria. Perform an analysis in the Microanalysis tab and click 'Save Official Analysis Report' to record one.")
+    else:
+        # Table of Reports
+        table_data = []
+        for r in all_reports:
+            table_data.append({
+                "Report ID": r["id"],
+                "Sample ID": r["sample_id"],
+                "Date": r["created_at"][:10],
+                "Analyst": r["analyst_name"],
+                "Material Family": r["family_label"] or "Unknown",
+                "Decision": r["decision"].upper(),
+                "Compatibility": f"{r['compatibility_pct']:.0f}%",
+                "Status": r["status"],
+            })
+        st.dataframe(pd.DataFrame(table_data), use_container_width=True, hide_index=True)
+
+        # Inspect Individual Report
+        st.markdown("### 📄 Certificate of Analysis Preview")
+        selected_report_id = st.selectbox("Select Report to Inspect:", [r["id"] for r in all_reports])
+        rep = database.get_report_by_id(selected_report_id)
+
+        if rep:
+            st.markdown(f"""
+                <div class='lab-card'>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
+                        <div>
+                            <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px;">CERTIFICATE OF MICROANALYSIS</span>
+                            <h2 style="margin: 2px 0; color: #ffffff;">{rep['title']}</h2>
+                            <p style="margin: 0; font-size: 13px; color: #94a3b8;"><b>Report ID:</b> {rep['id']} &nbsp;|&nbsp; <b>Created:</b> {rep['created_at']}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class='decision-badge-{'identified' if rep['decision'] == 'identified' else ('ambiguous' if rep['decision'] == 'ambiguous' else 'unknown')}'>{rep['decision'].upper()}</span>
+                            <div style="font-size: 12px; color: #67e8f9; margin-top: 6px; font-weight: 600;">Status: {rep['status']}</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: #162032; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+                        <div><span style="font-size: 11px; color: #94a3b8;">SPECIMEN ID</span><br><b>{rep['sample_id']}</b></div>
+                        <div><span style="font-size: 11px; color: #94a3b8;">HEAT / LOT NO.</span><br><b>{rep['lot_number']}</b></div>
+                        <div><span style="font-size: 11px; color: #94a3b8;">CUSTOMER / PROJECT</span><br><b>{rep['customer']}</b></div>
+                        <div><span style="font-size: 11px; color: #94a3b8;">REPORTING METALLURGIST</span><br><b>{rep['analyst_name']}</b></div>
+                    </div>
+                    <div style="margin-bottom: 14px;">
+                        <h4 style="margin: 0 0 4px 0; color: #ffffff;">Material Classification: {rep['family_label']} ({rep['grade_hint'] or 'Standard'})</h4>
+                        <p style="margin: 0; font-size: 13px; color: #94a3b8;"><b>Compatibility Score:</b> {rep['compatibility_pct']:.1f}%</p>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Composition and candidate parts
+            c_col1, c_col2 = st.columns(2)
+            with c_col1:
+                st.markdown("<b>Measured Composition:</b>", unsafe_allow_html=True)
+                st.dataframe(pd.DataFrame(rep["normalized_composition"]), use_container_width=True, hide_index=True)
+            with c_col2:
+                st.markdown("<b>Matching Injector Components:</b>", unsafe_allow_html=True)
+                if rep["candidates"]:
+                    chips = "".join([f"<span class='component-chip'>📌 {c}</span>" for c in rep["candidates"]])
+                    st.markdown(f"<div>{chips}</div>", unsafe_allow_html=True)
+                else:
+                    st.write("No matching components.")
+                if rep["analyst_notes"]:
+                    st.markdown(f"<p style='font-size: 13px; margin-top: 12px; color: #cbd5e1;'><b>Analyst Remarks:</b> {rep['analyst_notes']}</p>", unsafe_allow_html=True)
+
+            # Report Actions
+            st.markdown("<div style='display: flex; gap: 12px; margin-top: 16px;'>", unsafe_allow_html=True)
+            act_c1, act_c2, act_c3, act_c4 = st.columns(4)
+            with act_c1:
+                if rep["status"] != "Approved":
+                    if st.button("✅ Mark as Approved", key=f"appr_{rep['id']}"):
+                        database.update_report_status(rep["id"], "Approved", user_name=active_user["name"])
+                        st.success("Report approved!")
+                        st.rerun()
+            with act_c2:
+                st.download_button(
+                    "📥 Export Certificate (JSON)",
+                    data=json.dumps(rep, indent=2),
+                    file_name=f"{rep['id']}.json",
+                    mime="application/json",
+                    key=f"dl_json_{rep['id']}",
+                )
+            with act_c3:
+                st.download_button(
+                    "📊 Export Table (CSV)",
+                    data=pd.DataFrame(rep["normalized_composition"]).to_csv(index=False),
+                    file_name=f"{rep['id']}_composition.csv",
+                    mime="text/csv",
+                    key=f"dl_csv_{rep['id']}",
+                )
+            with act_c4:
+                if st.button("🗑️ Delete Report", key=f"del_{rep['id']}"):
+                    database.delete_report(rep["id"], user_name=active_user["name"])
+                    st.warning(f"Report '{rep['id']}' deleted.")
+                    st.rerun()
+
+
+# ==========================================================================
+# VIEW 3: RATIO GATE EDITOR & VALIDATION ENGINE
 # ==========================================================================
 elif nav_choice == "⚖️ Ratio Gate Editor":
     st.markdown("""
         <div>
             <h2 style="margin: 0; color: #ffffff; font-weight: 700;">Ratio Gate Calibration & Validation</h2>
-            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Fine-tune stoichiometric ratio constraints and validate against 173 ground-truth spectra.</p>
+            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Fine-tune stoichiometric ratio constraints in SQLite and validate live against 173 ground-truth spectra.</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -866,12 +919,11 @@ elif nav_choice == "⚖️ Ratio Gate Editor":
     sel_fam_id = st.selectbox("Select Material Family to Calibrate:", options=family_keys, format_func=lambda k: f"{k} - {KB.families[k].label}")
     family_obj = KB.families[sel_fam_id]
 
-    # Ratio gates management
     st.markdown("<div class='lab-card'>", unsafe_allow_html=True)
     st.markdown(f"<h3 style='margin: 0 0 6px 0; color: #38bdf8;'>Active Ratio Gates for {sel_fam_id}</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='color: #cbd5e1; font-size: 13px;'>{family_obj.note or 'Adjust stoichiometric ratio bounds to prevent false positive classifications.'}</p>", unsafe_allow_html=True)
 
-    db_gates = get_db_gates_for_family(sel_fam_id)
+    db_gates = database.get_gates_for_family(sel_fam_id)
     active_gates = db_gates if db_gates is not None else [
         {
             "id": f"gate-{sel_fam_id.lower()}-1",
@@ -898,33 +950,17 @@ elif nav_choice == "⚖️ Ratio Gate Editor":
         updated_gates.append({**g, "min": new_min, "max": new_max, "enabled": enabled})
 
     # Save Overrides Button
-    if st.button("💾 Save Ratio Gate Calibration to Database"):
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("DELETE FROM ratio_gates WHERE family_id = ?", (sel_fam_id,))
-        for ug in updated_gates:
-            cur.execute("""
-                INSERT INTO ratio_gates VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (ug["id"], sel_fam_id, ug["name"], ug["numerator"], ug["denominator"], ug["min"], ug["max"], ug["rationale"], 1 if ug["enabled"] else 0))
-        # Log audit
-        cur.execute("""
-            INSERT INTO audit_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            f"audit-{int(time.time())}",
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Current Metallurgist",
-            "Snr. Metallurgist",
-            f"Calibrated ratio gates for {sel_fam_id}",
-            "Gate Calibration",
-            sel_fam_id,
-            "Previous Calibration",
-            f"Calibrated: {len(updated_gates)} gates",
-            "Tuned classification bounds",
-            "positive",
-        ))
-        conn.commit()
-        conn.close()
-        st.success(f"Calibration saved successfully for {sel_fam_id} and recorded in audit log.")
+    b_col1, b_col2 = st.columns(2)
+    with b_col1:
+        if st.button("💾 Save Ratio Gate Calibration to SQLite"):
+            database.save_gates_for_family(sel_fam_id, updated_gates, user_name=active_user["name"])
+            st.success(f"Calibration saved successfully for {sel_fam_id} and recorded in audit log.")
+    with b_col2:
+        if st.button("↺ Reset to Standard Defaults"):
+            database.reset_gates_for_family(sel_fam_id, user_name=active_user["name"])
+            st.info(f"Reset {sel_fam_id} gates to standard defaults.")
+            st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Ground-Truth Dataset Validation Engine
@@ -977,7 +1013,7 @@ elif nav_choice == "⚖️ Ratio Gate Editor":
 
 
 # ==========================================================================
-# VIEW 3: KNOWLEDGE BASE CATALOG
+# VIEW 4: KNOWLEDGE BASE CATALOG
 # ==========================================================================
 elif nav_choice == "📚 Knowledge Base Catalog":
     st.markdown("""
@@ -1037,56 +1073,43 @@ elif nav_choice == "📚 Knowledge Base Catalog":
 
 
 # ==========================================================================
-# VIEW 4: SYSTEM AUDIT LOG
+# VIEW 5: SYSTEM AUDIT LOG
 # ==========================================================================
 elif nav_choice == "📜 System Audit Log":
     st.markdown("""
         <div>
             <h2 style="margin: 0; color: #ffffff; font-weight: 700;">System Audit Log & Traceability</h2>
-            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Historical trace of microanalysis scans, gate calibrations, and model modifications.</p>
+            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Historical trace of microanalysis scans, gate calibrations, and report records in SQLite.</p>
         </div>
     """, unsafe_allow_html=True)
 
-    conn = get_db()
-    df_audit = pd.read_sql_query("SELECT * FROM audit_logs ORDER BY timestamp DESC", conn)
-    df_history = pd.read_sql_query("SELECT * FROM analysis_history ORDER BY timestamp DESC LIMIT 50", conn)
-    conn.close()
+    filter_action = st.selectbox("Filter by Event Type:", ["All", "ANALYSIS_EVALUATION", "REPORT_CREATION", "REPORT_STATUS_UPDATE", "REPORT_DELETION", "GATE_CALIBRATION", "USER_MANAGEMENT"])
+    audit_records = database.get_audit_logs(action_type=filter_action)
 
-    tab_audit, tab_history = st.tabs(["🔒 Calibration & System Logs", "🔬 Recent Microanalysis Scans"])
-
-    with tab_audit:
-        if df_audit.empty:
-            st.info("No audit logs recorded yet.")
-        else:
-            st.dataframe(df_audit, use_container_width=True, hide_index=True)
-            st.download_button("📥 Export Audit Logs (CSV)", data=df_audit.to_csv(index=False), file_name="audit_logs.csv", mime="text/csv")
-
-    with tab_history:
-        if df_history.empty:
-            st.info("No scans performed in this session yet.")
-        else:
-            st.dataframe(df_history, use_container_width=True, hide_index=True)
-            st.download_button("📥 Export Scan History (CSV)", data=df_history.to_csv(index=False), file_name="analysis_history.csv", mime="text/csv")
+    if not audit_records:
+        st.info("No audit logs found matching criteria.")
+    else:
+        df_audit = pd.DataFrame(audit_records)
+        st.dataframe(df_audit[["timestamp", "user_name", "user_role", "action_type", "action", "impact_type"]], use_container_width=True, hide_index=True)
+        st.download_button("📥 Export Audit Logs (CSV)", data=df_audit.to_csv(index=False), file_name="audit_logs.csv", mime="text/csv")
 
 
 # ==========================================================================
-# VIEW 5: USER & ANALYST MANAGEMENT
+# VIEW 6: USER & ANALYST MANAGEMENT
 # ==========================================================================
-elif nav_choice == "👥 User Management":
+elif nav_choice == "👥 User & Personnel Management":
     st.markdown("""
         <div>
             <h2 style="margin: 0; color: #ffffff; font-weight: 700;">Lab Personnel & Access Control</h2>
-            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Manage metallurgists, spectroscopy analysts, and permission roles.</p>
+            <p style="margin: 2px 0 16px 0; color: #94a3b8; font-size: 14px;">Manage metallurgists, spectroscopy analysts, and permission roles stored in SQLite.</p>
         </div>
     """, unsafe_allow_html=True)
 
-    conn = get_db()
-    df_users = pd.read_sql_query("SELECT * FROM users", conn)
-    conn.close()
+    users_data = database.get_users()
 
     st.markdown("<div class='lab-card'>", unsafe_allow_html=True)
     st.markdown("<h3 style='margin: 0 0 12px 0; color: #ffffff;'>Active Spectroscopy Roster</h3>", unsafe_allow_html=True)
-    st.dataframe(df_users, use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(users_data)[["id", "name", "email", "role", "department", "permissions", "initials", "created_at", "last_active"]], use_container_width=True, hide_index=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Add New Analyst Form
@@ -1099,18 +1122,19 @@ elif nav_choice == "👥 User Management":
                 role = st.selectbox("Role:", ["Snr. Metallurgist", "Spectroscopy Analyst", "Lab Tech", "Quality Engineer", "Auditor"])
             with u_c2:
                 dept = st.selectbox("Department:", ["Metallurgy", "Operations", "Quality Control", "R&D"])
-                perms = st.selectbox("Permissions:", ["Full Edit", "Read-only", "Calibrate Only"])
+                perms = st.selectbox("Permissions:", ["Full Admin", "Analyst (Read/Write)", "Auditor (Read-Only)"])
                 initials = st.text_input("Initials (2 letters):", max_chars=3)
 
             submit_user = st.form_submit_button("Create Analyst Profile")
             if submit_user and name and email:
-                conn = get_db()
-                cur = conn.cursor()
-                uid = f"user-{int(time.time())}"
-                cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (
-                    uid, name, email, role, dept, perms, initials.upper() or name[:2].upper(), 1, "Just registered"
-                ))
-                conn.commit()
-                conn.close()
-                st.success(f"Analyst '{name}' registered successfully.")
+                new_uid = database.add_user(
+                    name=name,
+                    email=email,
+                    role=role,
+                    department=dept,
+                    permissions=perms,
+                    initials=initials,
+                    created_by=active_user["name"],
+                )
+                st.success(f"Analyst '{name}' ({new_uid}) registered successfully.")
                 st.rerun()

@@ -125,15 +125,170 @@ def test_reference_dataset_validation():
     assert pass_rate >= 0.85, f"Expected at least 85% pass rate on reference spectra, got {pass_rate:.1%}"
 
 
+import database
+
 def test_sqlite_database_tables():
     """Verify SQLite tables exist and contain required seed data."""
-    conn = app.get_db()
+    conn = database.get_connection()
     cur = conn.cursor()
 
+    # Tables exist
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = {row[0] for row in cur.fetchall()}
+    assert {"reports", "audit_logs", "ratio_gates", "users", "alloy_presets"}.issubset(tables)
+
+    # Lead Metallurgist administrator seeded
     cur.execute("SELECT COUNT(*) FROM users")
+    assert cur.fetchone()[0] >= 1
+
+    # Standard metallurgical presets seeded
+    cur.execute("SELECT COUNT(*) FROM alloy_presets")
     assert cur.fetchone()[0] >= 5
 
-    cur.execute("SELECT COUNT(*) FROM audit_logs")
-    assert cur.fetchone()[0] >= 3
-
     conn.close()
+
+
+def test_database_reports_crud():
+    """Verify full CRUD lifecycle for official analysis reports."""
+    sample_id = "TEST-PARTICLE-999"
+    raw_comp = {"Cr": 18.0, "Ni": 8.0, "Fe": 74.0}
+    norm_comp = [
+        {"element": "Fe", "raw_wt": 74.0, "metal_wt": 74.0, "state": "MEASURED", "basis": True},
+        {"element": "Cr", "raw_wt": 18.0, "metal_wt": 18.0, "state": "MEASURED", "basis": True},
+        {"element": "Ni", "raw_wt": 8.0, "metal_wt": 8.0, "state": "MEASURED", "basis": True},
+    ]
+
+    # 1. Save Report
+    report_id = database.save_report(
+        title="Test Austenitic Verification",
+        sample_id=sample_id,
+        analyst_id="usr-admin",
+        analyst_name="Lead Metallurgist",
+        source_type="Manual Microanalysis",
+        raw_composition=raw_comp,
+        normalized_composition=norm_comp,
+        decision="identified",
+        family_id="F4",
+        family_label="Austenitic Stainless Steel (304 / 316)",
+        grade_hint="AISI 304 / 1.4301",
+        compatibility_pct=96.5,
+        candidates=["Valve needle", "Metering plate"],
+        caveats=[],
+        lot_number="LOT-2026-X",
+        customer="Automotive OEM",
+        analyst_notes="Clean particle with standard stoichiometric 18/8 balance.",
+        status="Completed",
+    )
+    assert report_id.startswith("RPT-")
+
+    # 2. Get Reports list & filter
+    reports = database.get_reports(search_query=sample_id)
+    assert len(reports) >= 1
+    found = next((r for r in reports if r["id"] == report_id), None)
+    assert found is not None
+    assert found["sample_id"] == sample_id
+    assert found["family_id"] == "F4"
+    assert found["compatibility_pct"] == 96.5
+    assert found["lot_number"] == "LOT-2026-X"
+
+    # 3. Get Report by ID
+    single = database.get_report_by_id(report_id)
+    assert single is not None
+    assert single["title"] == "Test Austenitic Verification"
+    assert single["raw_composition"]["Cr"] == 18.0
+
+    # 4. Update Status
+    success = database.update_report_status(report_id, "Approved", user_name="Quality Director")
+    assert success is True
+    updated = database.get_report_by_id(report_id)
+    assert updated["status"] == "Approved"
+
+    # 5. Delete Report
+    del_success = database.delete_report(report_id, user_name="Quality Director")
+    assert del_success is True
+    assert database.get_report_by_id(report_id) is None
+
+
+def test_database_ratio_gates_lifecycle():
+    """Verify persisting, retrieving, and resetting family ratio gates."""
+    family_id = "F4"
+    custom_gates = [
+        {
+            "id": "gate-test-cr-ni",
+            "name": "Cr / Ni Stoichiometry",
+            "numerator": "Cr",
+            "denominator": "Ni",
+            "min": 1.8,
+            "max": 2.5,
+            "rationale": "Tightened bounds for specialized test validation.",
+            "enabled": True,
+        }
+    ]
+
+    # Save
+    database.save_gates_for_family(family_id, custom_gates, user_name="Lead Metallurgist")
+
+    # Retrieve
+    stored = database.get_gates_for_family(family_id)
+    assert stored is not None
+    assert len(stored) == 1
+    assert stored[0]["name"] == "Cr / Ni Stoichiometry"
+    assert stored[0]["min"] == 1.8
+
+    # Reset
+    database.reset_gates_for_family(family_id, user_name="Lead Metallurgist")
+    assert database.get_gates_for_family(family_id) is None
+
+
+def test_database_user_and_audit_logging():
+    """Verify user registration and audit trail recording."""
+    # Register user
+    user_id = database.add_user(
+        name="Dr. Eleanor Vance",
+        email="e.vance@spectrallab.io",
+        role="Senior Metallurgist",
+        department="Failure Analysis",
+        permissions="Read & Calibrate",
+        initials="EV",
+    )
+    assert user_id.startswith("usr-")
+
+    users = database.get_users()
+    assert any(u["id"] == user_id for u in users)
+
+    # Log manual audit event
+    audit_id = database.log_audit(
+        user_id=user_id,
+        user_name="Dr. Eleanor Vance",
+        user_role="Senior Metallurgist",
+        action="Calibrated SEM EDS detector gain",
+        action_type="INSTRUMENT_CALIBRATION",
+        details={"detector": "Oxford Aztec", "gain_offset_ev": 0.4},
+        impact_type="positive",
+    )
+    assert audit_id.startswith("aud-")
+
+    logs = database.get_audit_logs(action_type="INSTRUMENT_CALIBRATION")
+    assert any(l["id"] == audit_id for l in logs)
+
+
+def test_database_alloy_presets():
+    """Verify official reference presets exist and custom presets can be added."""
+    presets = database.get_presets()
+    assert len(presets) >= 5
+    preset_names = [p["name"] for p in presets]
+    assert any("304" in name for name in preset_names)
+    assert any("Bronze" in name for name in preset_names)
+
+    new_id = database.add_preset(
+        name="Custom Inconel 718",
+        category="Superalloy",
+        description="Nickel-chromium superalloy for high-temperature turbine blades",
+        composition={"Ni": 52.5, "Cr": 19.0, "Fe": 18.5, "Nb": 5.1, "Mo": 3.0, "Ti": 0.9, "Al": 0.5},
+        created_by="Lead Metallurgist",
+    )
+    assert new_id.startswith("preset-")
+
+    refreshed = database.get_presets()
+    assert any(p["id"] == new_id for p in refreshed)
+
