@@ -20,7 +20,7 @@ DATA_DIR = BASE_DIR / "data"
 DEFAULT_DATA_FILE = DATA_DIR / "synthetic_eds_data.csv"  # .csv or .xlsx both supported
 REPORTS_DIR = DATA_DIR / "reports"
 
-FRONTEND_DIR = BASE_DIR / "frontend"
+APP_FILE = BASE_DIR / "app.py"
 OUTPUTS_DIR = BASE_DIR / "outputs"
 
 # --------------------------------------------------------------------------

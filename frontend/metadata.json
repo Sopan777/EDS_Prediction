@@ -1,8 +1,0 @@
-{
-  "name": "Spectral Lab - MaterialID",
-  "description": "Precision particle identification and spectral analysis system for metallurgical laboratories.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}

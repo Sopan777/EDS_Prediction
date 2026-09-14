@@ -41,24 +41,10 @@ standard library.
 
 ```
 .
-├── run_app.py                      # One-click full-stack launcher (Flask + React SPA)
+├── app.py                          # Unified Streamlit application (complete GUI & pipeline)
+├── run_app.py                      # One-click launcher (starts Streamlit app on port 5000)
 ├── requirements.txt                # Python dependencies
-├── config.py                       # Central project paths & settings
-│
-├── backend/                        # Backend web service & pipelines
-│   ├── server.py                   # Production Flask REST API & static file serving
-│   ├── ingestion/                  # Document parsing and table extraction
-│   │   ├── eds_geometry.py         # Word-geometry PDF table extractor (PyMuPDF)
-│   │   ├── eds_extractor.py        # Character-offset PDF table extraction fallback
-│   │   ├── docx_to_pdf.py          # DOCX -> PDF conversion utility
-│   │   └── eds_pipeline.py         # Batch report processing pipeline
-│   └── cli/                        # Terminal CLI applications
-│       └── app_rule.py             # CLI rule evaluation and batch identification
-│
-├── frontend/                       # Modern React + Vite + Tailwind web application
-│   ├── src/                        # Interactive analysis views, gauges & modals
-│   ├── dist/                       # Built static SPA distribution
-│   └── package.json
+├── config.py                       # Central paths & constants
 │
 ├── rule_engine/                    # Core metallurgical domain engine (stdlib only)
 │   ├── elements.py                 # Chemical element symbols & canonicalization
@@ -69,7 +55,14 @@ standard library.
 │   ├── knowledge/
 │   │   ├── sigma_model.json        # Measurement-uncertainty model fitted from real spectra
 │   │   └── materials.json          # Family definitions + element bands (generated)
-│   └── rules/                      # Retired conjunctive rules (kept for legacy test compatibility)
+│   └── rules/                      # Retired conjunctive rules (audit record)
+│
+├── backend/                        # Backend engines
+│   └── ingestion/                  # Document parsing and table extraction
+│       ├── eds_geometry.py         # Word-geometry PDF table extractor (PyMuPDF)
+│       ├── eds_extractor.py        # Character-offset PDF table extraction fallback
+│       ├── docx_to_pdf.py          # DOCX -> PDF conversion utility
+│       └── eds_pipeline.py         # Batch report processing pipeline
 │
 ├── data/                           # Ground-truth datasets & sample reports
 │   ├── EDS Consolidation.xlsx      # 173 REAL spectra ("Components" sheet) - source of truth
@@ -79,8 +72,8 @@ standard library.
 │
 ├── tests/                          # Automated test suite (all passing)
 │   ├── data/real_particles.json    # Ground-truth transcription of 6 real labelled particles
+│   ├── test_streamlit_app.py       # Streamlit app endpoints, pipeline & database tests
 │   ├── test_real_particles.py      # THE PRIMARY GATE - scores against real particles
-│   ├── test_spectral_lab_web.py    # Web API endpoints, CRUD, and frontend serving tests
 │   ├── test_scoring_invariance.py  # Mathematical invariance and negative controls
 │   └── test_knowledge_validation.py # Material bounds and schema integrity
 │
