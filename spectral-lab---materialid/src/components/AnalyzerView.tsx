@@ -23,6 +23,12 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [analysisDuration, setAnalysisDuration] = useState('0.42s');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [lastDecision, setLastDecision] = useState<'identified' | 'ambiguous' | 'unknown'>('identified');
+  const [lastReason, setLastReason] = useState<string>('');
+  const [extraElements, setExtraElements] = useState<{ [elem: string]: number }>({});
+  const [showAddElement, setShowAddElement] = useState(false);
+  const [selectedNewElement, setSelectedNewElement] = useState('Mo');
+  const [newElementVal, setNewElementVal] = useState('');
 
   // Manual elemental composition values (clean initial state, no sample data pre-filled)
   const [composition, setComposition] = useState<ElementalComposition>({
@@ -40,6 +46,9 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   const handleClearAnalysis = () => {
     setHasAnalyzed(false);
     setUploadedFileName(null);
+    setLastDecision('identified');
+    setLastReason('');
+    setExtraElements({});
     setComposition({
       cr: 0,
       ni: 0,
@@ -50,9 +59,10 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
     });
   };
 
-  // Predict family based on elemental inputs
-  const handlePredictFamily = () => {
-    const total = composition.cr + composition.ni + composition.mn + composition.si;
+  // Predict family based on elemental inputs using Python rule engine
+  const handlePredictFamily = async () => {
+    const totalExtra = Object.values(extraElements).reduce((a, b) => a + b, 0);
+    const total = composition.cr + composition.ni + composition.mn + composition.si + totalExtra;
     if (total === 0 && !uploadedFileName) {
       alert('Please enter elemental concentrations (wt%) or upload an EDS report to perform microanalysis.');
       return;
@@ -61,52 +71,133 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
     setIsAnalyzing(true);
     const start = performance.now();
 
-    setTimeout(() => {
-      // Find matching family based on composition
-      let matched = allFamilies.find((f) => f.code === 'F4') || activeFamily;
+    const payload: Record<string, any> = {
+      Cr: composition.cr,
+      Ni: composition.ni,
+      Mn: composition.mn,
+      Si: composition.si,
+      Fe: composition.fe || 'Bal.',
+      ...extraElements,
+    };
 
-      if (composition.cr < 3 && composition.ni < 2) {
-        matched = allFamilies.find((f) => f.code === 'F1a') || matched;
-      } else if (composition.cr >= 11 && composition.cr <= 15 && composition.ni < 2) {
-        matched = allFamilies.find((f) => f.code === 'F2b') || matched;
-      } else if (composition.cr < 1 && composition.mn < 0.2) {
-        matched = allFamilies.find((f) => f.code === 'F6a') || matched;
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ composition: payload }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Prediction failed');
+        setIsAnalyzing(false);
+        return;
       }
 
-      onSelectFamily(matched);
+      if (data.topFamily) {
+        const updatedFam: MaterialFamily = {
+          ...data.topFamily,
+          compatibilityScore: data.compatibilityPct ?? data.topFamily.compatibilityScore,
+          candidateComponents: data.candidateComponents?.length ? data.candidateComponents : data.topFamily.candidateComponents,
+        };
+        onSelectFamily(updatedFam);
+      }
       const elapsed = ((performance.now() - start) / 1000).toFixed(2);
-      setAnalysisDuration(`${elapsed}s`);
-      setIsAnalyzing(false);
+      setAnalysisDuration(data.processingTime || `${elapsed}s`);
+      setLastDecision(data.decision || 'identified');
+      setLastReason(data.reason || '');
       setHasAnalyzed(true);
-    }, 450);
+    } catch (err) {
+      console.error('Analysis error:', err);
+      alert('Connection error communicating with rule engine API.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     setUploadedFileName(file.name);
     setIsAnalyzing(true);
+    const start = performance.now();
 
-    setTimeout(() => {
-      // Parse uploaded spectral scan
-      if (file.name.toLowerCase().includes('bronze') || file.name.toLowerCase().includes('cu')) {
-        setComposition({ cr: 0.05, ni: 0.1, mn: 0.02, si: 0.05, c: null, fe: '0.4%' });
-        const bronzeFamily = allFamilies.find((f) => f.code === 'F6a');
-        if (bronzeFamily) onSelectFamily(bronzeFamily);
-      } else if (file.name.toLowerCase().includes('gear') || file.name.toLowerCase().includes('4140')) {
-        setComposition({ cr: 1.05, ni: 0.2, mn: 0.85, si: 0.28, c: null, fe: 'Bal.' });
-        const lowAlloy = allFamilies.find((f) => f.code === 'F1a');
-        if (lowAlloy) onSelectFamily(lowAlloy);
-      } else {
-        setComposition({ cr: 18.1, ni: 8.2, mn: 1.5, si: 0.5, c: null, fe: 'Bal.' });
-        const austenitic = allFamilies.find((f) => f.code === 'F4');
-        if (austenitic) onSelectFamily(austenitic);
+    const fd = new FormData();
+    fd.append('file', file);
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'File extraction failed');
+        setIsAnalyzing(false);
+        return;
       }
-      setAnalysisDuration('0.38s');
-      setIsAnalyzing(false);
+
+      // Populate composition inputs with extracted values from report
+      if (data.extractedComposition) {
+        const ext = data.extractedComposition;
+        setComposition({
+          cr: ext.Cr || 0,
+          ni: ext.Ni || 0,
+          mn: ext.Mn || 0,
+          si: ext.Si || 0,
+          c: ext.C !== undefined ? ext.C : null,
+          fe: ext.Fe !== undefined ? `${ext.Fe}%` : 'Bal.',
+        });
+
+        const extras: Record<string, number> = {};
+        for (const [k, v] of Object.entries(ext)) {
+          if (!['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k) && typeof v === 'number') {
+            extras[k] = v;
+          }
+        }
+        setExtraElements(extras);
+      }
+
+      if (data.topFamily) {
+        const updatedFam: MaterialFamily = {
+          ...data.topFamily,
+          compatibilityScore: data.compatibilityPct ?? data.topFamily.compatibilityScore,
+          candidateComponents: data.candidateComponents?.length ? data.candidateComponents : data.topFamily.candidateComponents,
+        };
+        onSelectFamily(updatedFam);
+      }
+      const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+      setAnalysisDuration(data.processingTime || `${elapsed}s`);
+      setLastDecision(data.decision || 'identified');
+      setLastReason(data.reason || '');
       setHasAnalyzed(true);
-    }, 500);
+    } catch (err) {
+      console.error('File analysis error:', err);
+      alert('Error uploading and analyzing spectral report.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
-  const gaugePct = activeFamily.compatibilityScore || 95;
+  const handleAddExtraElement = (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = parseFloat(newElementVal);
+    if (!isNaN(val) && selectedNewElement) {
+      setExtraElements((prev) => ({
+        ...prev,
+        [selectedNewElement]: val,
+      }));
+      setNewElementVal('');
+      setShowAddElement(false);
+    }
+  };
+
+  const handleRemoveExtraElement = (el: string) => {
+    setExtraElements((prev) => {
+      const copy = { ...prev };
+      delete copy[el];
+      return copy;
+    });
+  };
+
+  const gaugePct = activeFamily.compatibilityScore || (lastDecision === 'unknown' ? 0 : 95);
   const strokeDash = `${gaugePct}, 100`;
 
   return (
@@ -433,8 +524,106 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
               </div>
             </div>
 
-            {/* Predict Button */}
-            <div className="mt-4 flex justify-end gap-2">
+            {/* Extra Dynamic Elements (e.g. Mo, Cu, Sn, Zn, etc.) */}
+            {Object.keys(extraElements).length > 0 && (
+              <div className="mt-3 pt-3 border-t border-inherit">
+                <span className={`block text-[11px] font-bold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
+                  Additional Elements Measured (wt%)
+                </span>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                  {Object.entries(extraElements).map(([elem, val]) => (
+                    <div key={elem} className="relative group">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className={`text-[11px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#00ffcc]' : 'text-[#134231]'}`}>
+                          {elem}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExtraElement(elem)}
+                          className="text-[11px] text-rose-500 hover:text-rose-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Remove element"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={val}
+                        onChange={(e) =>
+                          setExtraElements({
+                            ...extraElements,
+                            [elem]: parseFloat(e.target.value) || 0,
+                          })
+                        }
+                        className={`w-full border rounded p-2 text-right font-mono-code text-[13px] font-medium focus:outline-none transition-colors ${
+                          isDarkMode
+                            ? 'bg-[#151d1a] border-[#00ffcc]/40 text-[#dbe5df] focus:border-[#00ffcc]'
+                            : 'bg-[#f7f9fb] border-[#134231]/40 text-[#191c1e] focus:border-[#134231]'
+                        }`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Add Element Inline Form & Predict Button Row */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                {!showAddElement ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddElement(true)}
+                    className={`text-[12px] font-semibold flex items-center gap-1 transition-colors ${
+                      isDarkMode ? 'text-[#00ffcc] hover:underline' : 'text-[#134231] hover:underline'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                    Add Element (Mo, Cu, Sn, Al, Zn...)
+                  </button>
+                ) : (
+                  <form onSubmit={handleAddExtraElement} className="flex items-center gap-2">
+                    <select
+                      value={selectedNewElement}
+                      onChange={(e) => setSelectedNewElement(e.target.value)}
+                      className={`text-[12px] rounded border px-2 py-1 focus:outline-none ${
+                        isDarkMode ? 'bg-[#151d1a] border-[#3a4a44] text-white' : 'bg-white border-[#c0c8c2] text-black'
+                      }`}
+                    >
+                      {['Mo', 'Cu', 'Sn', 'Al', 'Zn', 'W', 'V', 'Ti', 'Nb', 'Co', 'P', 'S', 'Pb', 'Au'].map((el) => (
+                        <option key={el} value={el}>
+                          {el}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="wt%"
+                      value={newElementVal}
+                      onChange={(e) => setNewElementVal(e.target.value)}
+                      className={`w-20 text-[12px] rounded border px-2 py-1 text-right focus:outline-none ${
+                        isDarkMode ? 'bg-[#151d1a] border-[#3a4a44] text-white' : 'bg-white border-[#c0c8c2] text-black'
+                      }`}
+                    />
+                    <button
+                      type="submit"
+                      className="px-2.5 py-1 text-[12px] font-semibold rounded bg-emerald-600 text-white hover:bg-emerald-700"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddElement(false)}
+                      className="px-2 py-1 text-[12px] opacity-60 hover:opacity-100"
+                    >
+                      Cancel
+                    </button>
+                  </form>
+                )}
+              </div>
+
               <button
                 id="btn-predict-family"
                 onClick={handlePredictFamily}
@@ -549,10 +738,22 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                 <div className="relative z-10 p-6">
                   {/* Badge & Execution Timer */}
                   <div className="flex justify-between items-start mb-4">
-                    <span className="inline-flex items-center gap-1.5 bg-[#bcedd4] text-[#002115] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#a1d1b9]">
-                      <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                      IDENTIFIED
-                    </span>
+                    {lastDecision === 'identified' ? (
+                      <span className="inline-flex items-center gap-1.5 bg-[#bcedd4] text-[#002115] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#a1d1b9]">
+                        <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                        IDENTIFIED
+                      </span>
+                    ) : lastDecision === 'ambiguous' ? (
+                      <span className="inline-flex items-center gap-1.5 bg-[#fef3c7] text-[#92400e] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#fde68a]">
+                        <span className="material-symbols-outlined text-[14px]">help</span>
+                        AMBIGUOUS SET
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 bg-[#fee2e2] text-[#991b1b] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#fecaca]">
+                        <span className="material-symbols-outlined text-[14px]">cancel</span>
+                        UNKNOWN / ABSTAINED
+                      </span>
+                    )}
 
                     <div
                       className={`flex items-center gap-1 text-[11px] font-mono-code ${
@@ -571,7 +772,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                         isDarkMode ? 'text-white' : 'text-[#191c1e]'
                       }`}
                     >
-                      {activeFamily.name}
+                      {lastDecision === 'unknown' ? 'Unclassified Material' : activeFamily.name}
                     </h3>
                     <p
                       className={`text-[14px] font-medium flex items-center gap-1.5 ${
@@ -579,7 +780,9 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                       }`}
                     >
                       <span className="material-symbols-outlined text-[16px]">info</span>
-                      Grade hint: {activeFamily.gradeHint}
+                      {lastDecision === 'unknown'
+                        ? (lastReason || 'Abstained: insufficient alloy signal for reliable specification check')
+                        : `Grade hint: ${activeFamily.gradeHint}${lastDecision === 'ambiguous' ? ' (Tied candidate families)' : ''}`}
                     </p>
                   </div>
 
@@ -602,7 +805,13 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                           strokeWidth="3.2"
                         />
                         <path
-                          className={isDarkMode ? 'text-[#00ffcc]' : 'text-[#26fedc]'}
+                          className={
+                            lastDecision === 'unknown'
+                              ? 'text-rose-500'
+                              : isDarkMode
+                              ? 'text-[#00ffcc]'
+                              : 'text-[#26fedc]'
+                          }
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                           fill="none"
                           stroke="currentColor"
@@ -614,7 +823,11 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span
                           className={`font-mono-code font-bold text-[14px] ${
-                            isDarkMode ? 'text-[#00ffcc]' : 'text-[#134231]'
+                            lastDecision === 'unknown'
+                              ? 'text-rose-500'
+                              : isDarkMode
+                              ? 'text-[#00ffcc]'
+                              : 'text-[#134231]'
                           }`}
                         >
                           {gaugePct}%
@@ -628,14 +841,22 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                           isDarkMode ? 'text-white' : 'text-[#191c1e]'
                         }`}
                       >
-                        High Compatibility
+                        {lastDecision === 'unknown'
+                          ? 'Abstained by Rule Engine'
+                          : lastDecision === 'ambiguous'
+                          ? 'Ambiguous Spectral Fit'
+                          : 'High Compatibility'}
                       </h4>
                       <p
                         className={`text-[12.5px] leading-snug mt-0.5 ${
                           isDarkMode ? 'text-[#b9cbc2]' : 'text-[#414944]'
                         }`}
                       >
-                        Spectral signature closely matches reference library standards for {activeFamily.code} ({activeFamily.gradeHint}).
+                        {lastDecision === 'unknown'
+                          ? (lastReason || 'Measurement did not exhibit required decisive alloy markers. Safe abstention prevents misclassification.')
+                          : lastDecision === 'ambiguous'
+                          ? 'Observed stoichiometry is consistent with multiple material families within measurement error.'
+                          : `Spectral signature closely matches reference library standards for ${activeFamily.code} (${activeFamily.gradeHint}).`}
                       </p>
                     </div>
                   </div>

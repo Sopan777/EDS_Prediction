@@ -59,6 +59,40 @@ export function App() {
     }
   }, [isDarkMode]);
 
+  // Fetch live application data from Python backend API
+  useEffect(() => {
+    fetch('/api/families')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setMaterialFamilies(data);
+          setActiveFamily((prev) => {
+            const found = data.find((f: MaterialFamily) => f.code === prev.code);
+            return found || data[0];
+          });
+        }
+      })
+      .catch((e) => console.warn('Using baseline families:', e));
+
+    fetch('/api/users')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setUsers(data);
+        }
+      })
+      .catch((e) => console.warn('Using baseline users:', e));
+
+    fetch('/api/audit-logs')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setAuditLogs(data);
+        }
+      })
+      .catch((e) => console.warn('Using baseline audit logs:', e));
+  }, []);
+
   const handleToggleTheme = () => {
     setIsDarkMode((prev) => !prev);
   };
@@ -80,7 +114,7 @@ export function App() {
     }));
 
     // Add entry to audit log
-    const currentUser = users[0]?.name || 'Lab Operator';
+    const currentUser = users[0]?.name || 'Dr. Marcus Vance';
     const currentRole = users[0]?.role || 'Snr. Metallurgist';
     const newLog: AuditLogEntry = {
       id: `audit-${Date.now()}`,
@@ -99,18 +133,42 @@ export function App() {
     };
 
     setAuditLogs((prev) => [newLog, ...prev]);
+
+    // Persist to backend API
+    fetch(`/api/gates/${activeFamily.code}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gates: updatedGates }),
+    }).catch((err) => console.error('Failed to persist ratio gates:', err));
+
+    fetch('/api/audit-logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLog),
+    }).catch((err) => console.error('Failed to log gate edit audit:', err));
+
     setCurrentSection('knowledge');
   };
 
   // User management handlers
   const handleAddUser = (newUser: UserAccount) => {
     setUsers((prev) => [newUser, ...prev]);
+    fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser),
+    }).catch((err) => console.error('Failed to persist user:', err));
   };
 
   const handleUpdateUser = (userId: string, updates: Partial<UserAccount>) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, ...updates } : u))
     );
+    fetch(`/api/users/${userId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    }).catch((err) => console.error('Failed to update user:', err));
   };
 
   const handleAddRole = (newRole: RoleDefinition) => {

@@ -21,6 +21,16 @@ env/
 # Generated output artifacts (reproducible via training scripts)
 outputs/*.json
 
+# Node & Frontend dependencies
+node_modules/
+**/node_modules/
+package-lock.json
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
 # OS files
 .DS_Store
 Thumbs.db
