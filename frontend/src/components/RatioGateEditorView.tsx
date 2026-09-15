@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { MaterialFamily, RatioGate } from '../types';
 
 interface RatioGateEditorViewProps {
@@ -6,6 +6,14 @@ interface RatioGateEditorViewProps {
   activeFamily: MaterialFamily;
   onSaveGates: (familyId: string, updatedGates: RatioGate[]) => void;
   onBack: () => void;
+}
+
+interface ValidationMetrics {
+  total: number;
+  passing: number;
+  failing: number;
+  topFailing: { grade: string; count: number }[];
+  note?: string;
 }
 
 export const RatioGateEditorView: React.FC<RatioGateEditorViewProps> = ({
@@ -24,58 +32,31 @@ export const RatioGateEditorView: React.FC<RatioGateEditorViewProps> = ({
   const [newGateMax, setNewGateMax] = useState(2.8);
   const [newGateRationale, setNewGateRationale] = useState('Suppresses high-manganese variants');
 
-  // Dynamic calculation for validation preview
-  const calculateMetrics = () => {
-    const total = activeFamily.totalSpectra || 0;
-    if (total === 0) {
-      return {
-        total: 0,
-        passing: 0,
-        failing: 0,
-        topFailing: [],
-      };
-    }
-    let baseFailing = 0;
+  // Real validation metrics from backend — no synthetic arithmetic
+  const [validationMetrics, setValidationMetrics] = useState<ValidationMetrics | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-    gates.forEach((g) => {
-      if (!g.enabled) return;
-      const width = g.max - g.min;
-      if (width < 0.5) {
-        baseFailing += 38;
-      } else if (width < 1.0) {
-        baseFailing += 18;
-      } else {
-        baseFailing += 6;
-      }
-    });
-
-    const finalFailing = Math.min(baseFailing, total);
-    const finalPassing = Math.max(total - finalFailing, 0);
-
-    return {
-      total,
-      passing: finalPassing,
-      failing: finalFailing,
-      topFailing:
-        finalFailing > 0
-          ? [
-              { grade: '316L', count: Math.round(finalFailing * 0.75) },
-              { grade: '304H', count: Math.round(finalFailing * 0.18) },
-              {
-                grade: 'Other',
-                count: Math.max(
-                  finalFailing -
-                    Math.round(finalFailing * 0.75) -
-                    Math.round(finalFailing * 0.18),
-                  1
-                ),
-              },
-            ]
-          : [],
-    };
-  };
-
-  const metrics = calculateMetrics();
+  // Call backend to validate current gates against real reference spectra
+  const runValidation = useCallback(() => {
+    setValidating(true);
+    setValidationError(null);
+    fetch('/api/gates/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        family_code: activeFamily.code,
+        gates: gates,
+      }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: ValidationMetrics) => setValidationMetrics(data))
+      .catch((err) => setValidationError(err.message || 'Validation failed'))
+      .finally(() => setValidating(false));
+  }, [activeFamily.code, gates]);
 
   const handleToggleGate = (id: string) => {
     setGates((prev) =>
@@ -108,10 +89,12 @@ export const RatioGateEditorView: React.FC<RatioGateEditorViewProps> = ({
     };
     setGates((prev) => [...prev, newGate]);
     setShowAddModal(false);
+    // Clear stale validation — user has changed gates
+    setValidationMetrics(null);
   };
 
   const handleSave = () => {
-    onSaveGates(activeFamily.id, gates);
+    onSaveGates(activeFamily.code, gates);
   };
 
   return (
@@ -413,95 +396,163 @@ export const RatioGateEditorView: React.FC<RatioGateEditorViewProps> = ({
           </h2>
         </div>
 
-        <div className="p-4 flex-1 overflow-y-auto flex flex-col">
-          <p className={`text-[12.5px] mb-4 ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
-            Impact of current gate settings on the reference dataset.
+        <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-4">
+          <p className={`text-[12.5px] ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
+            Run the current gate configuration against reference spectrum centroids
+            to see pass/fail impact before saving.
           </p>
 
-          {/* Reference Spectra Hero Stat */}
-          <div
-            className={`p-4 rounded-lg border mb-4 ${
-              isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
+          {/* Run Validation Button */}
+          <button
+            onClick={runValidation}
+            disabled={validating || gates.length === 0}
+            className={`w-full py-2.5 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
+              validating || gates.length === 0
+                ? 'opacity-50 cursor-not-allowed'
+                : isDarkMode
+                ? 'bg-[#00ffcc] text-[#00382b] hover:bg-[#24ffcd]'
+                : 'bg-[#134231] text-white hover:bg-[#2d5a47]'
             }`}
           >
-            <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-              Reference Spectra
-            </div>
-            <div
-              className={`font-display text-[38px] font-bold leading-tight ${
-                isDarkMode ? 'text-white' : 'text-[#191c1e]'
-              }`}
-            >
-              {metrics.total.toLocaleString()}
-            </div>
-          </div>
-
-          {/* Passing / Failing Stats */}
-          <div className="space-y-2.5 mb-6">
-            {/* Passing */}
-            <div
-              className={`p-3.5 rounded-lg border flex justify-between items-center ${
-                isDarkMode
-                  ? 'bg-emerald-950/40 border-emerald-500/30'
-                  : 'bg-emerald-50 border-emerald-200'
-              }`}
-            >
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-[14px]">
-                <span className="material-symbols-outlined text-[20px]">check_circle</span>
-                <span>Passing</span>
-              </div>
-              <span className="font-mono-code text-[17px] font-bold text-emerald-600 dark:text-emerald-400">
-                {metrics.passing.toLocaleString()}
-              </span>
-            </div>
-
-            {/* Failing */}
-            <div
-              className={`p-3.5 rounded-lg border flex justify-between items-center ${
-                isDarkMode
-                  ? 'bg-red-950/40 border-red-500/30'
-                  : 'bg-red-50 border-red-200'
-              }`}
-            >
-              <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-semibold text-[14px]">
-                <span className="material-symbols-outlined text-[20px]">cancel</span>
-                <span>Failing</span>
-              </div>
-              <span className="font-mono-code text-[17px] font-bold text-red-600 dark:text-red-400">
-                {metrics.failing.toLocaleString()}
-              </span>
-            </div>
-          </div>
-
-          {/* Top Failing Grades */}
-          <div className={`pt-4 border-t ${isDarkMode ? 'border-[#3a4a44]' : 'border-[#c0c8c2]'}`}>
-            <h4
-              className={`text-[11px] font-bold uppercase tracking-wider mb-2.5 ${
-                isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'
-              }`}
-            >
-              Top Failing Grades
-            </h4>
-            {metrics.topFailing.length === 0 ? (
-              <p className={`text-[12px] italic ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-                No failing records detected.
-              </p>
+            {validating ? (
+              <>
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Validating…
+              </>
             ) : (
-              <ul className="space-y-1.5 text-[13px] font-mono-code">
-                {metrics.topFailing.map((item) => (
-                  <li
-                    key={item.grade}
-                    className={`flex justify-between ${
-                      isDarkMode ? 'text-[#b9cbc2]' : 'text-[#414944]'
+              <>
+                <span className="material-symbols-outlined text-[16px]">play_arrow</span>
+                Run Validation
+              </>
+            )}
+          </button>
+
+          {/* Validation Error */}
+          {validationError && (
+            <div
+              className={`p-3 rounded-lg border text-[12px] ${
+                isDarkMode
+                  ? 'bg-red-900/20 border-red-700 text-red-300'
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}
+            >
+              <p className="font-semibold">Validation failed</p>
+              <p className="opacity-80 mt-0.5">{validationError}</p>
+            </div>
+          )}
+
+          {/* Not-yet-run state */}
+          {!validationMetrics && !validating && !validationError && (
+            <div
+              className={`p-4 rounded-lg border text-center text-[12px] ${
+                isDarkMode
+                  ? 'bg-[#151d1a] border-[#3a4a44] text-[#83958d]'
+                  : 'bg-[#f7f9fb] border-[#c0c8c2] text-[#717974]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[28px] block mb-1.5 opacity-40">analytics</span>
+              Click "Run Validation" to test these gates against the
+              {activeFamily.code} reference spectra from materials.json.
+            </div>
+          )}
+
+          {/* Real Validation Results */}
+          {validationMetrics && (
+            <>
+              {/* Reference Spectra count */}
+              <div
+                className={`p-4 rounded-lg border ${
+                  isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
+                }`}
+              >
+                <div
+                  className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${
+                    isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'
+                  }`}
+                >
+                  Reference Spectra Evaluated
+                </div>
+                <div
+                  className={`font-display text-[38px] font-bold leading-tight ${
+                    isDarkMode ? 'text-white' : 'text-[#191c1e]'
+                  }`}
+                >
+                  {validationMetrics.total.toLocaleString()}
+                </div>
+              </div>
+
+              {/* Passing / Failing */}
+              <div className="space-y-2.5">
+                <div
+                  className={`p-3.5 rounded-lg border flex justify-between items-center ${
+                    isDarkMode
+                      ? 'bg-emerald-950/40 border-emerald-500/30'
+                      : 'bg-emerald-50 border-emerald-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-[14px]">
+                    <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                    <span>Passing</span>
+                  </div>
+                  <span className="font-mono text-[17px] font-bold text-emerald-600 dark:text-emerald-400">
+                    {validationMetrics.passing.toLocaleString()}
+                  </span>
+                </div>
+                <div
+                  className={`p-3.5 rounded-lg border flex justify-between items-center ${
+                    isDarkMode
+                      ? 'bg-red-950/40 border-red-500/30'
+                      : 'bg-red-50 border-red-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-semibold text-[14px]">
+                    <span className="material-symbols-outlined text-[20px]">cancel</span>
+                    <span>Failing</span>
+                  </div>
+                  <span className="font-mono text-[17px] font-bold text-red-600 dark:text-red-400">
+                    {validationMetrics.failing.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Top Failing Gates */}
+              {validationMetrics.topFailing.length > 0 && (
+                <div
+                  className={`pt-3 border-t ${
+                    isDarkMode ? 'border-[#3a4a44]' : 'border-[#c0c8c2]'
+                  }`}
+                >
+                  <h4
+                    className={`text-[11px] font-bold uppercase tracking-wider mb-2.5 ${
+                      isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'
                     }`}
                   >
-                    <span>{item.grade}</span>
-                    <span className="font-semibold">{item.count}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                    Gates Causing Failures
+                  </h4>
+                  <ul className="space-y-1.5 text-[13px] font-mono">
+                    {validationMetrics.topFailing.map((item) => (
+                      <li
+                        key={item.grade}
+                        className={`flex justify-between ${
+                          isDarkMode ? 'text-[#b9cbc2]' : 'text-[#414944]'
+                        }`}
+                      >
+                        <span>{item.grade}</span>
+                        <span className="font-semibold">{item.count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Note from backend */}
+              {validationMetrics.note && (
+                <p className={`text-[11px] italic ${isDarkMode ? 'text-[#5a6a64]' : 'text-[#9aa3a0]'}`}>
+                  {validationMetrics.note}
+                </p>
+              )}
+            </>
+          )}
         </div>
       </div>
 

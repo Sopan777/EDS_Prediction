@@ -4,10 +4,13 @@ config.py
 Single place for every path, constant, and default setting shared across the
 EDS pipeline (training, prediction, comparison). Change values here rather
 than hunting through every script.
+
+Environment variables override defaults where noted.
 """
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -23,6 +26,16 @@ REPORTS_DIR = DATA_DIR / "reports"
 FRONTEND_DIR = BASE_DIR / "frontend"
 OUTPUTS_DIR = BASE_DIR / "outputs"
 
+# Upload directory for file ingestion — configurable via UPLOADS_DIR env var
+UPLOADS_DIR = Path(os.environ.get("UPLOADS_DIR", str(BASE_DIR / "uploads")))
+
+# Database — configurable via DATABASE_URL env var (sqlite:///path or path)
+_db_url = os.environ.get("DATABASE_URL", "")
+if _db_url.startswith("sqlite:///"):
+    DB_PATH = Path(_db_url[len("sqlite:///"):])
+else:
+    DB_PATH = BASE_DIR / "spectral_lab.db"
+
 # --------------------------------------------------------------------------
 # Data columns
 # --------------------------------------------------------------------------
@@ -34,6 +47,7 @@ ID_COLUMNS = ["Sr No.", "Spectrum", "Fe", "C", "O"]
 
 def ensure_dirs() -> None:
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # --------------------------------------------------------------------------

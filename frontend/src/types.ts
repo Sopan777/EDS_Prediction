@@ -2,19 +2,20 @@ export type NavSection = 'analyzer' | 'history' | 'knowledge' | 'settings' | 'ga
 export type TopTab = 'dashboard' | 'reports' | 'archive';
 
 export interface ElementalComposition {
-  cr: number;
-  ni: number;
-  mn: number;
-  si: number;
+  cr?: number;
+  ni?: number;
+  mn?: number;
+  si?: number;
   c?: number | null;
-  fe?: string;
+  fe?: number | 'Bal.';  // Fe can be a measured number or balance shorthand
   mo?: number;
+  [element: string]: number | string | null | undefined;  // Allow arbitrary elements from EDS reports
 }
 
 export interface CandidateComponent {
   id: string;
   name: string;
-  partNumber: string;
+  partNumber: string;  // Empty string when not in knowledge base
   category: string;
   nominalAlloy: string;
   confidence: number;
@@ -49,10 +50,10 @@ export interface MaterialFamily {
   gradeHint: string;
   status: 'FIRM' | 'PROV';
   description: string;
-  compatibilityScore: number;
+  compatibilityScore: number | null;  // null until an analysis is run
   totalSpectra: number;
-  passingSpectra: number;
-  failingSpectra: number;
+  passingSpectra: number | null;   // null — not computed in knowledge base
+  failingSpectra: number | null;   // null — not computed in knowledge base
   elementBands: ElementBand[];
   ratioGates: RatioGate[];
   candidateComponents: CandidateComponent[];
@@ -68,9 +69,9 @@ export interface UserAccount {
   name: string;
   email: string;
   role: 'Snr. Metallurgist' | 'Lab Tech' | 'Auditor' | 'Service Acct' | 'SysAdmin';
-  department: 'Research' | 'Operations' | 'System' | 'Quality Control' | 'Metallurgy';
+  department: string;
   permissions: 'Full Edit' | 'Read-only' | 'System Execution' | 'Admin';
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   initials?: string;
   isActive: boolean;
   lastActive?: string;
@@ -97,4 +98,20 @@ export interface AuditLogEntry {
   };
   impactText: string;
   impactType: 'positive' | 'neutral' | 'warning';
+}
+
+export interface AnalysisRecord {
+  id: string;
+  timestamp: string;
+  sourceType: string;
+  filename?: string | null;
+  composition: Record<string, number>;
+  decision: 'identified' | 'ambiguous' | 'unknown';
+  materialFamily?: string | null;
+  gradeHint?: string | null;
+  compatibility: number | null;
+  compatibilityPct: number;
+  candidateComponents: string[];
+  processingTimeSec?: number | null;
+  sessionId?: string | null;
 }

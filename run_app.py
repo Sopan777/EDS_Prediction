@@ -26,10 +26,19 @@ FRONTEND_DIST = FRONTEND_DIR / "dist"
 
 
 def ensure_frontend_built():
-    """Verify frontend build exists, or build it using npm."""
+    """Verify frontend dependencies and build exist, installing/building if needed."""
+    npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"
+
+    # Ensure node_modules exists
+    node_modules = FRONTEND_DIR / "node_modules"
+    if not node_modules.exists():
+        print("Frontend node_modules not found. Running npm install...")
+        subprocess.run([npm_cmd, "install"], cwd=str(FRONTEND_DIR), check=True)
+        print("Frontend dependencies installed.")
+
+    # Ensure dist exists
     if not (FRONTEND_DIST / "index.html").exists():
         print("Frontend distribution not found. Building with Vite...")
-        npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"
         subprocess.run([npm_cmd, "run", "build"], cwd=str(FRONTEND_DIR), check=True)
         print("Frontend built successfully.")
 

@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# Environment config (contains secrets / local paths)
+# .env.example is committed; .env is not
+.env
+
+# Database (operational; not committed — generated at runtime)
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded files
+uploads/
+
+# Trained model artifacts (absent — see README)
+saved_models/
+*.pkl
+*.joblib
+
+# Generated outputs
+outputs/
+
+# Temporary PDF uploads from legacy server code
+_tmp_upload_*.pdf
+
+# Frontend build output (generated; re-built by run_app.py or npm run build)
+frontend/dist/
+frontend/node_modules/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   NavSection,
   TopTab,
@@ -9,41 +9,84 @@ import {
   RoleDefinition,
   AuditLogEntry,
 } from './types';
-import {
-  INITIAL_MATERIAL_FAMILIES,
-  INITIAL_USERS,
-  ROLE_DEFINITIONS,
-  INITIAL_AUDIT_LOGS,
-} from './data/mockData';
+import { ROLE_DEFINITIONS } from './data/mockData';
 import { Navigation } from './components/Navigation';
 import { AnalyzerView } from './components/AnalyzerView';
 import { KnowledgeBaseView } from './components/KnowledgeBaseView';
 import { RatioGateEditorView } from './components/RatioGateEditorView';
 import { AuditLogView } from './components/AuditLogView';
 import { UserManagementView } from './components/UserManagementView';
+import { AnalysisHistoryView } from './components/AnalysisHistoryView';
 import { ComponentModal } from './components/ComponentModal';
 import { ExportModal } from './components/ExportModal';
 import { NewAnalysisModal } from './components/NewAnalysisModal';
 
+// --------------------------------------------------------------------------
+// Loading / Error banner helpers
+// --------------------------------------------------------------------------
+
+function BackendErrorBanner({ isDarkMode }: { isDarkMode: boolean }) {
+  return (
+    <div
+      className={`fixed top-0 left-0 right-0 z-[999] px-4 py-2 flex items-center gap-2 text-[13px] font-semibold ${
+        isDarkMode
+          ? 'bg-red-900/80 text-red-100 border-b border-red-700'
+          : 'bg-red-50 text-red-800 border-b border-red-300'
+      }`}
+    >
+      <span className="material-symbols-outlined text-[18px]">warning</span>
+      Backend unreachable — check that the Python server is running on port 5000.
+      No analysis data is available.
+    </div>
+  );
+}
+
+function LoadingSpinner({ isDarkMode }: { isDarkMode: boolean }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-4">
+      <div
+        className={`w-10 h-10 rounded-full border-4 border-t-transparent animate-spin ${
+          isDarkMode ? 'border-[#00ffcc]' : 'border-[#134231]'
+        }`}
+      />
+      <p className={`text-[13px] ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
+        Connecting to Spectral Lab server…
+      </p>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// App component
+// --------------------------------------------------------------------------
+
 export function App() {
-  // Theme state (default to dark mode as highlighted in spectral lab screenshots, with instant light toggle)
+  // Theme
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     return localStorage.getItem('spectral_theme') !== 'light';
   });
 
-  // Navigation state
+  // Navigation
   const [currentSection, setCurrentSection] = useState<NavSection>('analyzer');
   const [topTab, setTopTab] = useState<TopTab>('dashboard');
   const [globalSearch, setGlobalSearch] = useState('');
 
-  // Application Data States
-  const [materialFamilies, setMaterialFamilies] = useState<MaterialFamily[]>(INITIAL_MATERIAL_FAMILIES);
-  const [activeFamily, setActiveFamily] = useState<MaterialFamily>(INITIAL_MATERIAL_FAMILIES[0]);
-  const [users, setUsers] = useState<UserAccount[]>(INITIAL_USERS);
-  const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
+  // --------------------------------------------------------------------------
+  // Application Data States — NO mock data initial values
+  // --------------------------------------------------------------------------
+  const [materialFamilies, setMaterialFamilies] = useState<MaterialFamily[]>([]);
+  const [activeFamily, setActiveFamily] = useState<MaterialFamily | null>(null);
+  const [users, setUsers] = useState<UserAccount[]>([]);
+  const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);   // Static config, not backend data
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
 
-  // Modal States
+  // Loading / error states
+  const [familiesLoading, setFamiliesLoading] = useState(true);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [logsLoading, setLogsLoading] = useState(true);
+  const [backendError, setBackendError] = useState(false);
+
+  // Modal states
   const [selectedComponent, setSelectedComponent] = useState<CandidateComponent | null>(null);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isNewAnalysisOpen, setIsNewAnalysisOpen] = useState(false);
@@ -59,98 +102,113 @@ export function App() {
     }
   }, [isDarkMode]);
 
-  // Fetch live application data from Python backend API
-  useEffect(() => {
+  // --------------------------------------------------------------------------
+  // Backend data loaders
+  // --------------------------------------------------------------------------
+
+  const loadFamilies = useCallback(() => {
+    setFamiliesLoading(true);
     fetch('/api/families')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data) && data.length > 0) {
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: MaterialFamily[]) => {
+        if (Array.isArray(data)) {
           setMaterialFamilies(data);
           setActiveFamily((prev) => {
-            const found = data.find((f: MaterialFamily) => f.code === prev.code);
-            return found || data[0];
+            if (prev) {
+              const found = data.find((f) => f.code === prev.code);
+              return found || data[0] || null;
+            }
+            return data[0] || null;
           });
+          setBackendError(false);
         }
       })
-      .catch((e) => console.warn('Using baseline families:', e));
-
-    fetch('/api/users')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data) && data.length > 0) {
-          setUsers(data);
-        }
-      })
-      .catch((e) => console.warn('Using baseline users:', e));
-
-    fetch('/api/audit-logs')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data) && data.length > 0) {
-          setAuditLogs(data);
-        }
-      })
-      .catch((e) => console.warn('Using baseline audit logs:', e));
+      .catch(() => setBackendError(true))
+      .finally(() => setFamiliesLoading(false));
   }, []);
 
-  const handleToggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  // Ratio gates save handler
-  const handleSaveGates = (familyId: string, updatedGates: RatioGate[]) => {
-    setMaterialFamilies((prev) =>
-      prev.map((fam) => {
-        if (fam.id === familyId) {
-          return { ...fam, ratioGates: updatedGates };
-        }
-        return fam;
+  const loadUsers = useCallback(() => {
+    setUsersLoading(true);
+    fetch('/api/users')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
       })
+      .then((data: UserAccount[]) => {
+        if (Array.isArray(data)) setUsers(data);
+      })
+      .catch(() => {}) // Users are non-critical; don't show global error
+      .finally(() => setUsersLoading(false));
+  }, []);
+
+  const loadAuditLogs = useCallback(() => {
+    setLogsLoading(true);
+    fetch('/api/audit-logs')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: AuditLogEntry[]) => {
+        if (Array.isArray(data)) setAuditLogs(data);
+      })
+      .catch(() => {})
+      .finally(() => setLogsLoading(false));
+  }, []);
+
+  // Initial data load on mount
+  useEffect(() => {
+    loadFamilies();
+    loadUsers();
+    loadAuditLogs();
+  }, [loadFamilies, loadUsers, loadAuditLogs]);
+
+  const handleToggleTheme = () => setIsDarkMode((prev) => !prev);
+
+  // --------------------------------------------------------------------------
+  // Ratio gates save handler
+  // --------------------------------------------------------------------------
+  const handleSaveGates = (familyId: string, updatedGates: RatioGate[]) => {
+    // Update local state
+    setMaterialFamilies((prev) =>
+      prev.map((fam) =>
+        fam.code === familyId ? { ...fam, ratioGates: updatedGates } : fam
+      )
+    );
+    setActiveFamily((prev) =>
+      prev ? { ...prev, ratioGates: updatedGates } : prev
     );
 
-    setActiveFamily((prev) => ({
-      ...prev,
-      ratioGates: updatedGates,
-    }));
+    // Persist gates to backend (include user from state if available)
+    const actingUser = users[0]?.name || 'Lab Operator';
+    const actingRole = users[0]?.role || 'Metallurgist';
 
-    // Add entry to audit log
-    const currentUser = users[0]?.name || 'Dr. Marcus Vance';
-    const currentRole = users[0]?.role || 'Snr. Metallurgist';
-    const newLog: AuditLogEntry = {
-      id: `audit-${Date.now()}`,
-      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
-      user: currentUser,
-      userRole: currentRole,
-      action: `Updated Ratio Gates configuration for ${activeFamily?.code || 'Family'}`,
-      actionType: 'Gate Edit',
-      familyCode: activeFamily?.code || 'F4',
-      changeDetails: {
-        from: `${activeFamily?.ratioGates?.length || 0} active gates`,
-        to: `${updatedGates.filter((g) => g.enabled).length} active gates`,
-      },
-      impactText: 'Gates re-calibrated and saved to knowledge base',
-      impactType: 'positive',
-    };
-
-    setAuditLogs((prev) => [newLog, ...prev]);
-
-    // Persist to backend API
-    fetch(`/api/gates/${activeFamily.code}`, {
+    fetch(`/api/gates/${familyId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gates: updatedGates }),
-    }).catch((err) => console.error('Failed to persist ratio gates:', err));
-
-    fetch('/api/audit-logs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newLog),
-    }).catch((err) => console.error('Failed to log gate edit audit:', err));
+      body: JSON.stringify({
+        gates: updatedGates,
+        user: actingUser,
+        userRole: actingRole,
+      }),
+    })
+      .then((r) => r.ok && r.json())
+      .then(() => {
+        // Refresh audit logs from backend after gate save
+        loadAuditLogs();
+        // Refresh families (gates may have changed displayed ratioGates)
+        loadFamilies();
+      })
+      .catch((err) => console.error('Failed to persist ratio gates:', err));
 
     setCurrentSection('knowledge');
   };
 
+  // --------------------------------------------------------------------------
   // User management handlers
+  // --------------------------------------------------------------------------
   const handleAddUser = (newUser: UserAccount) => {
     setUsers((prev) => [newUser, ...prev]);
     fetch('/api/users', {
@@ -175,10 +233,34 @@ export function App() {
     setRoles((prev) => [...prev, newRole]);
   };
 
-  const handleStartSession = () => {
+  // --------------------------------------------------------------------------
+  // New analysis session — persist to backend
+  // --------------------------------------------------------------------------
+  const handleStartSession = (info: {
+    particleId: string;
+    spectrometer: string;
+    description: string;
+  }) => {
+    // Save session to backend for tracking
+    fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        particleId: info.particleId,
+        spectrometer: info.spectrometer,
+        description: info.description,
+        createdBy: users[0]?.name || 'Lab Operator',
+      }),
+    }).catch((err) => console.warn('Session not saved:', err));
+
     setCurrentSection('analyzer');
     setTopTab('dashboard');
   };
+
+  // --------------------------------------------------------------------------
+  // Loading / error guard
+  // --------------------------------------------------------------------------
+  const isInitialLoading = familiesLoading && materialFamilies.length === 0;
 
   return (
     <div
@@ -186,6 +268,9 @@ export function App() {
         isDarkMode ? 'bg-[#0c1512] text-[#dbe5df]' : 'bg-[#f7f9fb] text-[#191c1e]'
       }`}
     >
+      {/* Backend error banner */}
+      {backendError && <BackendErrorBanner isDarkMode={isDarkMode} />}
+
       {/* Side & Top Navigation */}
       <Navigation
         currentSection={currentSection}
@@ -212,51 +297,63 @@ export function App() {
       {/* Main View Container */}
       <main
         id="main-content-viewport"
-        className="ml-[280px] mt-16 flex-1 p-6 overflow-hidden h-[calc(100vh-64px)]"
+        className={`ml-[280px] mt-16 flex-1 p-6 overflow-hidden h-[calc(100vh-64px)] ${
+          backendError ? 'mt-[76px]' : 'mt-16'
+        }`}
       >
-        {currentSection === 'analyzer' && (
-          <AnalyzerView
-            isDarkMode={isDarkMode}
-            activeFamily={activeFamily}
-            onSelectFamily={setActiveFamily}
-            onSelectComponent={(comp) => setSelectedComponent(comp)}
-            allFamilies={materialFamilies}
-          />
-        )}
+        {/* Global loading state */}
+        {isInitialLoading ? (
+          <LoadingSpinner isDarkMode={isDarkMode} />
+        ) : (
+          <>
+            {currentSection === 'analyzer' && (
+              <AnalyzerView
+                isDarkMode={isDarkMode}
+                activeFamily={activeFamily}
+                onSelectFamily={setActiveFamily}
+                onSelectComponent={(comp) => setSelectedComponent(comp)}
+                allFamilies={materialFamilies}
+                onAnalysisComplete={() => loadAuditLogs()}
+              />
+            )}
 
-        {currentSection === 'knowledge' && (
-          <KnowledgeBaseView
-            isDarkMode={isDarkMode}
-            activeFamily={activeFamily}
-            onSelectFamily={setActiveFamily}
-            onOpenGateEditor={() => setCurrentSection('gate-editor')}
-            onSelectComponent={(comp) => setSelectedComponent(comp)}
-            families={materialFamilies}
-          />
-        )}
+            {currentSection === 'knowledge' && (
+              <KnowledgeBaseView
+                isDarkMode={isDarkMode}
+                activeFamily={activeFamily}
+                onSelectFamily={setActiveFamily}
+                onOpenGateEditor={() => setCurrentSection('gate-editor')}
+                onSelectComponent={(comp) => setSelectedComponent(comp)}
+                families={materialFamilies}
+              />
+            )}
 
-        {currentSection === 'gate-editor' && (
-          <RatioGateEditorView
-            isDarkMode={isDarkMode}
-            activeFamily={activeFamily}
-            onSaveGates={handleSaveGates}
-            onBack={() => setCurrentSection('knowledge')}
-          />
-        )}
+            {currentSection === 'gate-editor' && activeFamily && (
+              <RatioGateEditorView
+                isDarkMode={isDarkMode}
+                activeFamily={activeFamily}
+                onSaveGates={handleSaveGates}
+                onBack={() => setCurrentSection('knowledge')}
+              />
+            )}
 
-        {currentSection === 'history' && (
-          <AuditLogView isDarkMode={isDarkMode} auditLogs={auditLogs} />
-        )}
+            {currentSection === 'history' && (
+              <AnalysisHistoryView
+                isDarkMode={isDarkMode}
+              />
+            )}
 
-        {currentSection === 'settings' && (
-          <UserManagementView
-            isDarkMode={isDarkMode}
-            users={users}
-            roles={roles}
-            onAddUser={handleAddUser}
-            onUpdateUser={handleUpdateUser}
-            onAddRole={handleAddRole}
-          />
+            {currentSection === 'settings' && (
+              <UserManagementView
+                isDarkMode={isDarkMode}
+                users={users}
+                roles={roles}
+                onAddUser={handleAddUser}
+                onUpdateUser={handleUpdateUser}
+                onAddRole={handleAddRole}
+              />
+            )}
+          </>
         )}
       </main>
 

@@ -3,12 +3,37 @@ import { MaterialFamily, CandidateComponent } from '../types';
 
 interface KnowledgeBaseViewProps {
   isDarkMode: boolean;
-  activeFamily?: MaterialFamily;
+  activeFamily?: MaterialFamily | null;
   onSelectFamily: (f: MaterialFamily) => void;
   onOpenGateEditor: () => void;
   onSelectComponent: (comp: CandidateComponent) => void;
   families: MaterialFamily[];
 }
+
+const ELEMENT_NAMES: Record<string, string> = {
+  Cr: 'Chromium',
+  Ni: 'Nickel',
+  Mn: 'Manganese',
+  Si: 'Silicon',
+  Fe: 'Iron',
+  Mo: 'Molybdenum',
+  Cu: 'Copper',
+  Sn: 'Tin',
+  Al: 'Aluminium',
+  Zn: 'Zinc',
+  W: 'Tungsten',
+  V: 'Vanadium',
+  Ti: 'Titanium',
+  Nb: 'Niobium',
+  Co: 'Cobalt',
+  P: 'Phosphorus',
+  S: 'Sulfur',
+  Pb: 'Lead',
+  Au: 'Gold',
+  C: 'Carbon',
+  O: 'Oxygen',
+  N: 'Nitrogen',
+};
 
 export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
   isDarkMode,
@@ -286,30 +311,35 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-inherit">
-                {activeFamily.baselineElements.length === 0 ? (
+                {(!activeFamily.elementBands || activeFamily.elementBands.length === 0) ? (
                   <tr>
                     <td colSpan={4} className="py-8 text-center text-[12px] opacity-60">
                       No baseline elemental bands configured yet for this family.
                     </td>
                   </tr>
                 ) : (
-                  activeFamily.baselineElements.map((band) => (
+                  activeFamily.elementBands.map((band) => (
                     <tr
-                      key={band.symbol}
+                      key={band.element}
                       className={`transition-colors ${
                         isDarkMode ? 'hover:bg-[#151d1a]' : 'hover:bg-[#f2f4f6]'
                       }`}
                     >
                       <td className="p-3 flex items-center gap-2">
                         <span className="font-mono-code font-bold text-[14px]">
-                          {band.symbol}
+                          {band.element}
                         </span>
                         <span className={`text-[12px] ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-                          {band.name}
+                          {ELEMENT_NAMES[band.element] || band.element}
                         </span>
                         {band.role === 'Required' && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-mono-code bg-emerald-500/20 text-emerald-400">
                             REQ
+                          </span>
+                        )}
+                        {band.role === 'Trace' && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono-code bg-amber-500/20 text-amber-400">
+                            TRACE
                           </span>
                         )}
                       </td>
@@ -387,7 +417,7 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
             </div>
 
             <div className="space-y-3">
-              {activeFamily.ratioGates.length === 0 ? (
+              {(!activeFamily.ratioGates || activeFamily.ratioGates.length === 0) ? (
                 <div className="py-6 text-center text-[12px] opacity-60">
                   <span className="material-symbols-outlined text-[24px] mb-1 block">rule</span>
                   No ratio gates defined for {activeFamily.code}.
@@ -456,7 +486,7 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
               </h3>
             </div>
 
-            {activeFamily.candidateComponents.length === 0 ? (
+            {(!activeFamily.candidateComponents || activeFamily.candidateComponents.length === 0) ? (
               <div className="py-6 text-center text-[12px] opacity-60">
                 <span className="material-symbols-outlined text-[24px] mb-1 block">category</span>
                 No components cataloged for {activeFamily.code}.

@@ -5,7 +5,7 @@ interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
   isDarkMode: boolean;
-  activeFamily: MaterialFamily;
+  activeFamily: MaterialFamily | null;
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({

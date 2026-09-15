@@ -5,7 +5,12 @@
 #
 # NOTE ON SCOPE: rule_engine/ (real_data, normalize, scoring) and training/ are
 # STDLIB-ONLY by design and need nothing here. The packages below are required
-# only by the PDF ingest path and the retired ML scripts.
+# only by the web server, PDF ingest path, and the retired ML scripts.
+
+# --- Web server ---
+flask>=3.0.0
+flask-cors>=4.0.0
+python-dotenv>=1.0.0
 
 # --- PDF ingest (eds_geometry.py) ---
 # Word-level geometry. The text-layout extractor mis-parses these reports:

@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { MaterialFamily, CandidateComponent, ElementalComposition } from '../types';
-import { METAL_MACRO_BG } from '../data/mockData';
 
 interface AnalyzerViewProps {
   isDarkMode: boolean;
-  activeFamily: MaterialFamily;
+  activeFamily: MaterialFamily | null;
   onSelectFamily: (family: MaterialFamily) => void;
   onSelectComponent: (comp: CandidateComponent) => void;
   allFamilies: MaterialFamily[];
+  onAnalysisComplete?: () => void;
 }
 
 export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
@@ -16,12 +16,13 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   onSelectFamily,
   onSelectComponent,
   allFamilies,
+  onAnalysisComplete,
 }) => {
   const [ingestionTab, setIngestionTab] = useState<'upload' | 'manual'>('upload');
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
-  const [analysisDuration, setAnalysisDuration] = useState('0.42s');
+  const [analysisDuration, setAnalysisDuration] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [lastDecision, setLastDecision] = useState<'identified' | 'ambiguous' | 'unknown'>('identified');
   const [lastReason, setLastReason] = useState<string>('');
@@ -106,6 +107,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
       setLastDecision(data.decision || 'identified');
       setLastReason(data.reason || '');
       setHasAnalyzed(true);
+      onAnalysisComplete?.();
     } catch (err) {
       console.error('Analysis error:', err);
       alert('Connection error communicating with rule engine API.');
@@ -168,6 +170,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
       setLastDecision(data.decision || 'identified');
       setLastReason(data.reason || '');
       setHasAnalyzed(true);
+      onAnalysisComplete?.();
     } catch (err) {
       console.error('File analysis error:', err);
       alert('Error uploading and analyzing spectral report.');
@@ -197,7 +200,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
     });
   };
 
-  const gaugePct = activeFamily.compatibilityScore || (lastDecision === 'unknown' ? 0 : 95);
+  const gaugePct = activeFamily?.compatibilityScore ?? (lastDecision === 'unknown' ? 0 : 95);
   const strokeDash = `${gaugePct}, 100`;
 
   return (
@@ -729,12 +732,6 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                     : 'bg-white border-[#c0c8c2]'
                 }`}
               >
-                {/* Macro metallic texture background */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center opacity-10 mix-blend-luminosity pointer-events-none"
-                  style={{ backgroundImage: `url('${METAL_MACRO_BG}')` }}
-                />
-
                 <div className="relative z-10 p-6">
                   {/* Badge & Execution Timer */}
                   <div className="flex justify-between items-start mb-4">
@@ -772,7 +769,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                         isDarkMode ? 'text-white' : 'text-[#191c1e]'
                       }`}
                     >
-                      {lastDecision === 'unknown' ? 'Unclassified Material' : activeFamily.name}
+                      {lastDecision === 'unknown' ? 'Unclassified Material' : (activeFamily?.name || 'Identified Material')}
                     </h3>
                     <p
                       className={`text-[14px] font-medium flex items-center gap-1.5 ${
@@ -782,7 +779,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                       <span className="material-symbols-outlined text-[16px]">info</span>
                       {lastDecision === 'unknown'
                         ? (lastReason || 'Abstained: insufficient alloy signal for reliable specification check')
-                        : `Grade hint: ${activeFamily.gradeHint}${lastDecision === 'ambiguous' ? ' (Tied candidate families)' : ''}`}
+                        : `Grade hint: ${activeFamily?.gradeHint || 'Alloy Grade'}${lastDecision === 'ambiguous' ? ' (Tied candidate families)' : ''}`}
                     </p>
                   </div>
 
@@ -856,7 +853,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                           ? (lastReason || 'Measurement did not exhibit required decisive alloy markers. Safe abstention prevents misclassification.')
                           : lastDecision === 'ambiguous'
                           ? 'Observed stoichiometry is consistent with multiple material families within measurement error.'
-                          : `Spectral signature closely matches reference library standards for ${activeFamily.code} (${activeFamily.gradeHint}).`}
+                          : `Spectral signature closely matches reference library standards for ${activeFamily?.code || 'family'} (${activeFamily?.gradeHint || 'standard'}).`}
                       </p>
                     </div>
                   </div>
@@ -885,7 +882,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                   </h4>
 
                   <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-                    {activeFamily.candidateComponents.length === 0 ? (
+                    {!activeFamily || activeFamily.candidateComponents.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-center p-3 opacity-60">
                         <span className="material-symbols-outlined text-[26px] mb-1">category</span>
                         <p className="text-[12px] font-semibold">No candidate components mapped</p>
@@ -967,7 +964,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
                   </h4>
 
                   <div className="space-y-2 relative z-10 overflow-y-auto">
-                    {activeFamily.contextCaveats.map((caveat, idx) => (
+                    {(activeFamily?.contextCaveats || []).map((caveat, idx) => (
                       <div
                         key={idx}
                         className={`p-2 rounded border flex gap-2 items-start ${
