@@ -253,7 +253,7 @@ def test_users_endpoint(client):
     res = client.get("/api/users")
     assert res.status_code == 200
     users = res.get_json()
-    assert len(users) >= 5
+    assert isinstance(users, list)
 
     # Add user
     new_user = {

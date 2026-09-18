@@ -275,28 +275,12 @@ def init_db() -> None:
         "CREATE INDEX IF NOT EXISTS idx_ratio_gates_family ON ratio_gates(family_id)"
     )
 
-    # Seed initial users if empty
-    cur.execute("SELECT COUNT(*) FROM users")
-    if cur.fetchone()[0] == 0:
-        initial_users = [
-            ("user-1", "Dr. Marcus Vance", "m.vance@spectrallab.io", "Snr. Metallurgist", "Metallurgy", "Full Edit", None, "MV", 1, "Just now"),
-            ("user-2", "Sarah Jenkins", "s.jenkins@spectrallab.io", "Lab Tech", "Operations", "Read-only", None, "SJ", 1, "12m ago"),
-            ("user-3", "Alex Rivera", "a.rivera@spectrallab.io", "Lab Tech", "Operations", "Read-only", None, "AR", 1, "1h ago"),
-            ("user-4", "David Chen", "d.chen@spectrallab.io", "Auditor", "Quality Control", "Read-only", None, "DC", 1, "3h ago"),
-            ("user-5", "Spectrometer ETL Daemon", "service-eds@spectrallab.io", "Service Acct", "System", "System Execution", None, "SE", 1, "Continuous"),
-        ]
-        cur.executemany(
-            "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            initial_users
-        )
-
     # Seed initial audit logs if empty
     cur.execute("SELECT COUNT(*) FROM audit_logs")
     if cur.fetchone()[0] == 0:
         initial_logs = [
-            ("audit-1", "2026-09-14 08:30:00", "Dr. Marcus Vance", "Snr. Metallurgist", "Calibrated baseline ratio gate Cr/Ni for F4", "Gate Edit", "F4", "Cr/Ni: [1.4, 3.2]", "Cr/Ni: [1.85, 2.30]", "Tighter differentiation from 316L and duplex stainless grades", "positive"),
-            ("audit-2", "2026-09-14 07:15:22", "Spectrometer ETL Daemon", "Service Acct", "Ingested and validated 173 reference spectra from EDS Consolidation", "Calibration", "All", "Uncalibrated", "173 spectra normalised", "Reference database active", "positive"),
-            ("audit-3", "2026-09-13 16:45:10", "Sarah Jenkins", "Lab Tech", "Microanalysis scan on Particle In IC Stud (ISUZU)", "Override", "F1b", "Unknown", "F1b (~1.5 Mn plain carbon steel)", "Guide Bush candidate confirmed", "neutral"),
+            ("audit-1", "2026-09-14 08:30:00", "Lab Operator", "Metallurgist", "Calibrated baseline ratio gate Cr/Ni for F4", "Gate Edit", "F4", "Cr/Ni: [1.4, 3.2]", "Cr/Ni: [1.85, 2.30]", "Tighter differentiation from 316L and duplex stainless grades", "positive"),
+            ("audit-2", "2026-09-14 07:15:22", "System Engine", "System", "Ingested and validated reference spectra from materials.json", "Calibration", "All", "Uncalibrated", "Reference spectra normalized", "Knowledge base active", "positive"),
         ]
         cur.executemany(
             "INSERT INTO audit_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",

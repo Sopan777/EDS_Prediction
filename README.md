@@ -112,10 +112,8 @@ python run_app.py --port 8080 --no-browser
 │   │   │   ├── KnowledgeBaseView.tsx   # Material family library & elemental bands
 │   │   │   ├── RatioGateEditorView.tsx # Gate configuration & real validation preview
 │   │   │   ├── AnalysisHistoryView.tsx # Searchable history of all past analyses
-│   │   │   ├── UserManagementView.tsx  # User accounts, permissions & roles
+│   │   │   ├── SettingsView.tsx        # System settings, diagnostics & audit trace
 │   │   │   └── Navigation.tsx          # Responsive navigation & theme toggles
-│   │   └── data/
-│   │       └── mockData.ts         # Static role metadata configuration
 │   ├── package.json
 │   └── vite.config.ts
 │

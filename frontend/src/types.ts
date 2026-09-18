@@ -1,5 +1,5 @@
 export type NavSection = 'analyzer' | 'history' | 'knowledge' | 'settings' | 'gate-editor';
-export type TopTab = 'dashboard' | 'reports' | 'archive';
+export type TopTab = 'dashboard' | 'archive';
 
 export interface ElementalComposition {
   cr?: number;

@@ -277,9 +277,6 @@ export const Navigation: React.FC<NavigationProps> = ({
             <TopTabButton id="top-tab-dashboard" label="Dashboard"
               active={topTab === 'dashboard' && currentSection === 'analyzer'}
               onClick={() => { onSelectTopTab('dashboard'); onNavigate('analyzer'); }} />
-            <TopTabButton id="top-tab-reports" label="Reports"
-              active={topTab === 'reports'}
-              onClick={() => { onSelectTopTab('reports'); onOpenExport(); }} />
             <TopTabButton id="top-tab-archive" label="Archive"
               active={topTab === 'archive' || currentSection === 'history'}
               onClick={() => { onSelectTopTab('archive'); onNavigate('history'); }} />

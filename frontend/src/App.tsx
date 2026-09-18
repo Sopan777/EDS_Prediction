@@ -5,17 +5,13 @@ import {
   MaterialFamily,
   CandidateComponent,
   RatioGate,
-  UserAccount,
-  RoleDefinition,
   AuditLogEntry,
 } from './types';
-import { ROLE_DEFINITIONS } from './data/mockData';
 import { Navigation } from './components/Navigation';
 import { AnalyzerView } from './components/AnalyzerView';
 import { KnowledgeBaseView } from './components/KnowledgeBaseView';
 import { RatioGateEditorView } from './components/RatioGateEditorView';
-import { AuditLogView } from './components/AuditLogView';
-import { UserManagementView } from './components/UserManagementView';
+import { SettingsView } from './components/SettingsView';
 import { AnalysisHistoryView } from './components/AnalysisHistoryView';
 import { ComponentModal } from './components/ComponentModal';
 import { ExportModal } from './components/ExportModal';
@@ -76,13 +72,10 @@ export function App() {
   // --------------------------------------------------------------------------
   const [materialFamilies, setMaterialFamilies] = useState<MaterialFamily[]>([]);
   const [activeFamily, setActiveFamily] = useState<MaterialFamily | null>(null);
-  const [users, setUsers] = useState<UserAccount[]>([]);
-  const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);   // Static config, not backend data
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
 
   // Loading / error states
   const [familiesLoading, setFamiliesLoading] = useState(true);
-  const [usersLoading, setUsersLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(true);
   const [backendError, setBackendError] = useState(false);
 
@@ -130,20 +123,6 @@ export function App() {
       .finally(() => setFamiliesLoading(false));
   }, []);
 
-  const loadUsers = useCallback(() => {
-    setUsersLoading(true);
-    fetch('/api/users')
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((data: UserAccount[]) => {
-        if (Array.isArray(data)) setUsers(data);
-      })
-      .catch(() => {}) // Users are non-critical; don't show global error
-      .finally(() => setUsersLoading(false));
-  }, []);
-
   const loadAuditLogs = useCallback(() => {
     setLogsLoading(true);
     fetch('/api/audit-logs')
@@ -161,9 +140,8 @@ export function App() {
   // Initial data load on mount
   useEffect(() => {
     loadFamilies();
-    loadUsers();
     loadAuditLogs();
-  }, [loadFamilies, loadUsers, loadAuditLogs]);
+  }, [loadFamilies, loadAuditLogs]);
 
   const handleToggleTheme = () => setIsDarkMode((prev) => !prev);
 
@@ -207,33 +185,6 @@ export function App() {
   };
 
   // --------------------------------------------------------------------------
-  // User management handlers
-  // --------------------------------------------------------------------------
-  const handleAddUser = (newUser: UserAccount) => {
-    setUsers((prev) => [newUser, ...prev]);
-    fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newUser),
-    }).catch((err) => console.error('Failed to persist user:', err));
-  };
-
-  const handleUpdateUser = (userId: string, updates: Partial<UserAccount>) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, ...updates } : u))
-    );
-    fetch(`/api/users/${userId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
-    }).catch((err) => console.error('Failed to update user:', err));
-  };
-
-  const handleAddRole = (newRole: RoleDefinition) => {
-    setRoles((prev) => [...prev, newRole]);
-  };
-
-  // --------------------------------------------------------------------------
   // New analysis session — persist to backend
   // --------------------------------------------------------------------------
   const handleStartSession = (info: {
@@ -249,7 +200,7 @@ export function App() {
         particleId: info.particleId,
         spectrometer: info.spectrometer,
         description: info.description,
-        createdBy: users[0]?.name || 'Lab Operator',
+        createdBy: 'Lab Operator',
       }),
     }).catch((err) => console.warn('Session not saved:', err));
 
@@ -284,7 +235,6 @@ export function App() {
           setTopTab(tab);
           if (tab === 'dashboard') setCurrentSection('analyzer');
           if (tab === 'archive') setCurrentSection('history');
-          if (tab === 'reports') setIsExportOpen(true);
         }}
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleTheme}
@@ -344,13 +294,11 @@ export function App() {
             )}
 
             {currentSection === 'settings' && (
-              <UserManagementView
+              <SettingsView
                 isDarkMode={isDarkMode}
-                users={users}
-                roles={roles}
-                onAddUser={handleAddUser}
-                onUpdateUser={handleUpdateUser}
-                onAddRole={handleAddRole}
+                onToggleTheme={handleToggleTheme}
+                auditLogs={auditLogs}
+                families={materialFamilies}
               />
             )}
           </>
