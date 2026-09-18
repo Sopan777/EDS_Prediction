@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MaterialFamily } from '../types';
 
 interface ExportModalProps {
@@ -17,6 +17,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const [exportFormat, setExportFormat] = useState<'pdf' | 'csv' | 'json'>('pdf');
   const [includeAuditLog, setIncludeAuditLog] = useState(true);
   const [includeSpectraRaw, setIncludeSpectraRaw] = useState(true);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = panelRef.current?.querySelector<HTMLElement>(
+      '[tabindex]:not([tabindex="-1"]), button, input, select, textarea, a[href]'
+    );
+    el?.focus();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -25,7 +34,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     if (exportFormat === 'json') {
       const dataStr = JSON.stringify(
         {
-          system: 'Spectral Lab MaterialID v2.4',
+          system: 'Dhatu Bodh Spectral Lab v2.4',
           exportTimestamp: new Date().toISOString(),
           identifiedFamily: activeFamily || null,
           standards: ['ASTM E1508', 'ISO 22309'],
@@ -66,120 +75,139 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div
-        className={`w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors ${
-          isDarkMode ? 'bg-[#0c1512] border-[#3a4a44] text-[#dbe5df]' : 'bg-white border-[#c0c8c2] text-[#191c1e]'
-        }`}
-      >
-        <div className="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[22px] text-emerald-500">
-              download
-            </span>
-            <h3 className="font-display text-[20px] font-bold">Export Laboratory Data</h3>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center modal-overlay p-4">
+      <div className="anim-spring-in w-full max-w-lg">
+        <div
+          ref={panelRef}
+          className="w-full p-6"
+          style={{
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-modal)',
+            borderRadius: 'var(--radius-xl)',
+            color: 'var(--color-text-primary)',
+          }}
+        >
+          {/* Header */}
+          <div
+            className="flex justify-between items-center mb-4 pb-3"
+            style={{ borderBottom: '1px solid var(--color-border)' }}
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-[22px]"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                download
+              </span>
+              <h3 className="font-display text-[20px] font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                Export Laboratory Data
+              </h3>
+            </div>
+            <button
+              onClick={onClose}
+              className="press-target p-1 rounded"
+              style={{ color: 'var(--color-text-tertiary)' }}
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
           </div>
-          <button onClick={onClose} className="p-1 rounded text-gray-400 hover:text-white">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
 
-        <div className="space-y-4 text-[13px]">
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider mb-2 opacity-70">
-              Select Export Format
-            </label>
-            <div className="grid grid-cols-3 gap-2.5">
-              <button
-                type="button"
-                onClick={() => setExportFormat('pdf')}
-                className={`p-3 rounded-lg border text-center transition-all ${
-                  exportFormat === 'pdf'
-                    ? isDarkMode
-                      ? 'bg-[#151d1a] border-[#00ffcc] text-[#00ffcc]'
-                      : 'bg-[#f2f4f6] border-[#134231] text-[#134231] font-bold'
-                    : 'border-inherit opacity-70 hover:opacity-100'
-                }`}
+          <div className="space-y-4 text-[13px]">
+            <div>
+              <label
+                className="block text-[11px] font-bold uppercase tracking-wider mb-2 opacity-70"
+                style={{ color: 'var(--color-text-secondary)' }}
               >
-                <span className="material-symbols-outlined text-[24px] block mx-auto mb-1">
-                  picture_as_pdf
-                </span>
-                PDF Report
-              </button>
+                Select Export Format
+              </label>
+              <div className="grid grid-cols-3 gap-2.5">
+                {[
+                  { id: 'pdf', label: 'PDF Report', icon: 'picture_as_pdf' },
+                  { id: 'csv', label: 'CSV Dataset', icon: 'table_view' },
+                  { id: 'json', label: 'Raw JSON', icon: 'data_object' },
+                ].map((fmt) => {
+                  const isSelected = exportFormat === fmt.id;
+                  return (
+                    <button
+                      key={fmt.id}
+                      type="button"
+                      onClick={() => setExportFormat(fmt.id as any)}
+                      className="press-target p-3 text-center border transition-all"
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        background: isSelected ? 'var(--color-accent-subtle)' : 'var(--color-bg-elevated)',
+                        borderColor: isSelected ? 'var(--color-accent)' : 'var(--color-border)',
+                        color: isSelected ? 'var(--color-accent)' : 'var(--color-text-primary)',
+                        fontWeight: isSelected ? 600 : 400,
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[24px] block mx-auto mb-1">
+                        {fmt.icon}
+                      </span>
+                      {fmt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={() => setExportFormat('csv')}
-                className={`p-3 rounded-lg border text-center transition-all ${
-                  exportFormat === 'csv'
-                    ? isDarkMode
-                      ? 'bg-[#151d1a] border-[#00ffcc] text-[#00ffcc]'
-                      : 'bg-[#f2f4f6] border-[#134231] text-[#134231] font-bold'
-                    : 'border-inherit opacity-70 hover:opacity-100'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[24px] block mx-auto mb-1">
-                  table_view
+            <div
+              className="space-y-2 pt-3"
+              style={{ borderTop: '1px solid var(--color-border)' }}
+            >
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includeAuditLog}
+                  onChange={(e) => setIncludeAuditLog(e.target.checked)}
+                  style={{ accentColor: 'var(--color-accent)' }}
+                />
+                <span style={{ color: 'var(--color-text-secondary)' }}>
+                  Include full audit trail trace and calibration metadata
                 </span>
-                CSV Dataset
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setExportFormat('json')}
-                className={`p-3 rounded-lg border text-center transition-all ${
-                  exportFormat === 'json'
-                    ? isDarkMode
-                      ? 'bg-[#151d1a] border-[#00ffcc] text-[#00ffcc]'
-                      : 'bg-[#f2f4f6] border-[#134231] text-[#134231] font-bold'
-                    : 'border-inherit opacity-70 hover:opacity-100'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[24px] block mx-auto mb-1">
-                  data_object
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includeSpectraRaw}
+                  onChange={(e) => setIncludeSpectraRaw(e.target.checked)}
+                  style={{ accentColor: 'var(--color-accent)' }}
+                />
+                <span style={{ color: 'var(--color-text-secondary)' }}>
+                  Include stoichiometric ratio gate definitions ({activeFamily?.ratioGates?.length ?? 0} gates)
                 </span>
-                Raw JSON
-              </button>
+              </label>
             </div>
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-inherit">
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includeAuditLog}
-                onChange={(e) => setIncludeAuditLog(e.target.checked)}
-                className="rounded text-emerald-600 focus:ring-emerald-500"
-              />
-              <span>Include full audit trail trace and calibration metadata</span>
-            </label>
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includeSpectraRaw}
-                onChange={(e) => setIncludeSpectraRaw(e.target.checked)}
-                className="rounded text-emerald-600 focus:ring-emerald-500"
-              />
-              <span>Include stoichiometric ratio gate definitions ({activeFamily.ratioGates.length} gates)</span>
-            </label>
+          <div
+            className="mt-6 flex justify-end gap-2 pt-3"
+            style={{ borderTop: '1px solid var(--color-border)' }}
+          >
+            <button
+              onClick={onClose}
+              className="press-target px-4 py-2 text-[13px] font-semibold"
+              style={{
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--color-text-secondary)',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDownload}
+              className="press-target px-5 py-2 text-[13px] font-semibold"
+              style={{
+                background: 'var(--color-accent)',
+                color: 'var(--color-accent-on)',
+                borderRadius: 'var(--radius-md)',
+              }}
+            >
+              Generate & Download
+            </button>
           </div>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-2 pt-3 border-t border-inherit">
-          <button
-            onClick={onClose}
-            className={`px-4 py-2 rounded-lg text-[13px] font-semibold border ${
-              isDarkMode ? 'border-[#3a4a44] hover:bg-[#151d1a]' : 'border-[#c0c8c2] hover:bg-[#f2f4f6]'
-            }`}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleDownload}
-            className="px-5 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
-          >
-            Generate & Download
-          </button>
         </div>
       </div>
     </div>

@@ -99,112 +99,63 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
     <div id="user-management-screen" className="flex flex-col gap-5 h-full overflow-y-auto pb-6 pr-1">
       {/* Page Title */}
       <div>
-        <h2
-          className={`font-display text-[28px] font-bold tracking-tight ${
-            isDarkMode ? 'text-white' : 'text-[#134231]'
-          }`}
-        >
+        <h2 className="type-display" style={{ color: 'var(--color-text-primary)' }}>
           User Management
         </h2>
-        <p className={`text-[13px] ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
-          Manage lab access, roles, and metallurgical editing permissions.
+        <p className="type-subhead mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+          Manage lab access, personnel roles, and metallurgical editing permissions.
         </p>
       </div>
 
       {/* 4 Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Users */}
-        <div
-          className={`p-4 rounded-xl border shadow-sm transition-colors ${
-            isDarkMode ? 'bg-[#07100d] border-[#3a4a44]' : 'bg-white border-[#c0c8c2]'
-          }`}
-        >
-          <span className={`text-[11px] font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-            Total Users
-          </span>
-          <div className="flex items-baseline justify-between">
-            <span
-              className={`font-display text-[32px] font-bold ${
-                isDarkMode ? 'text-white' : 'text-[#191c1e]'
-              }`}
-            >
-              {users.length}
+        {[
+          {
+            title: 'Total Users',
+            val: users.length,
+            sub: users.length === 0 ? 'No accounts' : `${users.filter((u) => u.isActive).length} active`,
+          },
+          {
+            title: 'Active Lab Techs',
+            val: activeTechsCount,
+            sub: `Registered: ${totalTechsCount}`,
+          },
+          {
+            title: 'Metallurgists',
+            val: metallurgistsCount,
+            sub: `Snr. Level: ${snrMetCount}`,
+          },
+          {
+            title: 'Inactive Accounts',
+            val: inactiveCount,
+            sub: inactiveCount === 0 ? 'All active' : 'Suspended',
+          },
+        ].map((card, idx) => (
+          <div
+            key={idx}
+            className="p-4 border transition-colors"
+            style={{
+              background: 'var(--color-bg-card)',
+              borderColor: 'var(--color-border)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-card)',
+            }}
+          >
+            <span className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+              {card.title}
             </span>
-            <span className={`text-[12px] font-medium ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
-              {users.length === 0 ? 'No accounts' : `${users.filter((u) => u.isActive).length} active`}
-            </span>
+            <div className="flex items-baseline justify-between">
+              <span className="font-display text-[32px] font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                {card.val}
+              </span>
+              <span className="text-[12px] font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                {card.sub}
+              </span>
+            </div>
           </div>
-        </div>
-
-        {/* Card 2: Active Lab Techs */}
-        <div
-          className={`p-4 rounded-xl border shadow-sm transition-colors ${
-            isDarkMode ? 'bg-[#07100d] border-[#3a4a44]' : 'bg-white border-[#c0c8c2]'
-          }`}
-        >
-          <span className={`text-[11px] font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-            Active Lab Techs
-          </span>
-          <div className="flex items-baseline justify-between">
-            <span
-              className={`font-display text-[32px] font-bold ${
-                isDarkMode ? 'text-white' : 'text-[#191c1e]'
-              }`}
-            >
-              {activeTechsCount}
-            </span>
-            <span className={`text-[12px] ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
-              Registered: {totalTechsCount}
-            </span>
-          </div>
-        </div>
-
-        {/* Card 3: Metallurgists */}
-        <div
-          className={`p-4 rounded-xl border shadow-sm transition-colors ${
-            isDarkMode ? 'bg-[#07100d] border-[#3a4a44]' : 'bg-white border-[#c0c8c2]'
-          }`}
-        >
-          <span className={`text-[11px] font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-            Metallurgists
-          </span>
-          <div className="flex items-baseline justify-between">
-            <span
-              className={`font-display text-[32px] font-bold ${
-                isDarkMode ? 'text-white' : 'text-[#191c1e]'
-              }`}
-            >
-              {metallurgistsCount}
-            </span>
-            <span className={`text-[12px] ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
-              Snr. Level: {snrMetCount}
-            </span>
-          </div>
-        </div>
-
-        {/* Card 4: Inactive Accounts */}
-        <div
-          className={`p-4 rounded-xl border shadow-sm transition-colors ${
-            isDarkMode ? 'bg-[#07100d] border-[#3a4a44]' : 'bg-white border-[#c0c8c2]'
-          }`}
-        >
-          <span className={`text-[11px] font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'}`}>
-            Inactive Accounts
-          </span>
-          <div className="flex items-baseline justify-between">
-            <span
-              className={`font-display text-[32px] font-bold ${
-                isDarkMode ? 'text-white' : 'text-[#191c1e]'
-              }`}
-            >
-              {inactiveCount}
-            </span>
-            <span className={`text-[12px] ${inactiveCount === 0 ? 'text-emerald-500' : 'text-amber-500'}`}>
-              {inactiveCount === 0 ? 'All active' : 'Suspended'}
-            </span>
-          </div>
-        </div>
+        ))}
       </div>
+
 
       {/* Main Grid: User Table (Left) & Role Definitions (Right) */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
@@ -358,25 +309,26 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                             />
                           ) : (
                             <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] shrink-0 ${
-                                isDarkMode ? 'bg-[#232c28] text-[#00ffcc]' : 'bg-[#e0e3e5] text-[#134231]'
-                              }`}
+                              className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] shrink-0 border"
+                              style={{
+                                background: 'var(--color-accent-subtle)',
+                                borderColor: 'var(--color-accent)',
+                                color: 'var(--color-accent)',
+                              }}
                             >
                               {user.initials || user.name.slice(0, 2)}
                             </div>
                           )}
                           <div className="min-w-0">
                             <span
-                              className={`font-semibold block truncate ${
-                                isDarkMode ? 'text-white' : 'text-[#191c1e]'
-                              }`}
+                              className="font-semibold block truncate"
+                              style={{ color: 'var(--color-text-primary)' }}
                             >
                               {user.name}
                             </span>
                             <span
-                              className={`text-[11px] block truncate ${
-                                isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'
-                              }`}
+                              className="type-caption block truncate"
+                              style={{ color: 'var(--color-text-tertiary)' }}
                             >
                               {user.email}
                             </span>
@@ -387,51 +339,52 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                       {/* Role */}
                       <td className="p-3.5">
                         <span
-                          className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                            user.role === 'Snr. Metallurgist'
-                              ? isDarkMode
-                                ? 'bg-purple-950 text-purple-300 border border-purple-500/30'
-                                : 'bg-purple-100 text-purple-800'
-                              : user.role === 'Lab Tech'
-                              ? isDarkMode
-                                ? 'bg-blue-950 text-blue-300 border border-blue-500/30'
-                                : 'bg-blue-100 text-blue-800'
-                              : user.role === 'SysAdmin'
-                              ? isDarkMode
-                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-emerald-100 text-emerald-800'
-                              : isDarkMode
-                              ? 'bg-[#232c28] text-gray-300'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                          className="type-caption px-2 py-0.5 rounded-full inline-block"
+                          style={{
+                            borderRadius: 'var(--radius-full)',
+                            background: 'var(--color-accent-subtle)',
+                            color: 'var(--color-accent)',
+                          }}
                         >
                           {user.role}
                         </span>
                       </td>
 
                       {/* Department */}
-                      <td className="p-3.5 font-medium">{user.department}</td>
+                      <td className="p-3.5 font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                        {user.department}
+                      </td>
 
                       {/* Permissions */}
                       <td className="p-3.5">
                         <span
-                          className={`font-mono-code text-[11px] px-2 py-0.5 rounded ${
-                            user.permissions === 'Full Edit'
-                              ? isDarkMode
-                                ? 'bg-emerald-950 text-emerald-300'
-                                : 'bg-emerald-100 text-emerald-800'
-                              : user.permissions === 'System Execution'
-                              ? isDarkMode
-                                ? 'bg-cyan-950 text-cyan-300'
-                                : 'bg-cyan-100 text-cyan-800'
-                              : isDarkMode
-                              ? 'bg-[#151d1a] text-[#83958d]'
-                              : 'bg-[#eceef0] text-[#717974]'
-                          }`}
+                          className="font-mono-code text-[11px] px-2 py-0.5 rounded border"
+                          style={{
+                            borderRadius: 'var(--radius-sm)',
+                            background:
+                              user.permissions === 'Full Edit'
+                                ? 'var(--color-pass-subtle)'
+                                : user.permissions === 'System Execution'
+                                ? 'var(--color-warn-subtle)'
+                                : 'var(--color-bg-base)',
+                            borderColor:
+                              user.permissions === 'Full Edit'
+                                ? 'var(--color-pass)'
+                                : user.permissions === 'System Execution'
+                                ? 'var(--color-warn)'
+                                : 'var(--color-border)',
+                            color:
+                              user.permissions === 'Full Edit'
+                                ? 'var(--color-pass)'
+                                : user.permissions === 'System Execution'
+                                ? 'var(--color-warn)'
+                                : 'var(--color-text-secondary)',
+                          }}
                         >
                           {user.permissions}
                         </span>
                       </td>
+
 
                       {/* Actions */}
                       <td className="p-3.5 text-right">
@@ -553,201 +506,274 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
 
       {/* Add User Modal */}
       {showAddUserModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div
-            className={`w-full max-w-md rounded-xl border shadow-2xl p-6 transition-colors ${
-              isDarkMode ? 'bg-[#0c1512] border-[#3a4a44] text-[#dbe5df]' : 'bg-white border-[#c0c8c2] text-[#191c1e]'
-            }`}
-          >
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-inherit">
-              <h3 className="font-semibold text-[17px]">Add New Lab User</h3>
-              <button
-                onClick={() => setShowAddUserModal(false)}
-                className="text-gray-400 hover:text-white"
+        <div className="fixed inset-0 z-[100] flex items-center justify-center modal-overlay p-4">
+          <div className="anim-spring-in w-full max-w-md">
+            <div
+              className="w-full p-6 border"
+              style={{
+                background: 'var(--color-bg-card)',
+                borderColor: 'var(--color-border)',
+                boxShadow: 'var(--shadow-modal)',
+                borderRadius: 'var(--radius-xl)',
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              <div
+                className="flex justify-between items-center mb-4 pb-3 border-b"
+                style={{ borderColor: 'var(--color-border)' }}
               >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateUser} className="space-y-3.5 text-[13px]">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={newUserName}
-                  onChange={(e) => setNewUserName(e.target.value)}
-                  placeholder="e.g., Dr. Jane Austin"
-                  className={`w-full border rounded p-2 ${
-                    isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                  }`}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={newUserEmail}
-                  onChange={(e) => setNewUserEmail(e.target.value)}
-                  placeholder="e.g., j.austin@spectrallab.io"
-                  className={`w-full border rounded p-2 ${
-                    isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                  }`}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                    Role
-                  </label>
-                  <select
-                    value={newUserRole}
-                    onChange={(e) => setNewUserRole(e.target.value as UserAccount['role'])}
-                    className={`w-full border rounded p-2 ${
-                      isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                    }`}
-                  >
-                    <option value="Lab Tech">Lab Tech</option>
-                    <option value="Snr. Metallurgist">Snr. Metallurgist</option>
-                    <option value="Auditor">Auditor</option>
-                    <option value="Service Acct">Service Acct</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                    Department
-                  </label>
-                  <select
-                    value={newUserDept}
-                    onChange={(e) => setNewUserDept(e.target.value as UserAccount['department'])}
-                    className={`w-full border rounded p-2 ${
-                      isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                    }`}
-                  >
-                    <option value="Operations">Operations</option>
-                    <option value="Research">Research</option>
-                    <option value="Quality Control">Quality Control</option>
-                    <option value="Metallurgy">Metallurgy</option>
-                    <option value="System">System</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                  Permissions Tier
-                </label>
-                <select
-                  value={newUserPerm}
-                  onChange={(e) => setNewUserPerm(e.target.value as UserAccount['permissions'])}
-                  className={`w-full border rounded p-2 ${
-                    isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                  }`}
-                >
-                  <option value="Read-only">Read-only (Standard Access)</option>
-                  <option value="Full Edit">Full Edit (Ratio Gates & Libraries)</option>
-                  <option value="System Execution">System Execution (Automated API)</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-inherit">
+                <h3 className="type-title" style={{ color: 'var(--color-text-primary)' }}>
+                  Add New Lab User
+                </h3>
                 <button
-                  type="button"
                   onClick={() => setShowAddUserModal(false)}
-                  className="px-4 py-2 rounded text-[13px] border border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="press-target p-1"
+                  style={{ color: 'var(--color-text-tertiary)' }}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700"
-                >
-                  Create User
+                  <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleCreateUser} className="space-y-3.5 text-[13px]">
+                <div>
+                  <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newUserName}
+                    onChange={(e) => setNewUserName(e.target.value)}
+                    placeholder="e.g., Dr. Jane Austin"
+                    className="w-full p-2 border focus:outline-none"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-bg-base)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    placeholder="e.g., j.austin@dhatubodh.io"
+                    className="w-full p-2 border focus:outline-none"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-bg-base)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                      Role
+                    </label>
+                    <select
+                      value={newUserRole}
+                      onChange={(e) => setNewUserRole(e.target.value as UserAccount['role'])}
+                      className="w-full p-2 border focus:outline-none"
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        background: 'var(--color-bg-base)',
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text-primary)',
+                      }}
+                    >
+                      <option value="Lab Tech">Lab Tech</option>
+                      <option value="Snr. Metallurgist">Snr. Metallurgist</option>
+                      <option value="Auditor">Auditor</option>
+                      <option value="Service Acct">Service Acct</option>
+                      <option value="SysAdmin">SysAdmin</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                      Department
+                    </label>
+                    <select
+                      value={newUserDept}
+                      onChange={(e) => setNewUserDept(e.target.value as UserAccount['department'])}
+                      className="w-full p-2 border focus:outline-none"
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        background: 'var(--color-bg-base)',
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text-primary)',
+                      }}
+                    >
+                      <option value="Operations">Operations</option>
+                      <option value="Research">Research</option>
+                      <option value="Quality Control">Quality Control</option>
+                      <option value="Metallurgy">Metallurgy</option>
+                      <option value="System">System</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                    Permissions Tier
+                  </label>
+                  <select
+                    value={newUserPerm}
+                    onChange={(e) => setNewUserPerm(e.target.value as UserAccount['permissions'])}
+                    className="w-full p-2 border focus:outline-none"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-bg-base)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
+                    <option value="Read-only">Read-only (Standard Access)</option>
+                    <option value="Full Edit">Full Edit (Ratio Gates & Libraries)</option>
+                    <option value="System Execution">System Execution (Automated API)</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUserModal(false)}
+                    className="press-target px-4 py-2 text-[13px] border"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-secondary)',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="press-target px-4 py-2 text-[13px] font-semibold"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-accent)',
+                      color: 'var(--color-accent-on)',
+                    }}
+                  >
+                    Create User
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Add Role Modal */}
       {showAddRoleModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div
-            className={`w-full max-w-md rounded-xl border shadow-2xl p-6 transition-colors ${
-              isDarkMode ? 'bg-[#0c1512] border-[#3a4a44] text-[#dbe5df]' : 'bg-white border-[#c0c8c2] text-[#191c1e]'
-            }`}
-          >
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-inherit">
-              <h3 className="font-semibold text-[17px]">Create Custom Role</h3>
-              <button
-                onClick={() => setShowAddRoleModal(false)}
-                className="text-gray-400 hover:text-white"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateRole} className="space-y-3.5 text-[13px]">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                  Role Title
-                </label>
-                <input
-                  type="text"
-                  value={newRoleTitle}
-                  onChange={(e) => setNewRoleTitle(e.target.value)}
-                  placeholder="e.g., Calibration Specialist"
-                  className={`w-full border rounded p-2 ${
-                    isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                  }`}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1">
-                  Role Scope & Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={newRoleDesc}
-                  onChange={(e) => setNewRoleDesc(e.target.value)}
-                  placeholder="Describe permissions and department scopes..."
-                  className={`w-full border rounded p-2 ${
-                    isDarkMode ? 'bg-[#151d1a] border-[#3a4a44]' : 'bg-[#f7f9fb] border-[#c0c8c2]'
-                  }`}
-                  required
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-inherit">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center modal-overlay p-4">
+          <div className="anim-spring-in w-full max-w-md">
+            <div
+              className="w-full p-6 border"
+              style={{
+                background: 'var(--color-bg-card)',
+                borderColor: 'var(--color-border)',
+                boxShadow: 'var(--shadow-modal)',
+                borderRadius: 'var(--radius-xl)',
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              <div className="flex justify-between items-center mb-4 pb-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                <h3 className="type-title" style={{ color: 'var(--color-text-primary)' }}>
+                  Create Custom Role
+                </h3>
                 <button
-                  type="button"
                   onClick={() => setShowAddRoleModal(false)}
-                  className="px-4 py-2 rounded text-[13px] border border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="press-target p-1"
+                  style={{ color: 'var(--color-text-tertiary)' }}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700"
-                >
-                  Create Role
+                  <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleCreateRole} className="space-y-3.5 text-[13px]">
+                <div>
+                  <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                    Role Title
+                  </label>
+                  <input
+                    type="text"
+                    value={newRoleTitle}
+                    onChange={(e) => setNewRoleTitle(e.target.value)}
+                    placeholder="e.g., Calibration Specialist"
+                    className="w-full p-2 border focus:outline-none"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-bg-base)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="type-caption block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                    Role Scope & Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={newRoleDesc}
+                    onChange={(e) => setNewRoleDesc(e.target.value)}
+                    placeholder="Describe permissions and department scopes..."
+                    className="w-full p-2 border focus:outline-none"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-bg-base)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddRoleModal(false)}
+                    className="press-target px-4 py-2 text-[13px] border"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-secondary)',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="press-target px-4 py-2 text-[13px] font-semibold"
+                    style={{
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-accent)',
+                      color: 'var(--color-accent-on)',
+                    }}
+                  >
+                    Create Role
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

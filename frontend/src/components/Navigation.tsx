@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavSection, TopTab } from '../types';
 
 interface NavigationProps {
@@ -14,6 +14,115 @@ interface NavigationProps {
   onSearchChange: (q: string) => void;
 }
 
+interface NavItemProps {
+  id: string;
+  label: string;
+  icon: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ id, label, icon, active, onClick }) => (
+  <button
+    id={id}
+    onClick={onClick}
+    aria-current={active ? 'page' : undefined}
+    className="w-full flex items-center gap-3 px-3 py-2.5 text-left press-target relative transition-colors hover:bg-white/5"
+    style={{
+      borderRadius: 'var(--radius-md)',
+      background: active ? 'rgba(255,255,255,0.07)' : undefined,
+    }}
+  >
+    {active && (
+      <span
+        className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
+        style={{ background: 'var(--color-accent)' }}
+      />
+    )}
+    <span
+      className={`material-symbols-outlined text-[20px] ml-1 ${active ? 'fill' : ''}`}
+      style={{ color: active ? 'var(--color-accent)' : 'var(--color-text-on-sidebar-muted)' }}
+    >
+      {icon}
+    </span>
+    <span
+      className="type-subhead"
+      style={{
+        fontWeight: active ? 600 : 400,
+        color: active ? 'var(--color-text-on-sidebar)' : 'var(--color-text-on-sidebar-muted)',
+      }}
+    >
+      {label}
+    </span>
+  </button>
+);
+
+interface TopTabButtonProps {
+  id: string;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+const TopTabButton: React.FC<TopTabButtonProps> = ({ id, label, active, onClick }) => (
+  <button
+    id={id}
+    onClick={onClick}
+    className="h-full flex items-center px-1 text-[14px] border-b-2 press-target transition-all"
+    style={{
+      fontWeight: active ? 600 : 400,
+      borderColor: active ? 'var(--color-accent)' : 'transparent',
+      color: active ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
+    }}
+  >
+    {label}
+  </button>
+);
+
+const NOTIFICATIONS = [
+  { id: 'n1', icon: 'check_circle', text: 'Calibration passed', time: '09:15', type: 'pass' },
+  { id: 'n2', icon: 'science',       text: '1 new particle scan added', time: '08:42', type: 'info' },
+  { id: 'n3', icon: 'edit_note',     text: '12 gate changes in last 30 days', time: '2d ago', type: 'warn' },
+];
+
+const NotificationsDropdown: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <div
+    className="absolute right-0 top-full mt-2 w-72 rounded-[var(--radius-lg)] border anim-slide-down z-50 overflow-hidden"
+    style={{
+      background: 'var(--color-bg-card)',
+      borderColor: 'var(--color-border)',
+      boxShadow: 'var(--shadow-modal)',
+    }}
+  >
+    <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--color-border)' }}>
+      <span className="type-subhead font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+        Notifications
+      </span>
+      <button onClick={onClose} className="press-target" style={{ color: 'var(--color-text-tertiary)' }}>
+        <span className="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+    {NOTIFICATIONS.map((n) => (
+      <div
+        key={n.id}
+        className="flex items-start gap-3 px-4 py-3 border-b last:border-b-0 transition-colors"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
+        <span
+          className="material-symbols-outlined text-[18px] mt-0.5 shrink-0"
+          style={{ color: n.type === 'pass' ? 'var(--color-pass)' : n.type === 'warn' ? 'var(--color-warn)' : 'var(--color-accent)' }}
+        >
+          {n.icon}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="type-subhead" style={{ color: 'var(--color-text-primary)' }}>{n.text}</p>
+          <p className="type-caption mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>{n.time}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export const Navigation: React.FC<NavigationProps> = ({
   currentSection,
   onNavigate,
@@ -26,307 +135,162 @@ export const Navigation: React.FC<NavigationProps> = ({
   searchQuery,
   onSearchChange,
 }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const navItems = [
+    { id: 'nav-item-analyzer',  label: 'Analyzer',       icon: 'science',   section: 'analyzer'  as NavSection },
+    { id: 'nav-item-history',   label: 'History',        icon: 'history',   section: 'history'   as NavSection },
+    { id: 'nav-item-knowledge', label: 'Knowledge Base', icon: 'menu_book', section: 'knowledge' as NavSection },
+    { id: 'nav-item-settings',  label: 'Settings',       icon: 'settings',  section: 'settings'  as NavSection },
+  ];
+
   return (
     <>
-      {/* SideNavBar */}
+      {/* ── Sidebar ────────────────────────────────────────────── */}
       <aside
         id="side-navbar"
-        className={`fixed left-0 top-0 h-full w-[280px] z-50 flex flex-col py-6 shadow-xl transition-colors duration-200 ${
-          isDarkMode
-            ? 'bg-[#1a2420] text-[#dbe5df] border-r border-[#3a4a44]'
-            : 'bg-[#2c3c51] text-white'
-        }`}
+        className="fixed left-0 top-0 h-full w-[280px] z-50 flex flex-col py-6"
+        style={{ background: 'var(--color-bg-sidebar)', boxShadow: 'var(--shadow-sidebar)' }}
       >
-        {/* Brand Header */}
-        <div className="px-6 mb-8">
-          <div className="flex items-center gap-3.5">
+        {/* Brand */}
+        <div className="px-5 mb-8">
+          <div className="flex items-center gap-3">
+            {/* Dhatu Bodh logo mark — white pill so the blue logo reads on dark sidebar */}
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                isDarkMode ? 'bg-[#00ffcc] text-[#00382b]' : 'bg-[#26fedc] text-[#007261]'
-              }`}
+              className="shrink-0 flex items-center justify-center overflow-hidden"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: 'var(--radius-md)',
+                background: '#ffffff',
+                padding: '3px',
+              }}
             >
-              <span className="material-symbols-outlined fill text-[22px]">science</span>
+              <img
+                src="/dhatu_bodh_logo.jpg"
+                alt="Dhatu Bodh logo"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
             </div>
             <div>
-              <h1 className="font-display text-[20px] font-bold leading-tight text-white tracking-tight">
-                MaterialID
+              <h1
+                className="font-display font-bold"
+                style={{ fontSize: '17px', color: 'var(--color-text-on-sidebar)', letterSpacing: '-0.01em', lineHeight: 1.2 }}
+              >
+                Dhatu Bodh
               </h1>
-              <p className={`text-[11px] font-semibold tracking-wider uppercase ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#b6c6e0]'}`}>
+              <p className="type-caption" style={{ color: 'var(--color-text-on-sidebar-muted)' }}>
                 Spectral Lab v2.4
               </p>
             </div>
           </div>
 
-          {/* New Analysis CTA */}
+
           <button
             id="btn-sidebar-new-analysis"
             onClick={onOpenNewAnalysis}
-            className={`mt-6 w-full py-2.5 px-4 rounded-lg font-medium text-[14px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-              isDarkMode
-                ? 'bg-[#00ffcc] text-[#00382b] hover:bg-[#24ffcd] font-semibold'
-                : 'bg-[#006b5b] hover:bg-[#134231] text-white'
-            }`}
+            className="press-target mt-5 w-full py-2.5 px-4 type-subhead font-semibold flex items-center justify-center gap-2"
+            style={{ background: 'var(--color-accent)', color: 'var(--color-accent-on)', borderRadius: 'var(--radius-md)' }}
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             New Analysis
           </button>
         </div>
 
-        {/* Primary Navigation Items */}
-        <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto">
-          {/* Analyzer */}
-          <button
-            id="nav-item-analyzer"
-            onClick={() => onNavigate('analyzer')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all ${
-              currentSection === 'analyzer'
-                ? isDarkMode
-                  ? 'bg-[#414b47] text-[#00ffcc] font-semibold scale-[0.98]'
-                  : 'bg-[#26fedc] text-[#007261] font-semibold scale-[0.98]'
-                : isDarkMode
-                ? 'text-[#b9cbc2] hover:bg-[#232c28] hover:text-white'
-                : 'text-[#b6c6e0] hover:bg-[#435369] hover:text-white'
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-[20px] ${
-                currentSection === 'analyzer' ? 'fill' : ''
-              }`}
-            >
-              science
-            </span>
-            <span className="text-[14px]">Analyzer</span>
-          </button>
-
-          {/* History */}
-          <button
-            id="nav-item-history"
-            onClick={() => onNavigate('history')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all ${
-              currentSection === 'history'
-                ? isDarkMode
-                  ? 'bg-[#414b47] text-[#00ffcc] font-semibold scale-[0.98]'
-                  : 'bg-[#26fedc] text-[#007261] font-semibold scale-[0.98]'
-                : isDarkMode
-                ? 'text-[#b9cbc2] hover:bg-[#232c28] hover:text-white'
-                : 'text-[#b6c6e0] hover:bg-[#435369] hover:text-white'
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-[20px] ${
-                currentSection === 'history' ? 'fill' : ''
-              }`}
-            >
-              history
-            </span>
-            <span className="text-[14px]">History</span>
-          </button>
-
-          {/* Knowledge Base */}
-          <button
-            id="nav-item-knowledge"
-            onClick={() => onNavigate('knowledge')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all ${
-              currentSection === 'knowledge' || currentSection === 'gate-editor'
-                ? isDarkMode
-                  ? 'bg-[#414b47] text-[#00ffcc] font-semibold scale-[0.98]'
-                  : 'bg-[#26fedc] text-[#007261] font-semibold scale-[0.98]'
-                : isDarkMode
-                ? 'text-[#b9cbc2] hover:bg-[#232c28] hover:text-white'
-                : 'text-[#b6c6e0] hover:bg-[#435369] hover:text-white'
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-[20px] ${
-                currentSection === 'knowledge' || currentSection === 'gate-editor' ? 'fill' : ''
-              }`}
-            >
-              menu_book
-            </span>
-            <span className="text-[14px]">Knowledge Base</span>
-          </button>
-
-          {/* Settings */}
-          <button
-            id="nav-item-settings"
-            onClick={() => onNavigate('settings')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all ${
-              currentSection === 'settings'
-                ? isDarkMode
-                  ? 'bg-[#414b47] text-[#00ffcc] font-semibold scale-[0.98]'
-                  : 'bg-[#26fedc] text-[#007261] font-semibold scale-[0.98]'
-                : isDarkMode
-                ? 'text-[#b9cbc2] hover:bg-[#232c28] hover:text-white'
-                : 'text-[#b6c6e0] hover:bg-[#435369] hover:text-white'
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-[20px] ${
-                currentSection === 'settings' ? 'fill' : ''
-              }`}
-            >
-              settings
-            </span>
-            <span className="text-[14px]">Settings</span>
-          </button>
+        {/* Nav items */}
+        <nav className="flex-1 px-3 space-y-1 overflow-y-auto" aria-label="Main navigation">
+          {navItems.map((item) => (
+            <NavItem
+              key={item.id}
+              id={item.id}
+              label={item.label}
+              icon={item.icon}
+              active={currentSection === item.section || (item.section === 'knowledge' && currentSection === 'gate-editor')}
+              onClick={() => onNavigate(item.section)}
+            />
+          ))}
         </nav>
 
-        {/* Footer info & user stub */}
-        <div
-          className={`mt-auto px-4 pt-4 mx-3 border-t ${
-            isDarkMode ? 'border-[#2e3733]' : 'border-[#435369]'
-          }`}
-        >
-          <div className="space-y-1 mb-4">
-            <div
-              className={`flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
-                isDarkMode
-                  ? 'text-[#b9cbc2] hover:text-white hover:bg-[#232c28]'
-                  : 'text-[#b6c6e0] hover:text-white hover:bg-[#435369]'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="material-symbols-outlined text-[16px]">check_circle</span>
-              <span>System Status: Online</span>
-            </div>
-            <a
-              href="#docs"
-              onClick={(e) => {
-                e.preventDefault();
-                alert('Spectral Lab documentation & ASTM standards reference library loaded.');
-              }}
-              className={`flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-colors ${
-                isDarkMode
-                  ? 'text-[#b9cbc2] hover:text-white hover:bg-[#232c28]'
-                  : 'text-[#b6c6e0] hover:text-white hover:bg-[#435369]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">help</span>
-              <span>Documentation</span>
-            </a>
+        {/* Footer */}
+        <div className="mt-auto px-4 pt-4 mx-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.10)' }}>
+          <div className="flex items-center gap-2 px-2 py-1.5 mb-1">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--color-pass)' }} />
+            <span className="type-caption" style={{ color: 'var(--color-text-on-sidebar-muted)' }}>System Online</span>
           </div>
 
-          {/* User Profile avatar */}
-          <div
-            onClick={() => onNavigate('settings')}
-            className={`flex items-center gap-2.5 p-1.5 rounded-lg cursor-pointer transition-colors ${
-              isDarkMode ? 'hover:bg-[#232c28]' : 'hover:bg-[#435369]'
-            }`}
-            title="Logged in as Admin User (SysAdmin)"
+          <a
+            href="/docs"
+            className="press-target flex items-center gap-2 px-2 py-1.5 mb-3 transition-colors hover:bg-white/5"
+            style={{ color: 'var(--color-text-on-sidebar-muted)', textDecoration: 'none', borderRadius: 'var(--radius-sm)' }}
           >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 font-bold text-[12px] border border-emerald-400 shrink-0">
+            <span className="material-symbols-outlined text-[16px]">help_outline</span>
+            <span className="type-caption">Documentation</span>
+          </a>
+
+          <button
+            onClick={() => onNavigate('settings')}
+            className="press-target w-full flex items-center gap-2.5 p-2 transition-colors hover:bg-white/5"
+            style={{ borderRadius: 'var(--radius-md)' }}
+            title="User Settings"
+          >
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border"
+              style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
+            >
               <span className="material-symbols-outlined text-[18px]">person</span>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-medium text-white truncate">Admin User</p>
-              <p
-                className={`text-[10px] uppercase font-bold tracking-wider truncate ${
-                  isDarkMode ? 'text-[#00ffcc]' : 'text-[#26fedc]'
-                }`}
-              >
-                SysAdmin
-              </p>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="type-subhead font-medium truncate" style={{ color: 'var(--color-text-on-sidebar)' }}>Admin User</p>
+              <p className="type-caption truncate" style={{ color: 'var(--color-accent)' }}>SysAdmin</p>
             </div>
-          </div>
+          </button>
         </div>
       </aside>
 
-      {/* TopNavBar */}
+      {/* ── Top Bar ─────────────────────────────────────────────── */}
       <header
         id="top-navbar"
-        className={`fixed top-0 left-[280px] right-0 h-16 px-6 z-40 flex items-center justify-between border-b transition-colors duration-200 ${
-          isDarkMode
-            ? 'bg-[#0c1512] border-[#3a4a44] text-[#dbe5df]'
-            : 'bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e]'
-        }`}
+        className="material-thin fixed top-0 left-[280px] right-0 h-16 px-6 z-40 flex items-center justify-between border-b"
+        style={{ borderColor: 'var(--color-border)' }}
       >
-        {/* Left: Title or Back breadcrumb */}
-        <div className="flex items-center gap-6 h-full">
+        {/* Left */}
+        <div className="flex items-center gap-4 h-full">
           {currentSection === 'gate-editor' ? (
             <button
               id="btn-back-to-knowledge"
               onClick={() => onNavigate('knowledge')}
-              className={`flex items-center gap-1.5 font-semibold text-[14px] transition-colors ${
-                isDarkMode ? 'text-[#00ffcc] hover:underline' : 'text-[#134231] hover:text-[#006b5b]'
-              }`}
+              className="press-target flex items-center gap-1.5 type-subhead font-semibold"
+              style={{ color: 'var(--color-accent)' }}
             >
               <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-              <span>Back</span>
-              <span className="opacity-40 ml-1">/</span>
-              <span className="ml-1 text-[13px] opacity-75">Particle Identification System</span>
+              Back
+              <span className="mx-1.5 opacity-30">/</span>
+              <span className="opacity-60 font-normal">Dhatu Bodh</span>
             </button>
           ) : (
-            <span
-              className={`font-semibold text-[15px] tracking-tight ${
-                isDarkMode ? 'text-white' : 'text-[#134231]'
-              }`}
-            >
+            <span className="type-headline" style={{ color: 'var(--color-text-primary)' }}>
               Particle Identification System
             </span>
           )}
 
-          {/* Sub Navigation Links */}
-          <div className="hidden md:flex h-full items-center gap-4 ml-4">
-            <button
-              id="top-tab-dashboard"
-              onClick={() => {
-                onSelectTopTab('dashboard');
-                onNavigate('analyzer');
-              }}
-              className={`h-full flex items-center px-2 text-[14px] transition-all border-b-2 ${
-                topTab === 'dashboard' && currentSection === 'analyzer'
-                  ? isDarkMode
-                    ? 'border-[#00ffcc] text-[#00ffcc] font-bold'
-                    : 'border-[#134231] text-[#134231] font-bold'
-                  : 'border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white'
-              }`}
-            >
-              Dashboard
-            </button>
-            <button
-              id="top-tab-reports"
-              onClick={() => {
-                onSelectTopTab('reports');
-                onOpenExport();
-              }}
-              className={`h-full flex items-center px-2 text-[14px] transition-all border-b-2 ${
-                topTab === 'reports'
-                  ? isDarkMode
-                    ? 'border-[#00ffcc] text-[#00ffcc] font-bold'
-                    : 'border-[#134231] text-[#134231] font-bold'
-                  : 'border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white'
-              }`}
-            >
-              Reports
-            </button>
-            <button
-              id="top-tab-archive"
-              onClick={() => {
-                onSelectTopTab('archive');
-                onNavigate('history');
-              }}
-              className={`h-full flex items-center px-2 text-[14px] transition-all border-b-2 ${
-                topTab === 'archive' || currentSection === 'history'
-                  ? isDarkMode
-                    ? 'border-[#00ffcc] text-[#00ffcc] font-bold'
-                    : 'border-[#134231] text-[#134231] font-bold'
-                  : 'border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white'
-              }`}
-            >
-              Archive
-            </button>
+          <div className="hidden md:flex h-full items-center gap-2 ml-2">
+            <TopTabButton id="top-tab-dashboard" label="Dashboard"
+              active={topTab === 'dashboard' && currentSection === 'analyzer'}
+              onClick={() => { onSelectTopTab('dashboard'); onNavigate('analyzer'); }} />
+            <TopTabButton id="top-tab-reports" label="Reports"
+              active={topTab === 'reports'}
+              onClick={() => { onSelectTopTab('reports'); onOpenExport(); }} />
+            <TopTabButton id="top-tab-archive" label="Archive"
+              active={topTab === 'archive' || currentSection === 'history'}
+              onClick={() => { onSelectTopTab('archive'); onNavigate('history'); }} />
           </div>
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3">
-          {/* Search Box */}
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          {/* Search */}
           <div className="relative">
-            <span
-              className={`material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] ${
-                isDarkMode ? 'text-[#83958d]' : 'text-[#717974]'
-              }`}
-            >
+            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] pointer-events-none" style={{ color: 'var(--color-text-tertiary)' }}>
               search
             </span>
             <input
@@ -334,85 +298,60 @@ export const Navigation: React.FC<NavigationProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search data, grades, components..."
-              className={`pl-8 pr-4 py-1.5 text-[13px] rounded-full border transition-all w-56 focus:w-64 focus:outline-none ${
-                isDarkMode
-                  ? 'bg-[#151d1a] border-[#3a4a44] text-[#dbe5df] focus:border-[#00ffcc] focus:ring-1 focus:ring-[#00ffcc]'
-                  : 'bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] focus:border-[#134231] focus:ring-1 focus:ring-[#134231]'
-              }`}
+              placeholder="Search grades, components…"
+              aria-label="Search material families and components"
+              className="pl-8 pr-3 py-1.5 type-subhead border transition-all focus:outline-none"
+              style={{
+                borderRadius: 'var(--radius-full)',
+                width: '200px',
+                background: 'var(--color-bg-base)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-primary)',
+              }}
+              onFocus={(e) => (e.currentTarget.style.width = '240px')}
+              onBlur={(e) => (e.currentTarget.style.width = '200px')}
             />
           </div>
 
-          {/* Theme Toggle Button */}
+          {/* Theme toggle */}
           <button
             id="btn-toggle-theme"
             onClick={onToggleDarkMode}
+            aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-              isDarkMode
-                ? 'text-[#00ffcc] hover:bg-[#232c28]'
-                : 'text-[#2c3c51] hover:bg-[#e0e3e5]'
-            }`}
+            className="press-target w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
-            <span className="material-symbols-outlined text-[19px]">
-              {isDarkMode ? 'light_mode' : 'dark_mode'}
-            </span>
+            <span className="material-symbols-outlined text-[19px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
           </button>
 
-          {/* Support */}
-          <button
-            id="btn-support"
-            onClick={() => alert('Support Helpdesk: Particle Identification System v2.4 (Spectral Lab).\nDirect line: ext-4029 (Metallurgy Lab).')}
-            className={`text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full transition-colors ${
-              isDarkMode
-                ? 'text-[#b9cbc2] hover:bg-[#232c28] hover:text-white'
-                : 'text-[#414944] hover:bg-[#eceef0] hover:text-[#191c1e]'
-            }`}
-          >
-            Support
-          </button>
-
-          {/* Export Data */}
-          <button
-            id="btn-topbar-export"
-            onClick={onOpenExport}
-            className={`text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full transition-all shadow-sm ${
-              isDarkMode
-                ? 'bg-[#00ffcc] text-[#00382b] hover:bg-[#24ffcd]'
-                : 'bg-[#134231] text-white hover:bg-[#2d5a47]'
-            }`}
-          >
-            Export Data
-          </button>
-
-          <div
-            className={`h-6 w-px mx-1 ${
-              isDarkMode ? 'bg-[#3a4a44]' : 'bg-[#c0c8c2]'
-            }`}
-          />
+          <div className="h-5 w-px mx-1" style={{ background: 'var(--color-border)' }} />
 
           {/* Notifications */}
-          <button
-            id="btn-notifications"
-            onClick={() => alert('3 Notifications:\n• Calibration passed at 09:15:00\n• 1 new particle scan added\n• 12 changes in last 30 days')}
-            className={`relative w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-              isDarkMode
-                ? 'text-[#b9cbc2] hover:bg-[#232c28] hover:text-white'
-                : 'text-[#414944] hover:bg-[#eceef0] hover:text-[#191c1e]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500"></span>
-          </button>
+          <div className="relative">
+            <button
+              id="btn-notifications"
+              aria-label="Open notifications"
+              onClick={() => setShowNotifications((v) => !v)}
+              className="press-target relative w-8 h-8 flex items-center justify-center rounded-full transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--color-pass)' }} />
+            </button>
+            {showNotifications && <NotificationsDropdown onClose={() => setShowNotifications(false)} />}
+          </div>
 
-          {/* Top user avatar */}
+          {/* Avatar */}
           <button
             id="btn-topbar-avatar"
             onClick={() => onNavigate('settings')}
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:ring-2 hover:ring-emerald-400 transition-all shrink-0"
+            aria-label="User settings"
             title="User Settings & Role Management"
+            className="press-target w-8 h-8 rounded-full flex items-center justify-center border transition-all"
+            style={{ background: 'var(--color-accent-subtle)', borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
           >
-            <span className="material-symbols-outlined text-[20px]">account_circle</span>
+            <span className="material-symbols-outlined text-[18px]">account_circle</span>
           </button>
         </div>
       </header>

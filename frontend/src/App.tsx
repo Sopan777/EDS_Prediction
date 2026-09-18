@@ -25,14 +25,15 @@ import { NewAnalysisModal } from './components/NewAnalysisModal';
 // Loading / Error banner helpers
 // --------------------------------------------------------------------------
 
-function BackendErrorBanner({ isDarkMode }: { isDarkMode: boolean }) {
+function BackendErrorBanner() {
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-[999] px-4 py-2 flex items-center gap-2 text-[13px] font-semibold ${
-        isDarkMode
-          ? 'bg-red-900/80 text-red-100 border-b border-red-700'
-          : 'bg-red-50 text-red-800 border-b border-red-300'
-      }`}
+      className="fixed top-0 left-0 right-0 z-[999] px-4 py-2 flex items-center gap-2 text-[13px] font-semibold anim-slide-down"
+      style={{
+        background: 'var(--color-fail-subtle)',
+        color: 'var(--color-fail)',
+        borderBottom: '1px solid var(--color-fail)',
+      }}
     >
       <span className="material-symbols-outlined text-[18px]">warning</span>
       Backend unreachable — check that the Python server is running on port 5000.
@@ -41,16 +42,15 @@ function BackendErrorBanner({ isDarkMode }: { isDarkMode: boolean }) {
   );
 }
 
-function LoadingSpinner({ isDarkMode }: { isDarkMode: boolean }) {
+function LoadingSpinner() {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4">
       <div
-        className={`w-10 h-10 rounded-full border-4 border-t-transparent animate-spin ${
-          isDarkMode ? 'border-[#00ffcc]' : 'border-[#134231]'
-        }`}
+        className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin"
+        style={{ borderColor: 'var(--color-border-strong)', borderTopColor: 'var(--color-accent)' }}
       />
-      <p className={`text-[13px] ${isDarkMode ? 'text-[#b9cbc2]' : 'text-[#717974]'}`}>
-        Connecting to Spectral Lab server…
+      <p className="type-subhead" style={{ color: 'var(--color-text-tertiary)' }}>
+        Connecting to Dhatu Bodh server…
       </p>
     </div>
   );
@@ -257,19 +257,19 @@ export function App() {
     setTopTab('dashboard');
   };
 
-  // --------------------------------------------------------------------------
-  // Loading / error guard
-  // --------------------------------------------------------------------------
   const isInitialLoading = familiesLoading && materialFamilies.length === 0;
 
   return (
     <div
-      className={`min-h-screen flex transition-colors duration-200 ${
-        isDarkMode ? 'bg-[#0c1512] text-[#dbe5df]' : 'bg-[#f7f9fb] text-[#191c1e]'
-      }`}
+      className="min-h-screen flex"
+      style={{
+        background: 'var(--color-bg-base)',
+        color: 'var(--color-text-primary)',
+        transition: 'background var(--dur-normal), color var(--dur-normal)',
+      }}
     >
       {/* Backend error banner */}
-      {backendError && <BackendErrorBanner isDarkMode={isDarkMode} />}
+      {backendError && <BackendErrorBanner />}
 
       {/* Side & Top Navigation */}
       <Navigation
@@ -297,13 +297,13 @@ export function App() {
       {/* Main View Container */}
       <main
         id="main-content-viewport"
-        className={`ml-[280px] mt-16 flex-1 p-6 overflow-hidden h-[calc(100vh-64px)] ${
+        className={`ml-[280px] flex-1 p-6 overflow-hidden h-[calc(100vh-64px)] ${
           backendError ? 'mt-[76px]' : 'mt-16'
         }`}
       >
         {/* Global loading state */}
         {isInitialLoading ? (
-          <LoadingSpinner isDarkMode={isDarkMode} />
+          <LoadingSpinner />
         ) : (
           <>
             {currentSection === 'analyzer' && (
