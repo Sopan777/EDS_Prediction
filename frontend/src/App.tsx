@@ -15,7 +15,6 @@ import { SettingsView } from './components/SettingsView';
 import { AnalysisHistoryView } from './components/AnalysisHistoryView';
 import { ComponentModal } from './components/ComponentModal';
 import { ExportModal } from './components/ExportModal';
-import { NewAnalysisModal } from './components/NewAnalysisModal';
 
 // --------------------------------------------------------------------------
 // Loading / Error banner helpers
@@ -82,7 +81,6 @@ export function App() {
   // Modal states
   const [selectedComponent, setSelectedComponent] = useState<CandidateComponent | null>(null);
   const [isExportOpen, setIsExportOpen] = useState(false);
-  const [isNewAnalysisOpen, setIsNewAnalysisOpen] = useState(false);
 
   // Synchronize HTML dark class
   useEffect(() => {
@@ -184,30 +182,6 @@ export function App() {
     setCurrentSection('knowledge');
   };
 
-  // --------------------------------------------------------------------------
-  // New analysis session — persist to backend
-  // --------------------------------------------------------------------------
-  const handleStartSession = (info: {
-    particleId: string;
-    spectrometer: string;
-    description: string;
-  }) => {
-    // Save session to backend for tracking
-    fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        particleId: info.particleId,
-        spectrometer: info.spectrometer,
-        description: info.description,
-        createdBy: 'Lab Operator',
-      }),
-    }).catch((err) => console.warn('Session not saved:', err));
-
-    setCurrentSection('analyzer');
-    setTopTab('dashboard');
-  };
-
   const isInitialLoading = familiesLoading && materialFamilies.length === 0;
 
   return (
@@ -238,7 +212,6 @@ export function App() {
         }}
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleTheme}
-        onOpenNewAnalysis={() => setIsNewAnalysisOpen(true)}
         onOpenExport={() => setIsExportOpen(true)}
         searchQuery={globalSearch}
         onSearchChange={setGlobalSearch}
@@ -318,14 +291,6 @@ export function App() {
         onClose={() => setIsExportOpen(false)}
         isDarkMode={isDarkMode}
         activeFamily={activeFamily}
-      />
-
-      {/* New Analysis / Spectrometer Scan Loader Modal */}
-      <NewAnalysisModal
-        isOpen={isNewAnalysisOpen}
-        onClose={() => setIsNewAnalysisOpen(false)}
-        isDarkMode={isDarkMode}
-        onStartSession={handleStartSession}
       />
     </div>
   );

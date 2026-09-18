@@ -8,7 +8,6 @@ interface NavigationProps {
   onSelectTopTab: (tab: TopTab) => void;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
-  onOpenNewAnalysis: () => void;
   onOpenExport: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
@@ -130,7 +129,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   onSelectTopTab,
   isDarkMode,
   onToggleDarkMode,
-  onOpenNewAnalysis,
   onOpenExport,
   searchQuery,
   onSearchChange,
@@ -184,17 +182,6 @@ export const Navigation: React.FC<NavigationProps> = ({
               </p>
             </div>
           </div>
-
-
-          <button
-            id="btn-sidebar-new-analysis"
-            onClick={onOpenNewAnalysis}
-            className="press-target mt-5 w-full py-2.5 px-4 type-subhead font-semibold flex items-center justify-center gap-2"
-            style={{ background: 'var(--color-accent)', color: 'var(--color-accent-on)', borderRadius: 'var(--radius-md)' }}
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            New Analysis
-          </button>
         </div>
 
         {/* Nav items */}
