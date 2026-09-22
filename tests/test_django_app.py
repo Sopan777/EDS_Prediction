@@ -100,6 +100,30 @@ def test_pdf_upload_analyze_api(client):
     assert data['decision'] == 'identified'
     assert 'Cu' in data['extractedComposition']
     assert data['familyCode'] == 'F6a'
+    assert data['isPooled'] is True
+    assert data['spectraCount'] == 2
+    assert data['topCandidate'] is not None
+    assert data['topCandidate']['name'] == 'CRI Sealing ring'
+    assert len(data['perSpectrum']) == 2
+
+
+def test_multi_spectrum_manual_analyze_api(client):
+    """Verify multi-spectrum manual payload pools and predicts component."""
+    payload = {
+        'spectra': [
+            {'Cr': 18.5, 'Ni': 8.2, 'Mn': 1.5, 'Si': 0.6, 'Fe': 'Bal.'},
+            {'Cr': 18.0, 'Ni': 8.6, 'Mn': 1.6, 'Si': 0.5, 'Fe': 'Bal.'},
+        ]
+    }
+    res = client.post('/api/analyze', data=json.dumps(payload), content_type='application/json')
+    assert res.status_code == 200
+    data = res.json()
+    assert data['decision'] == 'identified'
+    assert data['familyCode'] == 'F4'
+    assert data['isPooled'] is True
+    assert data['spectraCount'] == 2
+    assert data['topCandidate'] is not None
+    assert len(data['candidateComponents']) > 0
 
 
 def test_gates_api_and_validation(client):

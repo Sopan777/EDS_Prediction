@@ -7,7 +7,11 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from apps.knowledge.models import AlloyPreset
-from services.eds.extractor import extract_composition_from_file, clean_numeric_composition, HAVE_PDF
+from services.eds.extractor import (
+    extract_all_spectra_from_file,
+    clean_numeric_composition,
+    HAVE_PDF,
+)
 from services.prediction.engine import run_prediction
 from services.knowledge.kb import get_all_families_mapped, get_kb
 
@@ -43,7 +47,7 @@ def health_api(request: HttpRequest) -> JsonResponse:
 @method_decorator(csrf_exempt, name='dispatch')
 class AnalyzeAPIView(View):
     def post(self, request: HttpRequest) -> JsonResponse:
-        raw_composition = {}
+        spectra_list = []
         analysed_elements = []
         source_filename = None
         source_type = 'manual_entry'
@@ -54,7 +58,7 @@ class AnalyzeAPIView(View):
             source_type = 'file_upload'
             try:
                 file_bytes = uploaded_file.read()
-                raw_composition, analysed_elements = extract_composition_from_file(
+                spectra_list, analysed_elements, meta = extract_all_spectra_from_file(
                     file_bytes, source_filename
                 )
             except Exception as err:
@@ -64,13 +68,29 @@ class AnalyzeAPIView(View):
                 body = json.loads(request.body.decode('utf-8')) if request.body else {}
             except Exception:
                 body = {}
-            raw_comp = body.get('composition', body)
-            source_type = 'manual_entry'
-            raw_composition, analysed_elements = clean_numeric_composition(raw_comp)
+
+            if 'spectra' in body and isinstance(body['spectra'], list) and len(body['spectra']) > 0:
+                source_type = 'multi_manual_entry'
+                elem_set = set()
+                for s in body['spectra']:
+                    clean_s, el = clean_numeric_composition(s)
+                    if clean_s:
+                        spectra_list.append(clean_s)
+                        elem_set.update(el)
+                analysed_elements = sorted(list(elem_set))
+            else:
+                raw_comp = body.get('composition', body)
+                source_type = 'manual_entry'
+                clean_s, analysed_elements = clean_numeric_composition(raw_comp)
+                if clean_s:
+                    spectra_list = [clean_s]
+
+        if not spectra_list:
+            return JsonResponse({'error': 'No valid elemental spectra could be extracted.'}, status=400)
 
         try:
             result = run_prediction(
-                composition=raw_composition,
+                spectra=spectra_list,
                 analysed_elements=analysed_elements,
                 source_type=source_type,
                 source_filename=source_filename,

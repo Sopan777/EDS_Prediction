@@ -1,7 +1,8 @@
 """
 services/eds/extractor.py
 =========================
-Extracts elemental compositions from uploaded EDS files (PDF, CSV, XLSX, JSON).
+Extracts all elemental spectra from uploaded EDS files (PDF, CSV, XLSX, JSON).
+Supports multi-spectrum pooling for particles measured across multiple points.
 """
 
 import io
@@ -24,17 +25,18 @@ except Exception:
         HAVE_PDF = False
 
 
-def extract_composition_from_file(
+def extract_all_spectra_from_file(
     file_bytes: bytes,
     filename: str,
-) -> Tuple[Dict[str, float], List[str]]:
+) -> Tuple[List[Dict[str, float]], List[str], Dict[str, Any]]:
     """
-    Parse uploaded file and extract numeric composition and list of elements.
-    Returns: (numeric_composition, analysed_elements)
+    Parse uploaded file and extract ALL spectra and combined analysed elements.
+    Returns: (spectra_list, analysed_elements, metadata)
     """
     fname_lower = filename.lower()
-    raw_composition: Dict[str, Any] = {}
+    raw_spectra: List[Dict[str, Any]] = []
     analysed_elements: List[str] = []
+    metadata: Dict[str, Any] = {"filename": filename, "tables_count": 0}
 
     if fname_lower.endswith(".pdf"):
         if not HAVE_PDF or extract_tables is None:
@@ -57,45 +59,93 @@ def extract_composition_from_file(
         if not eds_tables:
             raise ValueError("No EDS tables could be extracted from PDF report")
 
-        table = eds_tables[0]
-        analysed_elements = list(table.get("elements", []))
-        spectra = table.get("spectra", [])
-        if spectra:
-            raw_composition = {
-                k: v for k, v in spectra[0].get("values", {}).items()
-                if v is not None and k != "Total"
-            }
-        else:
-            raise ValueError("EDS table had no spectral data rows")
+        metadata["tables_count"] = len(eds_tables)
+
+        # Gather spectra from the primary table or all tables
+        # Usually Table 0 contains the repeat spectra for the particle
+        primary_table = eds_tables[0]
+        elements_set = set(e for e in primary_table.get("elements", []) if e != "Total")
+
+        for table in eds_tables:
+            for el in table.get("elements", []):
+                if el != "Total":
+                    elements_set.add(el)
+
+            spectra = table.get("spectra", [])
+            for s in spectra:
+                vals = s.get("values", {})
+                cleaned_vals = {
+                    k: v for k, v in vals.items()
+                    if v is not None and k != "Total"
+                }
+                if cleaned_vals:
+                    raw_spectra.append(cleaned_vals)
+
+        analysed_elements = sorted(list(elements_set))
 
     elif fname_lower.endswith(".json"):
         data = json.loads(file_bytes.decode("utf-8"))
-        if isinstance(data, dict):
-            raw_composition = data.get("values", data.get("composition", data))
-        elif isinstance(data, list) and len(data) > 0:
-            raw_composition = data[0].get("values", data[0])
-        analysed_elements = list(raw_composition.keys())
+        if isinstance(data, list):
+            for item in data:
+                raw_spectra.append(item.get("values", item.get("composition", item)))
+        elif isinstance(data, dict):
+            if "spectra" in data and isinstance(data["spectra"], list):
+                for item in data["spectra"]:
+                    raw_spectra.append(item.get("values", item.get("composition", item)))
+            elif "composition" in data and isinstance(data["composition"], list):
+                raw_spectra = data["composition"]
+            else:
+                raw_spectra.append(data.get("values", data.get("composition", data)))
+
+        elements_set = set()
+        for s in raw_spectra:
+            elements_set.update(s.keys())
+        analysed_elements = sorted(list(elements_set))
 
     elif fname_lower.endswith(".csv"):
         content_str = file_bytes.decode("utf-8", errors="replace")
         lines = [l.strip() for l in content_str.splitlines() if l.strip()]
         if lines:
             headers = [h.strip() for h in lines[0].split(",")]
-            if len(lines) > 1:
-                first_row = [v.strip() for v in lines[1].split(",")]
-                for h, val in zip(headers, first_row):
+            elements_set = set(h for h in headers if h not in ("Sr No.", "Spectrum", "Total"))
+            for line in lines[1:]:
+                vals = [v.strip() for v in line.split(",")]
+                row_comp = {}
+                for h, val in zip(headers, vals):
+                    if h in ("Sr No.", "Spectrum", "Total"):
+                        continue
                     try:
-                        raw_composition[h] = float(val)
+                        row_comp[h] = float(val)
                     except ValueError:
                         pass
-            analysed_elements = list(raw_composition.keys())
+                if row_comp:
+                    raw_spectra.append(row_comp)
+            analysed_elements = sorted(list(elements_set))
 
     else:
         raise ValueError(f"Unsupported file type '{filename}'. Supported: PDF, CSV, JSON.")
 
-    # Clean and parse composition into numeric floats
-    clean_composition, elements = clean_numeric_composition(raw_composition, analysed_elements)
-    return clean_composition, elements
+    if not raw_spectra:
+        raise ValueError("No valid spectral compositions found in file")
+
+    # Clean every spectrum
+    cleaned_spectra: List[Dict[str, float]] = []
+    for s in raw_spectra:
+        clean_comp, _ = clean_numeric_composition(s, analysed_elements)
+        if clean_comp:
+            cleaned_spectra.append(clean_comp)
+
+    metadata["spectra_count"] = len(cleaned_spectra)
+    return cleaned_spectra, analysed_elements, metadata
+
+
+def extract_composition_from_file(
+    file_bytes: bytes,
+    filename: str,
+) -> Tuple[Dict[str, float], List[str]]:
+    """Legacy single-composition helper for backwards compatibility."""
+    spectra, elements, _ = extract_all_spectra_from_file(file_bytes, filename)
+    return spectra[0] if spectra else {}, elements
 
 
 def clean_numeric_composition(
