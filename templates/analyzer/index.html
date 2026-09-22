@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analyze New Particle - Spectral Lab MaterialID{% endblock %}
+
+{% block content %}
+<div id="analyzer-screen" class="flex flex-col gap-5 h-full">
+  <!-- Page Header -->
+  <header class="flex items-center justify-between flex-none">
+    <div>
+      <h2 class="font-display text-[28px] font-bold tracking-tight text-[#134231] dark:text-white">
+        Analyze New Particle
+      </h2>
+      <p class="text-[13px] text-[#717974] dark:text-[#b9cbc2]">
+        EDS Microanalysis & Automated Reference Library Cross-Correlation (ASTM E1508 / ISO 22309)
+      </p>
+    </div>
+
+    <button id="btn-reset-analysis" onclick="clearAnalyzerForm()" class="hidden px-3 py-1.5 rounded-lg text-[12px] font-semibold border flex items-center gap-1.5 transition-all border-[#c0c8c2] text-[#414944] hover:text-[#191c1e] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:text-[#b9cbc2] dark:hover:text-white dark:hover:bg-[#151d1a]">
+      <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+      Reset Analysis
+    </button>
+  </header>
+
+  <!-- Bento Grid (12 cols) -->
+  <div class="grid grid-cols-12 gap-5 flex-1 min-h-0">
+    <!-- Left Column (7 cols): Ingestion & Composition -->
+    <div class="col-span-12 xl:col-span-7 flex flex-col gap-5 h-full overflow-hidden">
+      <div class="rounded-xl border shadow-sm p-6 flex-1 flex flex-col relative overflow-y-auto transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+        <!-- Ingestion Tabs & Presets -->
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
+          <h3 class="font-semibold text-[16px] flex items-center gap-2 text-[#134231] dark:text-white">
+            <span class="material-symbols-outlined text-[20px]">upload_file</span>
+            Data Ingestion
+          </h3>
+
+          <div class="flex items-center gap-3">
+            <!-- Preset Selector -->
+            <select id="preset-selector" onchange="applyPreset(this.value)" class="text-[12px] rounded-lg border px-2.5 py-1 focus:outline-none bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+              <option value="">-- Load Reference Preset --</option>
+              {% for p in presets %}
+                <option value="{{ p.id }}">{{ p.name }} ({{ p.category }})</option>
+              {% endfor %}
+            </select>
+
+            <!-- Tabs -->
+            <div class="flex p-1 rounded-lg bg-[#f2f4f6] dark:bg-[#151d1a]">
+              <button id="tab-btn-upload" onclick="switchIngestTab('upload')" class="px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all bg-white text-[#134231] dark:bg-[#1a2420] dark:text-[#00ffcc] shadow-sm">
+                File Upload
+              </button>
+              <button id="tab-btn-manual" onclick="switchIngestTab('manual')" class="px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all text-[#717974] hover:text-[#191c1e] dark:text-[#83958d] dark:hover:text-white">
+                Manual Entry
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Upload Section -->
+        <div id="section-file-upload" class="mb-4">
+          <div id="drop-zone" onclick="document.getElementById('eds-file-input').click()" class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all border-[#c0c8c2] hover:border-[#134231] bg-[#f7f9fb] dark:border-[#3a4a44] dark:hover:border-[#00ffcc] dark:bg-[#151d1a]/50">
+            <input type="file" id="eds-file-input" accept=".pdf,.csv,.json,.xlsx" class="hidden" onchange="handleFileSelected(this.files[0])">
+            <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-[#e0e3e5] text-[#134231] dark:bg-[#232c28] dark:text-[#00ffcc]">
+              <span class="material-symbols-outlined text-[26px]">cloud_upload</span>
+            </div>
+            <p id="upload-status-text" class="font-semibold text-[14px] text-[#191c1e] dark:text-white mb-1">
+              Drag & Drop EDS Report or Click to Browse
+            </p>
+            <p class="text-[12px] text-[#717974] dark:text-[#83958d]">
+              Supports PyMuPDF extraction for AZtec / Phenom PDF reports, CSV spectra, or JSON files.
+            </p>
+          </div>
+        </div>
+
+        <!-- Manual Entry Composition Form -->
+        <div class="flex-1 flex flex-col">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-[12px] font-bold uppercase tracking-wider text-[#717974] dark:text-[#b9cbc2]">
+              Elemental Concentration (wt%)
+            </span>
+            <span class="text-[11px] font-mono-code opacity-75">
+              Basis: Normalized Metal-Only
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-3">
+            <!-- Cr -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#717974] dark:text-[#b9cbc2]">Cr</label>
+              <input type="number" step="0.01" id="input-cr" value="0" placeholder="0.00" class="w-full border rounded p-2 text-right font-mono-code text-[13px] bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <!-- Ni -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#717974] dark:text-[#b9cbc2]">Ni</label>
+              <input type="number" step="0.01" id="input-ni" value="0" placeholder="0.00" class="w-full border rounded p-2 text-right font-mono-code text-[13px] bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <!-- Mn -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#717974] dark:text-[#b9cbc2]">Mn</label>
+              <input type="number" step="0.01" id="input-mn" value="0" placeholder="0.00" class="w-full border rounded p-2 text-right font-mono-code text-[13px] bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <!-- Si -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#717974] dark:text-[#b9cbc2]">Si</label>
+              <input type="number" step="0.01" id="input-si" value="0" placeholder="0.00" class="w-full border rounded p-2 text-right font-mono-code text-[13px] bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <!-- C -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#717974] dark:text-[#b9cbc2]">C (Untracked)</label>
+              <input disabled placeholder="--" class="w-full border rounded p-2 text-right font-mono-code text-[13px] cursor-not-allowed opacity-60 bg-[#eceef0] border-[#c0c8c2] text-[#717974] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#83958d]">
+            </div>
+            <!-- Fe -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-[#717974] dark:text-[#b9cbc2]">Fe</label>
+              <input id="input-fe" value="Bal." placeholder="Bal." class="w-full border rounded p-2 text-right font-mono-code text-[13px] bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <!-- Dynamic Additional Elements Container -->
+          <div id="extra-elements-container" class="hidden mb-3 pt-3 border-t border-inherit">
+            <span class="block text-[11px] font-bold uppercase tracking-wider mb-2 text-[#717974] dark:text-[#83958d]">
+              Additional Elements Measured (wt%)
+            </span>
+            <div id="extra-elements-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
+          </div>
+
+          <!-- Add Element & Submit Button Row -->
+          <div class="mt-auto pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-inherit">
+            <!-- Add Element Controls -->
+            <div id="add-element-wrapper">
+              <button id="btn-show-add-element" type="button" onclick="showAddElementForm(true)" class="text-[12px] font-semibold flex items-center gap-1 transition-colors text-[#134231] hover:underline dark:text-[#00ffcc]">
+                <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                Add Element (Mo, Cu, Sn, Al, Zn...)
+              </button>
+              <div id="add-element-form" class="hidden flex items-center gap-2">
+                <select id="new-element-select" class="text-[12px] rounded border px-2 py-1 bg-white border-[#c0c8c2] text-black dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+                  <option value="Mo">Mo</option>
+                  <option value="Cu">Cu</option>
+                  <option value="Sn">Sn</option>
+                  <option value="Al">Al</option>
+                  <option value="Zn">Zn</option>
+                  <option value="W">W</option>
+                  <option value="V">V</option>
+                  <option value="Ti">Ti</option>
+                  <option value="Nb">Nb</option>
+                  <option value="Co">Co</option>
+                  <option value="P">P</option>
+                  <option value="S">S</option>
+                  <option value="Pb">Pb</option>
+                  <option value="Au">Au</option>
+                </select>
+                <input type="number" step="0.01" id="new-element-val" placeholder="wt%" class="w-20 text-[12px] rounded border px-2 py-1 text-right bg-white border-[#c0c8c2] text-black dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+                <button type="button" onclick="confirmAddExtraElement()" class="px-2.5 py-1 text-[12px] font-semibold rounded bg-emerald-600 text-white hover:bg-emerald-700">
+                  Add
+                </button>
+                <button type="button" onclick="showAddElementForm(false)" class="px-2 py-1 text-[12px] opacity-60 hover:opacity-100">
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <!-- Predict CTA -->
+            <button id="btn-predict-family" onclick="triggerPrediction()" class="py-2.5 px-8 rounded-lg text-[14px] font-semibold transition-all shadow flex items-center gap-2 active:scale-95 bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
+              <span id="predict-btn-text">Predict Family</span>
+              <span id="predict-btn-spinner" class="hidden w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column (5 cols): Results & Cross-Match -->
+    <div class="col-span-12 xl:col-span-5 flex flex-col gap-5 h-full overflow-hidden">
+      <!-- 1. Awaiting State -->
+      <div id="awaiting-analysis-card" class="rounded-xl border shadow-sm p-8 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-[#f2f4f6] text-[#134231] border border-[#c0c8c2] dark:bg-[#151d1a] dark:text-[#00ffcc] dark:border-[#3a4a44]">
+          <span class="material-symbols-outlined text-[34px]">biotech</span>
+        </div>
+
+        <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider mb-3 border bg-[#f2f4f6] border-[#c0c8c2] text-[#717974] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-[#83958d]">
+          Awaiting Microanalysis
+        </span>
+
+        <h3 class="font-display text-[22px] font-bold mb-2 tracking-tight text-[#191c1e] dark:text-white">
+          No Particle Analyzed Yet
+        </h3>
+
+        <p class="text-[13px] max-w-sm leading-relaxed mb-6 text-[#717974] dark:text-[#b9cbc2]">
+          Upload an EDS microanalysis report (PDF, CSV, JSON) or manually enter elemental concentrations (wt%) and select <strong>Predict Family</strong> to perform stoichiometric cross-matching.
+        </p>
+
+        <div class="grid grid-cols-2 gap-3 w-full max-w-xs text-left text-[11px]">
+          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+            <span class="block font-bold uppercase tracking-wider opacity-60">Status</span>
+            <span class="font-semibold flex items-center gap-1.5 mt-1 text-emerald-500">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Ready for Ingest
+            </span>
+          </div>
+          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+            <span class="block font-bold uppercase tracking-wider opacity-60">Library</span>
+            <span class="font-semibold mt-1 block">ASTM E1508 Loaded</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Results Container (Shown when analyzed) -->
+      <div id="analysis-results-card" class="hidden flex-1 flex flex-col gap-5 overflow-y-auto pr-1">
+        <!-- Hero Result Card -->
+        <div id="hero-result-card" class="rounded-xl border shadow-sm relative overflow-hidden flex-none p-6 transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+          <div class="flex justify-between items-start mb-4">
+            <span id="result-decision-badge" class="inline-flex items-center gap-1.5 bg-[#bcedd4] text-[#002115] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#a1d1b9]">
+              <span class="material-symbols-outlined text-[14px]">check_circle</span>
+              IDENTIFIED
+            </span>
+
+            <div class="flex items-center gap-1 text-[11px] font-mono-code text-[#717974] dark:text-[#83958d]">
+              <span class="material-symbols-outlined text-[15px]">timer</span>
+              <span id="result-duration">0.42s</span>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 id="result-material-title" class="font-display text-[30px] md:text-[34px] font-bold leading-tight mb-1 tracking-tight text-[#191c1e] dark:text-white">
+              Austenitic stainless steel 18/8
+            </h3>
+            <p id="result-grade-hint" class="text-[14px] font-medium flex items-center gap-1.5 text-[#414944] dark:text-[#b9cbc2]">
+              <span class="material-symbols-outlined text-[16px]">info</span>
+              Grade hint: X8CrNiS18-9 / AISI 304
+            </p>
+          </div>
+
+          <!-- Compatibility Gauge Row -->
+          <div class="flex items-center gap-4 p-4 rounded-lg border bg-[#f2f4f6] border-[#c0c8c2]/50 dark:bg-[#151d1a] dark:border-[#3a4a44]/50">
+            <!-- Circular Gauge -->
+            <div class="relative w-16 h-16 shrink-0">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <path class="text-[#c0c8c2] dark:text-[#2e3733]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.2"/>
+                <path id="gauge-stroke-path" class="text-[#134231] dark:text-[#00ffcc]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="95, 100" stroke-width="3.2" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span id="gauge-pct-text" class="font-mono-code font-bold text-[14px] text-[#134231] dark:text-[#00ffcc]">95%</span>
+              </div>
+            </div>
+
+            <div>
+              <h4 id="gauge-title-text" class="font-semibold text-[15px] text-[#191c1e] dark:text-white">High Compatibility</h4>
+              <p id="gauge-desc-text" class="text-[12.5px] leading-snug mt-0.5 text-[#414944] dark:text-[#b9cbc2]">
+                Spectral signature closely matches reference library standards for this alloy family.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split Row: Candidate Components & Context -->
+        <div class="flex-1 flex gap-5 min-h-[220px]">
+          <!-- Candidate Components -->
+          <div class="flex-1 rounded-xl border shadow-sm p-4 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider mb-2 px-1 border-b pb-1.5 text-[#717974] border-[#c0c8c2] dark:text-[#83958d] dark:border-[#3a4a44]">
+              CANDIDATE COMPONENTS
+            </h4>
+            <div id="candidates-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1"></div>
+          </div>
+
+          <!-- Analysis Context -->
+          <div class="w-[42%] rounded-xl border shadow-sm p-4 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider mb-2 px-1 border-b pb-1.5 text-[#717974] border-[#c0c8c2] dark:text-[#83958d] dark:border-[#3a4a44]">
+              ANALYSIS CONTEXT
+            </h4>
+            <div id="caveats-list" class="space-y-2 overflow-y-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inline Server State -->
+<script>
+  window.PRESETS_DATA = {{ presets|safe }};
+  window.ACTIVE_FAMILY = {{ active_family|safe }};
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/analyzer.js' %}"></script>
+{% endblock %}

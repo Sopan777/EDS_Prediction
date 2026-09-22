@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Laboratory Reports & Certificates - Spectral Lab{% endblock %}
+
+{% block content %}
+<div id="reports-screen" class="flex flex-col gap-5 h-full overflow-hidden">
+  <!-- Top Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-none">
+    <div>
+      <h2 class="font-display text-[28px] font-bold tracking-tight text-[#134231] dark:text-white">
+        Microanalysis Reports
+      </h2>
+      <p class="text-[13px] text-[#717974] dark:text-[#b9cbc2]">
+        Official laboratory certificates and metallurgical characterization reports (ISO/IEC 17025 compliant).
+      </p>
+    </div>
+
+    <button onclick="openExportModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold flex items-center gap-1.5 shadow-sm transition-all bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Generate Certificate
+    </button>
+  </div>
+
+  <!-- Reports Table Card -->
+  <div class="rounded-xl border shadow-sm flex-1 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+    <div class="flex-1 overflow-x-auto overflow-y-auto">
+      <table class="w-full text-left border-collapse text-[13px]">
+        <thead class="sticky top-0 z-10">
+          <tr class="border-b bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[11px] font-bold uppercase tracking-wider opacity-70">
+            <th class="py-3 px-4">Report ID</th>
+            <th class="py-3 px-4">Specimen / Sample ID</th>
+            <th class="py-3 px-4">Customer</th>
+            <th class="py-3 px-4">Classification</th>
+            <th class="py-3 px-4">Decision</th>
+            <th class="py-3 px-4 text-right">Confidence</th>
+            <th class="py-3 px-4">Analyst</th>
+            <th class="py-3 px-4 text-center">Status</th>
+            <th class="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#c0c8c2]/40 dark:divide-[#3a4a44]/40">
+          {% for r in reports %}
+            <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+              <td class="py-3 px-4 font-mono-code font-bold text-[#134231] dark:text-[#00ffcc] whitespace-nowrap">
+                {{ r.id }}
+              </td>
+              <td class="py-3 px-4 font-semibold whitespace-nowrap">
+                {{ r.sample_id }}
+                {% if r.lot_number and r.lot_number != "N/A" %}
+                  <span class="block text-[11px] font-normal opacity-60 font-mono-code">Lot: {{ r.lot_number }}</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap opacity-80">{{ r.customer }}</td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="font-semibold block">{{ r.family_label|default:"Unclassified" }}</span>
+                <span class="text-[11px] opacity-60 font-mono-code">{{ r.grade_hint|default:"" }}</span>
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                {% if r.decision == 'identified' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-500">IDENTIFIED</span>
+                {% elif r.decision == 'ambiguous' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/20 text-amber-500">AMBIGUOUS</span>
+                {% else %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/20 text-rose-500">UNKNOWN</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-right font-mono-code font-bold whitespace-nowrap text-emerald-500">
+                {{ r.compatibility_pct|floatformat:0 }}%
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap opacity-80">{{ r.analyst_name }}</td>
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-black/5 dark:bg-white/5">
+                  {{ r.status }}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <button onclick="window.print()" class="text-[12px] font-semibold text-[#006b5b] dark:text-[#00ffcc] hover:underline flex items-center justify-end gap-1 ml-auto">
+                  <span class="material-symbols-outlined text-[16px]">print</span>
+                  Print
+                </button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="9" class="py-8 text-center opacity-60 text-[13px]">No reports stored in the database. Perform microanalysis to generate official records.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Audit Log & Traceability - Spectral Lab{% endblock %}
+
+{% block content %}
+<div id="audit-log-screen" class="flex flex-col gap-5 h-full overflow-hidden">
+  <!-- Top Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-none">
+    <div>
+      <h2 class="font-display text-[28px] font-bold tracking-tight text-[#134231] dark:text-white">
+        System Audit Log
+      </h2>
+      <p class="text-[13px] text-[#717974] dark:text-[#b9cbc2]">
+        Full system traceability tracking modifications to spectral matching logic, ratio gates, and analysis reports.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span id="logs-count-badge" class="px-3 py-1 rounded-full text-[12px] font-mono-code font-medium border bg-white border-[#c0c8c2] text-[#134231] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-[#00ffcc]">
+        {{ logs|length }} changes recorded
+      </span>
+      <button id="btn-export-csv" onclick="exportAuditLogCSV()" class="px-3.5 py-1.5 rounded-lg text-[13px] font-semibold flex items-center gap-1.5 shadow-sm transition-all bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
+        <span class="material-symbols-outlined text-[17px]">download</span>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="p-4 rounded-xl border shadow-sm flex flex-wrap items-center gap-4 transition-colors flex-none bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-[18px] opacity-70">filter_alt</span>
+      <span class="text-[12px] font-bold uppercase tracking-wider opacity-70">Filters:</span>
+    </div>
+
+    <!-- Action Type Filter -->
+    <div class="flex items-center gap-2">
+      <label class="text-[12px] opacity-70">Action:</label>
+      <select id="filter-action-type" onchange="filterAuditLogs()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+        <option value="All">All Actions</option>
+        {% for a in action_types %}
+          <option value="{{ a }}">{{ a }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- User Filter -->
+    <div class="flex items-center gap-2">
+      <label class="text-[12px] opacity-70">User:</label>
+      <select id="filter-user" onchange="filterAuditLogs()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+        <option value="All">All Personnel</option>
+        {% for u in users %}
+          <option value="{{ u }}">{{ u }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Family Filter -->
+    <div class="flex items-center gap-2">
+      <label class="text-[12px] opacity-70">Family:</label>
+      <select id="filter-family" onchange="filterAuditLogs()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+        <option value="All">All Families</option>
+        {% for f in families %}
+          <option value="{{ f }}">{{ f }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Audit Log Table Card -->
+  <div class="rounded-xl border shadow-sm flex-1 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+    <div class="flex-1 overflow-x-auto overflow-y-auto">
+      <table class="w-full text-left border-collapse text-[13px]">
+        <thead class="sticky top-0 z-10">
+          <tr class="border-b bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[11px] font-bold uppercase tracking-wider opacity-70">
+            <th class="py-3 px-4">Timestamp</th>
+            <th class="py-3 px-4">Personnel</th>
+            <th class="py-3 px-4">Action Event</th>
+            <th class="py-3 px-4">Type</th>
+            <th class="py-3 px-4">Entity</th>
+            <th class="py-3 px-4">Details / Delta</th>
+            <th class="py-3 px-4 text-center">Impact</th>
+          </tr>
+        </thead>
+        <tbody id="audit-table-body" class="divide-y divide-[#c0c8c2]/40 dark:divide-[#3a4a44]/40">
+          {% for log in logs %}
+            <tr class="audit-row hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-action="{{ log.actionType }}" data-user="{{ log.user }}" data-family="{{ log.familyCode }}">
+              <td class="py-2.5 px-4 font-mono-code text-[12px] whitespace-nowrap opacity-80">{{ log.timestamp }}</td>
+              <td class="py-2.5 px-4 whitespace-nowrap">
+                <span class="font-semibold block text-[#191c1e] dark:text-white">{{ log.user }}</span>
+                <span class="text-[11px] opacity-60">{{ log.userRole }}</span>
+              </td>
+              <td class="py-2.5 px-4 max-w-md">
+                <span class="line-clamp-2">{{ log.action }}</span>
+              </td>
+              <td class="py-2.5 px-4 whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-black/5 dark:bg-white/5">
+                  {{ log.actionType }}
+                </span>
+              </td>
+              <td class="py-2.5 px-4 whitespace-nowrap">
+                <span class="font-mono-code text-[12px] font-semibold text-[#134231] dark:text-[#00ffcc]">
+                  {{ log.familyCode }}
+                </span>
+              </td>
+              <td class="py-2.5 px-4 text-[12px] max-w-xs font-mono-code opacity-80">
+                {% if log.changeDetails.from or log.changeDetails.to %}
+                  <span class="block truncate">From: {{ log.changeDetails.from|default:"--" }}</span>
+                  <span class="block truncate text-emerald-500">To: {{ log.changeDetails.to|default:"--" }}</span>
+                {% else %}
+                  <span class="opacity-60">{{ log.impactText }}</span>
+                {% endif %}
+              </td>
+              <td class="py-2.5 px-4 text-center whitespace-nowrap">
+                {% if log.impactType == 'positive' %}
+                  <span class="material-symbols-outlined text-[18px] text-emerald-500" title="Positive calibration impact">check_circle</span>
+                {% elif log.impactType == 'negative' %}
+                  <span class="material-symbols-outlined text-[18px] text-rose-500" title="Deletion / Negative impact">remove_circle</span>
+                {% else %}
+                  <span class="material-symbols-outlined text-[18px] text-gray-400" title="Neutral system event">fiber_manual_record</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="py-8 text-center opacity-60 text-[13px]">No audit log entries recorded.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.AUDIT_LOGS = {{ logs|safe }};
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/history.js' %}"></script>
+{% endblock %}

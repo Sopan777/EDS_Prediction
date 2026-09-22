@@ -37,14 +37,65 @@ deterministic compatibility engine over a metal-normalised composition basis,
 with abstention as a first-class answer. It requires only the Python
 standard library.
 
+## Web Application (Django Full-Stack)
+
+The production web interface is powered by a **Django-based full-stack architecture** (Django templates + Django ORM + REST APIs + Tailwind CSS).
+
+### Starting the Server
+
+```bash
+# Using Django's management utility
+python manage.py runserver 8000
+
+# Or using the root launcher
+python server.py
+```
+Then visit **http://localhost:8000** in your browser.
+
+- **Analyzer Dashboard**: `/` or `/analyzer/` — Real-time microanalysis via manual wt% or PDF/CSV report uploads, automated stoichiometric cross-matching, circular compatibility gauge, candidate component specs.
+- **Knowledge Base**: `/knowledge/` — All 12 material families, ASTM element bands, ratio gates, and candidate assemblies.
+- **Gate Calibration**: `/gates/<family_id>/` — Live dynamic validation against 1,204 spectra with pass/fail threshold tuning.
+- **System Audit Log**: `/history/` — Full traceability, event filtering, and CSV export.
+- **Personnel Management**: `/settings/` or `/users/` — Lab analyst roster, privilege management, and activity monitoring.
+- **Reports & Certificates**: `/reports/` — Official laboratory analysis records and certificates.
+- **REST APIs**: `/api/health`, `/api/families`, `/api/analyze`, `/api/gates`, `/api/audit-logs`, `/api/users`.
+
+---
+
 ## Project layout
 
 ```
 .
-├── app.py                          # Unified Streamlit application (complete GUI & pipeline)
-├── run_app.py                      # One-click launcher (starts Streamlit app on port 5000)
+├── manage.py                       # Django command-line management utility
+├── server.py                       # Root launcher for Django server
+├── config/                         # Django project configuration (settings, urls, wsgi)
+│   ├── settings.py                 # Core settings, database (spectral_lab.db), apps, static
+│   └── urls.py                     # Root URL router & REST API routes
+├── apps/                           # Django domain applications
+│   ├── analyzer/                   # EDS microanalysis & prediction GUI/APIs
+│   ├── knowledge/                  # Metallurgical knowledge base & ratio gate calibration
+│   ├── history/                    # Traceability, audit logs & analysis history
+│   ├── users/                      # Lab personnel roster & permissions
+│   └── reports/                    # Official microanalysis certificates
+├── services/                       # Business logic & services layer
+│   ├── eds/                        # PDF/CSV extraction wrappers (PyMuPDF)
+│   ├── prediction/                 # Deterministic scoring execution
+│   ├── knowledge/                  # Knowledge base singleton & formatting
+│   └── audit/                      # Centralized audit logging service
+├── templates/                      # Django HTML templates (Dark theme, Tailwind CSS)
+│   ├── base.html                   # Master layout, navigation, and global modals
+│   ├── analyzer/index.html         # Analysis Bento grid view
+│   ├── knowledge/index.html        # 1/3 - 2/3 Knowledge Base view
+│   ├── knowledge/gates.html        # Ratio gate editor & live validation preview
+│   ├── history/index.html          # Audit log table & CSV export
+│   ├── users/index.html            # Personnel management & roles
+│   └── reports/index.html          # Certificate & report archive
+├── static/                         # Static assets
+│   ├── css/tailwind.css            # Pre-compiled Tailwind stylesheet
+│   └── js/                         # Client-side scripts (main.js, analyzer.js, gates.js, etc.)
+├── spectral_lab.db                 # SQLite database (persisting reports, audit, gates, users)
 ├── requirements.txt                # Python dependencies
-├── config.py                       # Central paths & constants
+├── config.py                       # Central pipeline paths & constants
 │
 ├── rule_engine/                    # Core metallurgical domain engine (stdlib only)
 │   ├── elements.py                 # Chemical element symbols & canonicalization

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Knowledge Base - Spectral Lab MaterialID{% endblock %}
+
+{% block content %}
+<div id="knowledge-base-screen" class="flex gap-6 h-full overflow-hidden">
+  <!-- Left Column: Material Families List (1/3 width) -->
+  <section class="w-1/3 flex flex-col gap-4">
+    <div class="rounded-xl border shadow-sm p-4 flex flex-col h-full overflow-hidden transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-semibold text-[16px] tracking-tight text-[#134231] dark:text-white">
+          Material Families
+        </h3>
+        <span class="text-[11px] font-mono-code text-[#717974] dark:text-[#83958d]">
+          {{ families|length }} families
+        </span>
+      </div>
+
+      <!-- Filter input -->
+      <div class="mb-3">
+        <input id="filter-families-input" type="text" placeholder="Filter families (e.g., F4, Austenitic)..." class="w-full px-3 py-2 text-[13px] rounded-md border focus:outline-none transition-colors bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] focus:border-[#134231] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-[#dbe5df] dark:focus:border-[#00ffcc]">
+      </div>
+
+      <!-- Families list -->
+      <div id="families-sidebar-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+        {% for fam in families %}
+          <div data-code="{{ fam.code }}" data-name="{{ fam.name }}" data-desc="{{ fam.description }}" onclick="selectFamily('{{ fam.code }}')" class="family-item p-3 rounded-lg border cursor-pointer transition-all {% if fam.code == active_family.code %}bg-white border-[#006b5b] border-l-4 border-l-[#006b5b] shadow-sm dark:bg-[#19211e] dark:border-[#00ffcc] dark:border-l-4 dark:border-l-[#00ffcc]{% else %}bg-white border-[#c0c8c2] hover:border-[#717974] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:hover:border-[#83958d]{% endif %}">
+            <div class="flex justify-between items-start mb-1">
+              <span class="font-mono-code text-[13px] font-bold {% if fam.code == active_family.code %}text-[#006b5b] dark:text-[#00ffcc]{% else %}text-[#414944] dark:text-[#b9cbc2]{% endif %}">
+                {{ fam.code }}
+              </span>
+              {% if fam.status == 'FIRM' %}
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#bcedd4] text-[#002115] dark:bg-[#00ffcc] dark:text-[#00382b]">
+                  FIRM
+                </span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-dashed border-[#83958d] text-[#83958d]">
+                  PROV
+                </span>
+              {% endif %}
+            </div>
+            <h4 class="text-[14px] font-semibold text-[#191c1e] dark:text-white">
+              {{ fam.name }}
+            </h4>
+            <p class="text-[12px] mt-0.5 line-clamp-2 text-[#717974] dark:text-[#b9cbc2]">
+              {{ fam.description }}
+            </p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Right Column: Details View (2/3 width) -->
+  <section class="w-2/3 flex flex-col gap-4 overflow-y-auto pr-1 pb-6">
+    <!-- Header Card -->
+    <div class="rounded-xl border shadow-sm p-6 transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span id="detail-code-pill" class="font-mono-code text-[14px] font-bold px-2 py-0.5 rounded bg-[#f2f4f6] text-[#006b5b] dark:bg-[#151d1a] dark:text-[#00ffcc]">
+              {{ active_family.code }}
+            </span>
+            <span id="detail-status-pill" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 bg-[#134231] text-white dark:bg-[#00ffcc] dark:text-[#00382b]">
+              <span class="material-symbols-outlined text-[13px]">verified</span>
+              {{ active_family.status }} FAMILY
+            </span>
+          </div>
+
+          <h2 id="detail-family-name" class="font-display text-[28px] md:text-[32px] font-bold tracking-tight mb-1 text-[#134231] dark:text-white">
+            {{ active_family.name }}
+          </h2>
+          <p id="detail-grade-hint" class="text-[13px] flex items-center gap-1.5 text-[#717974] dark:text-[#b9cbc2]">
+            <span class="material-symbols-outlined text-[15px]">info</span>
+            Grade hint: {{ active_family.gradeHint }}
+          </p>
+        </div>
+
+        <a id="btn-edit-profile" href="{% url 'gate_editor' fid=active_family.code %}" class="px-4 py-2 border rounded-lg text-[13px] font-semibold transition-all shadow-sm border-[#006b5b] text-[#006b5b] hover:bg-[#f2f4f6] dark:border-[#00ffcc] dark:text-[#00ffcc] dark:hover:bg-[#00ffcc]/10">
+          Edit Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Elemental Composition Bands Table -->
+    <div class="rounded-xl border shadow-sm overflow-hidden flex flex-col transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="p-4 border-b flex justify-between items-center border-[#c0c8c2] dark:border-[#3a4a44]">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px] text-[#006b5b] dark:text-[#00ffcc]">tune</span>
+          <h3 class="font-semibold text-[15px] text-[#191c1e] dark:text-white">
+            Elemental Concentration Bands
+          </h3>
+        </div>
+        <span class="text-[11px] font-mono-code opacity-75">wt% standard range</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-[13px]">
+          <thead>
+            <tr class="border-b bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[11px] font-bold uppercase tracking-wider opacity-70">
+              <th class="py-2.5 px-4">Element</th>
+              <th class="py-2.5 px-4">Role</th>
+              <th class="py-2.5 px-4 text-right">Min wt%</th>
+              <th class="py-2.5 px-4 text-right">Max wt%</th>
+              <th class="py-2.5 px-4 w-48">Range Spectrum</th>
+              <th class="py-2.5 px-4 text-right">Support</th>
+            </tr>
+          </thead>
+          <tbody id="bands-table-body" class="divide-y divide-[#c0c8c2]/40 dark:divide-[#3a4a44]/40">
+            {% for band in active_family.elementBands %}
+              <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <td class="py-2.5 px-4 font-bold text-[#134231] dark:text-[#00ffcc] font-mono-code">{{ band.element }}</td>
+                <td class="py-2.5 px-4">
+                  {% if band.role == 'Required' %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-500">Required</span>
+                  {% elif band.role == 'Trace' %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/20 text-amber-500">Trace</span>
+                  {% else %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-500/20 text-gray-500">Optional</span>
+                  {% endif %}
+                </td>
+                <td class="py-2.5 px-4 text-right font-mono-code">{{ band.rangeMin }}</td>
+                <td class="py-2.5 px-4 text-right font-mono-code">{{ band.rangeMax }}</td>
+                <td class="py-2.5 px-4">
+                  <div class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-800 relative overflow-hidden">
+                    <div class="absolute top-0 bottom-0 rounded-full bg-emerald-500" style="left: {{ band.barOffsetPct }}%; width: {{ band.barWidthPct }}%;"></div>
+                  </div>
+                </td>
+                <td class="py-2.5 px-4 text-right font-mono-code opacity-75">{{ band.spectraSupport }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Calibrated Ratio Gates Section -->
+    <div class="rounded-xl border shadow-sm p-4 flex flex-col transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-semibold text-[15px] flex items-center gap-2 text-[#134231] dark:text-white">
+          <span class="material-symbols-outlined text-[19px]">speed</span>
+          Calibrated Ratio Gates
+        </h3>
+        <a id="link-manage-gates" href="{% url 'gate_editor' fid=active_family.code %}" class="text-[12px] font-semibold text-[#006b5b] dark:text-[#00ffcc] hover:underline">
+          Manage Gates →
+        </a>
+      </div>
+
+      <div id="ratio-gates-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {% for gate in active_family.ratioGates %}
+          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-mono-code font-bold text-[13px] text-[#134231] dark:text-[#00ffcc]">{{ gate.name }}</span>
+              <span class="font-mono-code text-[12px] px-2 py-0.5 rounded bg-black/5 dark:bg-white/5">[{{ gate.min }} - {{ gate.max }}]</span>
+            </div>
+            <p class="text-[11px] text-[#717974] dark:text-[#b9cbc2]">{{ gate.rationale }}</p>
+          </div>
+        {% empty %}
+          <p class="text-[12px] opacity-60 col-span-2 py-2">No ratio gates configured for this family.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Candidate Components Grid -->
+    <div class="rounded-xl border shadow-sm p-4 flex flex-col transition-colors bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <h3 class="font-semibold text-[15px] mb-3 flex items-center gap-2 text-[#134231] dark:text-white">
+        <span class="material-symbols-outlined text-[19px]">category</span>
+        Candidate Subcomponents & Assemblies
+      </h3>
+      <div id="components-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {% for comp in active_family.candidateComponents %}
+          <div onclick='openComponentModal({{ comp|safe }})' class="p-3 rounded-lg border cursor-pointer group transition-all bg-[#f7f9fb] border-[#c0c8c2] hover:border-[#134231] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:hover:border-[#00ffcc]">
+            <div class="flex justify-between items-start mb-1">
+              <span class="font-mono-code text-[11px] font-bold text-emerald-500">{{ comp.partNumber }}</span>
+              <span class="text-[11px] opacity-60">{{ comp.confidence }}% Match</span>
+            </div>
+            <h4 class="font-semibold text-[13px] text-[#191c1e] dark:text-white group-hover:underline">{{ comp.name }}</h4>
+            <p class="text-[11px] mt-1 text-[#717974] dark:text-[#83958d]">{{ comp.nominalAlloy }}</p>
+          </div>
+        {% empty %}
+          <p class="text-[12px] opacity-60 col-span-2 py-2">No candidate components mapped.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  window.ACTIVE_FAMILY = {{ active_family|safe }};
+  window.ALL_FAMILIES = {{ families|safe }};
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/knowledge.js' %}"></script>
+{% endblock %}

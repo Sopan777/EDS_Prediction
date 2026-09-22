@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Personnel & Role Management - Spectral Lab{% endblock %}
+
+{% block content %}
+<div id="user-management-screen" class="flex flex-col gap-5 h-full overflow-y-auto pb-6 pr-1">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-none">
+    <div>
+      <h2 class="font-display text-[28px] font-bold tracking-tight text-[#134231] dark:text-white">
+        Personnel & Role Management
+      </h2>
+      <p class="text-[13px] text-[#717974] dark:text-[#b9cbc2]">
+        Administrative control over laboratory analysts, spectrometer operators, and ASTM authorization privileges.
+      </p>
+    </div>
+
+    <button onclick="openAddUserModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold flex items-center gap-1.5 shadow-sm transition-all bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
+      <span class="material-symbols-outlined text-[18px]">person_add</span>
+      Add Personnel
+    </button>
+  </div>
+
+  <!-- Stat Metric Cards (4 cols) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-none">
+    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Active Techs</span>
+        <span class="material-symbols-outlined text-[18px] text-emerald-500">biotech</span>
+      </div>
+      <span class="font-display text-[24px] font-bold text-emerald-500">{{ active_techs }} / {{ total_techs }}</span>
+      <span class="block text-[11px] opacity-60 mt-0.5">Online in lab</span>
+    </div>
+
+    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Metallurgists</span>
+        <span class="material-symbols-outlined text-[18px] text-emerald-500">engineering</span>
+      </div>
+      <span class="font-display text-[24px] font-bold text-[#134231] dark:text-[#00ffcc]">{{ metallurgists }}</span>
+      <span class="block text-[11px] opacity-60 mt-0.5">ASTM calibration authorized</span>
+    </div>
+
+    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Inactive Accts</span>
+        <span class="material-symbols-outlined text-[18px] opacity-60">person_off</span>
+      </div>
+      <span class="font-display text-[24px] font-bold text-gray-500">{{ inactive }}</span>
+      <span class="block text-[11px] opacity-60 mt-0.5">Revoked access</span>
+    </div>
+
+    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Total Personnel</span>
+        <span class="material-symbols-outlined text-[18px] opacity-60">group</span>
+      </div>
+      <span class="font-display text-[24px] font-bold text-[#191c1e] dark:text-white">{{ users|length }}</span>
+      <span class="block text-[11px] opacity-60 mt-0.5">Registered members</span>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="p-4 rounded-xl border shadow-sm flex flex-wrap items-center justify-between gap-4 flex-none bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+    <div class="relative w-72">
+      <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] opacity-60">search</span>
+      <input id="user-search-input" type="text" oninput="filterUsers()" placeholder="Search by name, email, department..." class="w-full pl-8 pr-3 py-1.5 text-[13px] rounded-lg border bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none">
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label class="text-[12px] opacity-70">Role Filter:</label>
+      <select id="user-role-filter" onchange="filterUsers()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+        <option value="All">All Roles</option>
+        <option value="Chief Metallurgist">Chief Metallurgist</option>
+        <option value="Snr. Metallurgist">Snr. Metallurgist</option>
+        <option value="Lab Tech">Lab Tech</option>
+        <option value="Auditor">Auditor</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Users Table Card -->
+  <div class="rounded-xl border shadow-sm flex-1 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-[13px]">
+        <thead>
+          <tr class="border-b bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[11px] font-bold uppercase tracking-wider opacity-70">
+            <th class="py-3 px-4">Member</th>
+            <th class="py-3 px-4">Role</th>
+            <th class="py-3 px-4">Department</th>
+            <th class="py-3 px-4">Permissions</th>
+            <th class="py-3 px-4 text-center">Status</th>
+            <th class="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body" class="divide-y divide-[#c0c8c2]/40 dark:divide-[#3a4a44]/40">
+          {% for u in users %}
+            <tr class="user-row hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-id="{{ u.id }}" data-name="{{ u.name }}" data-email="{{ u.email }}" data-role="{{ u.role }}" data-dept="{{ u.department }}">
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] bg-emerald-500/20 text-emerald-500 border border-emerald-500/40">
+                    {{ u.initials }}
+                  </div>
+                  <div>
+                    <span class="font-semibold block text-[#191c1e] dark:text-white">{{ u.name }}</span>
+                    <span class="text-[11px] opacity-60">{{ u.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap font-medium">{{ u.role }}</td>
+              <td class="py-3 px-4 whitespace-nowrap opacity-75">{{ u.department }}</td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-black/5 dark:bg-white/5">
+                  {{ u.permissions }}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                {% if u.isActive %}
+                  <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Active
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400">
+                    <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                    Inactive
+                  </span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <button onclick="toggleUserStatus('{{ u.id }}', {{ u.isActive|yesno:'false,true' }})" class="text-[12px] font-semibold text-[#006b5b] dark:text-[#00ffcc] hover:underline">
+                  {{ u.isActive|yesno:"Deactivate,Activate" }}
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="add-user-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-md rounded-xl border shadow-2xl p-6 bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
+      <h3 class="font-display text-[18px] font-bold">Register Lab Personnel</h3>
+      <button onclick="closeAddUserModal()" class="p-1 rounded text-gray-400 hover:text-white">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <form onsubmit="confirmAddUser(event)" class="space-y-4 text-[13px]">
+      <div>
+        <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Full Name</label>
+        <input type="text" id="new-user-name" required placeholder="Dr. Jane Doe" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Email Address</label>
+        <input type="email" id="new-user-email" required placeholder="j.doe@spectrallab.io" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Role</label>
+          <select id="new-user-role" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+            <option value="Lab Tech">Lab Tech</option>
+            <option value="Snr. Metallurgist">Snr. Metallurgist</option>
+            <option value="Chief Metallurgist">Chief Metallurgist</option>
+            <option value="Auditor">Auditor</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Department</label>
+          <select id="new-user-dept" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+            <option value="Operations">Operations</option>
+            <option value="Metallurgy">Metallurgy</option>
+            <option value="Quality Control">Quality Control</option>
+            <option value="Failure Analysis">Failure Analysis</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">System Permissions</label>
+        <select id="new-user-perm" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+          <option value="Read-only">Read-only</option>
+          <option value="Full Edit">Full Edit</option>
+          <option value="Full Admin">Full Admin</option>
+        </select>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" onclick="closeAddUserModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
+          Cancel
+        </button>
+        <button type="submit" class="px-4 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700">
+          Save Personnel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/users.js' %}"></script>
+{% endblock %}

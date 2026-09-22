@@ -1,0 +1,409 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Spectral Lab - MaterialID v2.4{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <!-- Compiled Tailwind CSS -->
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+
+  <script>
+    // Immediate Theme Initialization
+    if (localStorage.getItem('spectral_theme') === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .font-display {
+      font-family: 'Hanken Grotesk', 'Inter', sans-serif;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(131, 149, 141, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(131, 149, 141, 0.6);
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex transition-colors duration-200 bg-[#f7f9fb] text-[#191c1e] dark:bg-[#0c1512] dark:text-[#dbe5df]">
+
+  <!-- CSRF Token Meta for Fetch -->
+  {% csrf_token %}
+
+  <!-- ========================================================================= -->
+  <!-- SIDE NAVIGATION BAR (280px FIXED)                                         -->
+  <!-- ========================================================================= -->
+  <aside id="side-navbar" class="fixed left-0 top-0 h-full w-[280px] z-50 flex flex-col py-6 shadow-xl transition-colors duration-200 bg-[#2c3c51] text-white dark:bg-[#1a2420] dark:text-[#dbe5df] dark:border-r dark:border-[#3a4a44]">
+    <!-- Brand Header -->
+    <div class="px-6 mb-8">
+      <a href="{% url 'analyzer_page' %}" class="flex items-center gap-3.5 group">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all bg-[#26fedc] text-[#007261] dark:bg-[#00ffcc] dark:text-[#00382b] group-hover:scale-105 shadow-sm">
+          <span class="material-symbols-outlined fill text-[22px]">science</span>
+        </div>
+        <div>
+          <h1 class="font-display text-[20px] font-bold leading-tight text-white tracking-tight">
+            MaterialID
+          </h1>
+          <p class="text-[11px] font-semibold tracking-wider uppercase text-[#b6c6e0] dark:text-[#b9cbc2]">
+            Spectral Lab v2.4
+          </p>
+        </div>
+      </a>
+
+      <!-- New Analysis CTA -->
+      <button id="btn-sidebar-new-analysis" onclick="openNewAnalysisModal()" class="mt-6 w-full py-2.5 px-4 rounded-lg font-medium text-[14px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-[#006b5b] hover:bg-[#134231] text-white dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd] dark:font-semibold">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        New Analysis
+      </button>
+    </div>
+
+    <!-- Primary Navigation Items -->
+    <nav class="flex-1 px-3 space-y-1.5 overflow-y-auto">
+      <!-- Analyzer -->
+      <a id="nav-item-analyzer" href="{% url 'analyzer_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'analyzer' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[20px] {% if current_section == 'analyzer' %}fill{% endif %}">science</span>
+        <span class="text-[14px]">Analyzer</span>
+      </a>
+
+      <!-- History -->
+      <a id="nav-item-history" href="{% url 'history_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'history' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[20px] {% if current_section == 'history' %}fill{% endif %}">history</span>
+        <span class="text-[14px]">History</span>
+      </a>
+
+      <!-- Knowledge Base -->
+      <a id="nav-item-knowledge" href="{% url 'knowledge_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'knowledge' or current_section == 'gate-editor' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[20px] {% if current_section == 'knowledge' or current_section == 'gate-editor' %}fill{% endif %}">menu_book</span>
+        <span class="text-[14px]">Knowledge Base</span>
+      </a>
+
+      <!-- Settings / Personnel -->
+      <a id="nav-item-settings" href="{% url 'settings_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'settings' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[20px] {% if current_section == 'settings' %}fill{% endif %}">settings</span>
+        <span class="text-[14px]">Settings</span>
+      </a>
+    </nav>
+
+    <!-- Footer info & user card -->
+    <div class="mt-auto px-4 pt-4 mx-3 border-t border-[#435369] dark:border-[#2e3733]">
+      <div class="space-y-1 mb-4">
+        <div class="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-[#b6c6e0] dark:text-[#b9cbc2]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="material-symbols-outlined text-[16px]">check_circle</span>
+          <span>System: Online</span>
+        </div>
+        <a href="#docs" onclick="alert('Spectral Lab documentation & ASTM E1508 / ISO 22309 standards loaded.'); return false;" class="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-[#b6c6e0] hover:text-white hover:bg-[#435369] dark:text-[#b9cbc2] dark:hover:text-white dark:hover:bg-[#232c28] transition-colors">
+          <span class="material-symbols-outlined text-[16px]">help</span>
+          <span>Documentation</span>
+        </a>
+      </div>
+
+      <!-- User Profile avatar -->
+      <a href="{% url 'settings_page' %}" class="flex items-center gap-2.5 p-1.5 rounded-lg cursor-pointer transition-colors hover:bg-[#435369] dark:hover:bg-[#232c28]" title="Logged in as Lead Metallurgist">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 font-bold text-[12px] border border-emerald-400 shrink-0">
+          <span class="material-symbols-outlined text-[18px]">person</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[13px] font-medium text-white truncate">Dr. Marcus Vance</p>
+          <p class="text-[10px] uppercase font-bold tracking-wider truncate text-[#26fedc] dark:text-[#00ffcc]">
+            Snr. Metallurgist
+          </p>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- TOP NAVIGATION BAR (64px FIXED)                                           -->
+  <!-- ========================================================================= -->
+  <header id="top-navbar" class="fixed top-0 left-[280px] right-0 h-16 px-6 z-40 flex items-center justify-between border-b transition-colors duration-200 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
+    <!-- Left: Title or Back breadcrumb -->
+    <div class="flex items-center gap-6 h-full">
+      {% if current_section == 'gate-editor' %}
+        <a id="btn-back-to-knowledge" href="{% url 'knowledge_page' %}" class="flex items-center gap-1.5 font-semibold text-[14px] transition-colors text-[#134231] hover:text-[#006b5b] dark:text-[#00ffcc] dark:hover:underline">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          <span>Back</span>
+          <span class="opacity-40 ml-1">/</span>
+          <span class="ml-1 text-[13px] opacity-75">Particle Identification System</span>
+        </a>
+      {% else %}
+        <span class="font-semibold text-[15px] tracking-tight text-[#134231] dark:text-white">
+          Particle Identification System
+        </span>
+      {% endif %}
+
+      <!-- Sub Navigation Links -->
+      <div class="hidden md:flex h-full items-center gap-4 ml-4">
+        <a id="top-tab-dashboard" href="{% url 'analyzer_page' %}" class="h-full flex items-center px-2 text-[14px] transition-all border-b-2 {% if top_tab == 'dashboard' and current_section == 'analyzer' %}border-[#134231] text-[#134231] dark:border-[#00ffcc] dark:text-[#00ffcc] font-bold{% else %}border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white{% endif %}">
+          Dashboard
+        </a>
+        <button id="top-tab-reports" onclick="openExportModal()" class="h-full flex items-center px-2 text-[14px] transition-all border-b-2 border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white">
+          Reports
+        </button>
+        <a id="top-tab-archive" href="{% url 'history_page' %}" class="h-full flex items-center px-2 text-[14px] transition-all border-b-2 {% if top_tab == 'archive' or current_section == 'history' %}border-[#134231] text-[#134231] dark:border-[#00ffcc] dark:text-[#00ffcc] font-bold{% else %}border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white{% endif %}">
+          Archive
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Search Box -->
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-[#717974] dark:text-[#83958d]">
+          search
+        </span>
+        <input id="global-search-input" type="text" placeholder="Search data, grades, components..." class="pl-8 pr-4 py-1.5 text-[13px] rounded-full border transition-all w-56 focus:w-64 focus:outline-none bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] focus:border-[#134231] focus:ring-1 focus:ring-[#134231] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-[#dbe5df] dark:focus:border-[#00ffcc] dark:focus:ring-1 dark:focus:ring-[#00ffcc]">
+      </div>
+
+      <!-- Theme Toggle Button -->
+      <button id="btn-toggle-theme" onclick="toggleTheme()" title="Toggle Dark/Light Mode" class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-[#2c3c51] hover:bg-[#e0e3e5] dark:text-[#00ffcc] dark:hover:bg-[#232c28]">
+        <span id="theme-icon" class="material-symbols-outlined text-[19px]">light_mode</span>
+      </button>
+
+      <!-- Support -->
+      <button id="btn-support" onclick="alert('Support Helpdesk: Particle Identification System v2.4 (Spectral Lab).\nDirect line: ext-4029 (Metallurgy Lab).')" class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full transition-colors text-[#414944] hover:bg-[#eceef0] hover:text-[#191c1e] dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white">
+        Support
+      </button>
+
+      <!-- Export Data -->
+      <button id="btn-topbar-export" onclick="openExportModal()" class="text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full transition-all shadow-sm bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
+        Export Data
+      </button>
+
+      <div class="h-6 w-px mx-1 bg-[#c0c8c2] dark:bg-[#3a4a44]"></div>
+
+      <!-- Notifications -->
+      <button id="btn-notifications" onclick="alert('3 Notifications:\n• ASTM E1508 calibration passed at 08:30:00\n• 1 new particle scan added\n• 16 changes recorded in system audit log')" class="relative w-8 h-8 flex items-center justify-center rounded-full transition-colors text-[#414944] hover:bg-[#eceef0] hover:text-[#191c1e] dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500"></span>
+      </button>
+
+      <!-- Top user avatar -->
+      <a id="btn-topbar-avatar" href="{% url 'settings_page' %}" class="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:ring-2 hover:ring-emerald-400 transition-all shrink-0" title="User Settings & Role Management">
+        <span class="material-symbols-outlined text-[20px]">account_circle</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTENT CONTAINER                                                    -->
+  <!-- ========================================================================= -->
+  <main id="main-content-viewport" class="ml-[280px] mt-16 flex-1 p-6 overflow-hidden h-[calc(100vh-64px)]">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- GLOBAL MODALS                                                             -->
+  <!-- ========================================================================= -->
+
+  <!-- 1. Candidate Component Spec Modal -->
+  <div id="component-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
+      <div class="flex justify-between items-start mb-4 pb-3 border-b border-inherit">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="modal-comp-partno" class="px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#f2f4f6] text-[#134231] dark:bg-[#151d1a] dark:text-[#00ffcc]">
+              BOSCH-EDS-0001
+            </span>
+            <span id="modal-comp-category" class="text-[12px] opacity-60">• Fuel Injector Assembly</span>
+          </div>
+          <h3 id="modal-comp-name" class="font-display text-[22px] font-bold">Component Name</h3>
+        </div>
+        <button onclick="closeComponentModal()" class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-[13px]">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+            <span class="text-[11px] font-bold uppercase tracking-wider block mb-1 opacity-60">Nominal Metallurgy</span>
+            <span id="modal-comp-alloy" class="font-semibold">AISI 304 / 1.4301</span>
+          </div>
+          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+            <span class="text-[11px] font-bold uppercase tracking-wider block mb-1 opacity-60">Cross-Match Confidence</span>
+            <span id="modal-comp-conf" class="font-mono-code font-bold text-emerald-500 text-[15px]">95%</span>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+          <h4 class="text-[11px] font-bold uppercase tracking-wider mb-1.5 opacity-60">Laboratory Engineering Notes</h4>
+          <p id="modal-comp-notes" class="leading-relaxed">
+            High-friction contact face subject to cyclical fatigue wear. Particulate debris routinely correlates with standard austenitic stainless steel signatures.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between py-2 border-t border-inherit text-[12px]">
+          <span class="opacity-70">ASTM Standard Ref: E1508 / E2142</span>
+          <span class="font-mono-code">Spectral Library v2.4 Verified</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="closeComponentModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
+          Close
+        </button>
+        <button onclick="alert('Exporting CAD specs and metallurgical certificate...'); closeComponentModal();" class="px-4 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700">
+          Export Spec Sheet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Export Modal -->
+  <div id="export-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[22px] text-emerald-500">download</span>
+          <h3 class="font-display text-[20px] font-bold">Export Laboratory Data</h3>
+        </div>
+        <button onclick="closeExportModal()" class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-[13px]">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider mb-2 opacity-70">Select Export Format</label>
+          <div class="grid grid-cols-3 gap-2.5">
+            <button type="button" onclick="setExportFormat('pdf')" id="export-fmt-pdf" class="p-3 rounded-lg border text-center transition-all bg-[#f2f4f6] border-[#134231] text-[#134231] font-bold dark:bg-[#151d1a] dark:border-[#00ffcc] dark:text-[#00ffcc]">
+              <span class="material-symbols-outlined text-[22px] block mb-1">picture_as_pdf</span>
+              PDF Report
+            </button>
+            <button type="button" onclick="setExportFormat('csv')" id="export-fmt-csv" class="p-3 rounded-lg border text-center transition-all border-gray-300 dark:border-[#3a4a44] hover:border-emerald-500">
+              <span class="material-symbols-outlined text-[22px] block mb-1">table_view</span>
+              CSV Data
+            </button>
+            <button type="button" onclick="setExportFormat('json')" id="export-fmt-json" class="p-3 rounded-lg border text-center transition-all border-gray-300 dark:border-[#3a4a44] hover:border-emerald-500">
+              <span class="material-symbols-outlined text-[22px] block mb-1">code</span>
+              JSON Model
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2 border-t border-inherit pt-3">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="export-include-audit" checked class="rounded border-gray-400 text-emerald-500 focus:ring-emerald-500">
+            <span>Include traceability and system audit logs</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="export-include-raw" checked class="rounded border-gray-400 text-emerald-500 focus:ring-emerald-500">
+            <span>Include raw spectral intensity wt% measurements</span>
+          </label>
+        </div>
+
+        <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[12px]">
+          <span class="block font-semibold">Laboratory Certification</span>
+          <span class="opacity-75 block mt-0.5">Compliant with ISO/IEC 17025 microstructural characterization standards.</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="closeExportModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
+          Cancel
+        </button>
+        <button onclick="executeExportDownload()" class="px-5 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[17px]">download</span>
+          Download Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. New Analysis Modal -->
+  <div id="new-analysis-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[22px] text-emerald-500">biotech</span>
+          <h3 class="font-display text-[20px] font-bold">Initialize New Particle Scan</h3>
+        </div>
+        <button onclick="closeNewAnalysisModal()" class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-new-analysis" onsubmit="handleStartNewSession(event)" class="space-y-4 text-[13px]">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Sample / Particle ID</label>
+            <input type="text" id="modal-particle-id" required class="w-full border rounded p-2 font-mono-code bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Spectrometer Source</label>
+            <select id="modal-spectrometer-source" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+              <option value="Oxford Instruments Aztec (20 kV)">Oxford Instruments Aztec (20 kV)</option>
+              <option value="Thermo Fisher Phenom XL">Thermo Fisher Phenom XL</option>
+              <option value="Bruker ESPRIT EDS">Bruker ESPRIT EDS</option>
+              <option value="JEOL JSM-IT800">JEOL JSM-IT800</option>
+              <option value="Zeiss EVO 15 MA">Zeiss EVO 15 MA</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Sample Context / Sampling Location</label>
+          <input type="text" id="modal-sample-desc" placeholder="e.g. Filter basket wear particle, scavenge oil return..." class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
+        </div>
+
+        <div class="flex items-center justify-between p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
+          <span class="text-[12px] opacity-80">ASTM E1508 calibration baseline active</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Calibrated</span>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button" onclick="closeNewAnalysisModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[17px]">play_arrow</span>
+            Start Analysis Session
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Global JS -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
