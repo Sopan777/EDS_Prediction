@@ -131,6 +131,23 @@ def init_db(reset: bool = False) -> None:
         )
     """)
 
+    # 6. Prediction Feedback Table (Analyst Confirmations and Corrections)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS prediction_feedback (
+            id TEXT PRIMARY KEY,
+            timestamp TEXT NOT NULL,
+            analysis_id TEXT,
+            spectrum_json TEXT NOT NULL,
+            predicted_family TEXT NOT NULL,
+            predicted_component TEXT,
+            confirmed_family TEXT NOT NULL,
+            confirmed_component TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'confirmed',
+            analyst_name TEXT NOT NULL,
+            notes TEXT
+        )
+    """)
+
     # Clean seed: Lead Metallurgist (Administrator account)
     cur.execute("SELECT COUNT(*) FROM users")
     if cur.fetchone()[0] == 0:
@@ -725,6 +742,71 @@ def add_preset(
     conn.commit()
     conn.close()
     return preset_id
+
+
+# ==========================================
+# 6. Prediction Feedback CRUD API
+# ==========================================
+
+def save_feedback(
+    predicted_family: str,
+    confirmed_family: str,
+    confirmed_component: str,
+    spectrum: Dict[str, float],
+    predicted_component: Optional[str] = None,
+    analysis_id: Optional[str] = None,
+    status: str = "confirmed",
+    analyst_name: str = "Lab Metallurgist",
+    notes: str = "",
+) -> str:
+    """Save an analyst confirmation or correction of a prediction."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    feedback_id = f"fb-{int(time.time() * 1000)}"
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    cur.execute("""
+        INSERT INTO prediction_feedback VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        feedback_id,
+        now_str,
+        analysis_id,
+        json.dumps(spectrum),
+        predicted_family,
+        predicted_component,
+        confirmed_family,
+        confirmed_component,
+        status,
+        analyst_name,
+        notes,
+    ))
+
+    conn.commit()
+    conn.close()
+    return feedback_id
+
+
+def get_all_feedback(limit: int = 100) -> List[Dict[str, Any]]:
+    """Retrieve recent prediction feedback records."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM prediction_feedback ORDER BY timestamp DESC LIMIT ?
+    """, (limit,))
+    rows = cur.fetchall()
+    conn.close()
+
+    out = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["spectrum"] = json.loads(d["spectrum_json"])
+        except Exception:
+            d["spectrum"] = {}
+        out.append(d)
+    return out
 
 
 # Initialize database automatically

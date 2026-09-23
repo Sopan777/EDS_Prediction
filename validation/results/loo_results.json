@@ -1,0 +1,476 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-22 22:20:11",
+    "total_evaluated_spectra": 159,
+    "unique_components_evaluated": 36,
+    "duration_seconds": 0.08
+  },
+  "summary_metrics": {
+    "family_top1_accuracy_pct": 91.19,
+    "component_top1_accuracy_pct": 62.89,
+    "component_top3_accuracy_pct": 93.08,
+    "component_top5_accuracy_pct": 97.48,
+    "components_geq_5_spectra": {
+      "total_spectra": 81,
+      "top1_accuracy_pct": 67.9,
+      "top3_accuracy_pct": 95.06
+    },
+    "decision_breakdown": {
+      "identified": 114,
+      "ambiguous": 37,
+      "insufficient_data": 7,
+      "unknown": 1
+    }
+  },
+  "per_component_metrics": {
+    "M&M HPP Component": {
+      "sample_count": 14,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "CRI Injector Body": {
+      "sample_count": 8,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 25.0,
+      "top3_accuracy_pct": 75.0,
+      "top5_accuracy_pct": 75.0
+    },
+    "Armature Plate": {
+      "sample_count": 7,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 14.3,
+      "top3_accuracy_pct": 85.7,
+      "top5_accuracy_pct": 100.0
+    },
+    "Valve Nut": {
+      "sample_count": 7,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Armature Bolt": {
+      "sample_count": 6,
+      "family_accuracy_pct": 83.3,
+      "top1_accuracy_pct": 50.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Clamping Saddle": {
+      "sample_count": 6,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Locking Sleeve": {
+      "sample_count": 6,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "NR Nut": {
+      "sample_count": 6,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Valve Piece": {
+      "sample_count": 6,
+      "family_accuracy_pct": 83.3,
+      "top1_accuracy_pct": 50.0,
+      "top3_accuracy_pct": 83.3,
+      "top5_accuracy_pct": 83.3
+    },
+    "DFK Shim": {
+      "sample_count": 5,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 40.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Magnet Core": {
+      "sample_count": 5,
+      "family_accuracy_pct": 0.0,
+      "top1_accuracy_pct": 60.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Valve Spring": {
+      "sample_count": 5,
+      "family_accuracy_pct": 80.0,
+      "top1_accuracy_pct": 40.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Armature Guide": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 0.0,
+      "top3_accuracy_pct": 50.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Armature Spring": {
+      "sample_count": 4,
+      "family_accuracy_pct": 25.0,
+      "top1_accuracy_pct": 0.0,
+      "top3_accuracy_pct": 75.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Guide Bush": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 50.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Magnet Coil": {
+      "sample_count": 4,
+      "family_accuracy_pct": 75.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Nozzle Spring": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 75.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Support Sealing": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 25.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Valve Piston": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "VFK Shim": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 0.0,
+      "top3_accuracy_pct": 75.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Armature Shim": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 25.0,
+      "top3_accuracy_pct": 75.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Blade Terminal": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "CRI Shim": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 0.0,
+      "top3_accuracy_pct": 75.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Sealing Ring": {
+      "sample_count": 4,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 50.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Ball Guide": {
+      "sample_count": 3,
+      "family_accuracy_pct": 66.7,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Dowel Pin": {
+      "sample_count": 3,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 66.7,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Pille": {
+      "sample_count": 3,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 66.7,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "RLS Shim": {
+      "sample_count": 3,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 66.7,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "DFK Spring": {
+      "sample_count": 3,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 66.7,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "UFK Spring": {
+      "sample_count": 3,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 66.7,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "Back Flow Tube": {
+      "sample_count": 2,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "C Shim": {
+      "sample_count": 2,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "HP Sealing": {
+      "sample_count": 2,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "IC Stud": {
+      "sample_count": 2,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 50.0,
+      "top3_accuracy_pct": 50.0,
+      "top5_accuracy_pct": 50.0
+    },
+    "Magnet housing": {
+      "sample_count": 2,
+      "family_accuracy_pct": 100.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    },
+    "CRI Sealing ring": {
+      "sample_count": 2,
+      "family_accuracy_pct": 50.0,
+      "top1_accuracy_pct": 100.0,
+      "top3_accuracy_pct": 100.0,
+      "top5_accuracy_pct": 100.0
+    }
+  },
+  "confusion_matrix": {
+    "Armature Bolt": {
+      "Valve Piece": 1,
+      "Armature Plate": 1,
+      "Armature Bolt": 3,
+      "Ball Guide": 1
+    },
+    "Armature Guide": {
+      "Valve Piece": 1,
+      "Armature Plate": 1,
+      "Armature Bolt": 2
+    },
+    "Armature Plate": {
+      "C Shim": 1,
+      "Armature Bolt": 4,
+      "Armature Plate": 1,
+      "Valve Piece": 1
+    },
+    "Armature Spring": {
+      "UFK Spring": 3,
+      "Nozzle Spring": 1
+    },
+    "Back Flow Tube": {
+      "Back Flow Tube": 2
+    },
+    "Ball Guide": {
+      "Ball Guide": 3
+    },
+    "Clamping Saddle": {
+      "Clamping Saddle": 6
+    },
+    "C Shim": {
+      "C Shim": 2
+    },
+    "DFK Shim": {
+      "DFK Shim": 2,
+      "M&M HPP Component": 2,
+      "Valve Nut": 1
+    },
+    "Dowel Pin": {
+      "Dowel Pin": 2,
+      "M&M HPP Component": 1
+    },
+    "Guide Bush": {
+      "Guide Bush": 2,
+      "M&M HPP Component": 2
+    },
+    "HP Sealing": {
+      "HP Sealing": 2
+    },
+    "IC Stud": {
+      "Valve Nut": 1,
+      "IC Stud": 1
+    },
+    "Locking Sleeve": {
+      "Locking Sleeve": 6
+    },
+    "Magnet Coil": {
+      "Magnet Coil": 4
+    },
+    "Magnet Core": {
+      "Magnet Core": 3,
+      "Sealing Ring": 2
+    },
+    "Magnet housing": {
+      "Magnet housing": 2
+    },
+    "Nozzle Spring": {
+      "Nozzle Spring": 3,
+      "Valve Spring": 1
+    },
+    "NR Nut": {
+      "NR Nut": 6
+    },
+    "Pille": {
+      "Pille": 2,
+      "Armature Bolt": 1
+    },
+    "RLS Shim": {
+      "M&M HPP Component": 1,
+      "RLS Shim": 2
+    },
+    "Support Sealing": {
+      "M&M HPP Component": 3,
+      "Support Sealing": 1
+    },
+    "Valve Nut": {
+      "Valve Nut": 7
+    },
+    "Valve Piece": {
+      "Valve Piece": 3,
+      "Armature Bolt": 2,
+      "Armature Plate": 1
+    },
+    "Valve Piston": {
+      "Valve Piston": 4
+    },
+    "Valve Spring": {
+      "Nozzle Spring": 2,
+      "UFK Spring": 1,
+      "Valve Spring": 2
+    },
+    "VFK Shim": {
+      "RLS Shim": 1,
+      "M&M HPP Component": 3
+    },
+    "Armature Shim": {
+      "M&M HPP Component": 3,
+      "Armature Shim": 1
+    },
+    "Blade Terminal": {
+      "Blade Terminal": 4
+    },
+    "CRI Injector Body": {
+      "RLS Shim": 2,
+      "CRI Injector Body": 2,
+      "M&M HPP Component": 4
+    },
+    "CRI Sealing ring": {
+      "CRI Sealing ring": 2
+    },
+    "CRI Shim": {
+      "M&M HPP Component": 4
+    },
+    "Sealing Ring": {
+      "Sealing Ring": 2,
+      "M&M HPP Component": 2
+    },
+    "DFK Spring": {
+      "DFK Spring": 2,
+      "UFK Spring": 1
+    },
+    "UFK Spring": {
+      "UFK Spring": 2,
+      "Valve Spring": 1
+    },
+    "M&M HPP Component": {
+      "M&M HPP Component": 14
+    }
+  },
+  "family_confusion_matrix": {
+    "F2": {
+      "F2": 28,
+      "F1a": 2,
+      "UNKNOWN": 1
+    },
+    "F1c": {
+      "F1a": 9,
+      "F1c": 10
+    },
+    "F4": {
+      "F4": 10
+    },
+    "F5": {
+      "F5": 6
+    },
+    "F1a": {
+      "F1a": 58,
+      "F8b": 1,
+      "UNKNOWN": 5,
+      "F1c": 1,
+      "F1b": 3,
+      "F8a": 5
+    },
+    "F1b": {
+      "F1b": 7,
+      "F1a": 6,
+      "F8a": 5
+    },
+    "F6b": {
+      "F6b": 2
+    },
+    "F8b": {
+      "F1a": 1,
+      "F8b": 6,
+      "F8a": 1
+    },
+    "F7": {
+      "F7": 5,
+      "UNKNOWN": 1,
+      "F6a": 2
+    },
+    "F8a": {
+      "F8b": 5,
+      "F8a": 6,
+      "F1a": 6,
+      "F1b": 3
+    },
+    "F3": {
+      "F3": 4
+    },
+    "F6a": {
+      "F6a": 3,
+      "F7": 2,
+      "UNKNOWN": 1
+    }
+  }
+}

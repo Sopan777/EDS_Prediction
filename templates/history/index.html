@@ -1,130 +1,252 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}System Audit Log & Traceability - Spectral Lab{% endblock %}
+{% block title %}Analysis History & Traceability — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="audit-log-screen" class="flex flex-col gap-5 h-full overflow-hidden">
-  <!-- Top Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-none">
-    <div>
-      <h2 class="font-display text-[28px] font-bold tracking-tight text-[#134231] dark:text-white">
-        System Audit Log
-      </h2>
-      <p class="text-[13px] text-[#717974] dark:text-[#b9cbc2]">
-        Full system traceability tracking modifications to spectral matching logic, ratio gates, and analysis reports.
-      </p>
+<div id="history-screen-container" class="space-y-6 pb-12">
+  <!-- =========================================================================
+       PAGE HEADER
+       ========================================================================= -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
+          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Traceability & Quality Auditing</span>
+        </div>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Analysis History & Feedback Log</h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Immutable records of EDS microanalysis, analyst verifications, and calibration audit events.
+        </p>
+      </div>
+
+      <!-- Export & Actions -->
+      <div class="flex items-center gap-2">
+        <button onclick="exportHistoryCSV()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
+          <span class="material-symbols-outlined text-[16px]">download</span>
+          <span>Export CSV</span>
+        </button>
+        <button onclick="exportHistoryJSON()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
+          <span class="material-symbols-outlined text-[16px]">data_object</span>
+          <span>Export JSON</span>
+        </button>
+      </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      <span id="logs-count-badge" class="px-3 py-1 rounded-full text-[12px] font-mono-code font-medium border bg-white border-[#c0c8c2] text-[#134231] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-[#00ffcc]">
-        {{ logs|length }} changes recorded
-      </span>
-      <button id="btn-export-csv" onclick="exportAuditLogCSV()" class="px-3.5 py-1.5 rounded-lg text-[13px] font-semibold flex items-center gap-1.5 shadow-sm transition-all bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
-        <span class="material-symbols-outlined text-[17px]">download</span>
-        Export CSV
-      </button>
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold">
+        <button type="button" id="tab-btn-analyses" onclick="switchHistoryTab('analyses')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
+          Analysis Runs ({{ history_records|length }})
+        </button>
+        <button type="button" id="tab-btn-feedback" onclick="switchHistoryTab('feedback')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+          Analyst Feedback Log ({{ feedback_records|length }})
+        </button>
+        <button type="button" id="tab-btn-audit" onclick="switchHistoryTab('audit')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+          System Audit Trail ({{ logs|length }})
+        </button>
+      </div>
+
+      <!-- Filter Decision -->
+      <div class="flex items-center gap-2 text-xs">
+        <span class="text-slate-500 font-semibold">Decision:</span>
+        <select id="history-decision-filter" onchange="applyHistoryFilters()" class="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-slate-800 focus:outline-none focus:border-slate-600 text-xs font-medium">
+          <option value="All">All Decisions</option>
+          <option value="identified">Identified</option>
+          <option value="ambiguous">Ambiguous</option>
+          <option value="conflict">Conflict</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Prominent Universal Search Bar -->
+    <div class="relative mt-4">
+      <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+      <input type="text" id="history-search-input" oninput="handleHistorySearch(this.value)" placeholder="Search records by ID, material family, component, or analyst..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
     </div>
   </div>
 
-  <!-- Filter Bar -->
-  <div class="p-4 rounded-xl border shadow-sm flex flex-wrap items-center gap-4 transition-colors flex-none bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-    <div class="flex items-center gap-2">
-      <span class="material-symbols-outlined text-[18px] opacity-70">filter_alt</span>
-      <span class="text-[12px] font-bold uppercase tracking-wider opacity-70">Filters:</span>
+  <!-- =========================================================================
+       TAB 1: ANALYSIS RUNS
+       ========================================================================= -->
+  <div id="view-history-analyses" class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h2 class="text-base font-bold text-slate-900">Historical EDS Analyses</h2>
+      <span class="text-xs text-slate-500 font-mono-code">{{ history_records|length }} Total Analyses Logged</span>
     </div>
 
-    <!-- Action Type Filter -->
-    <div class="flex items-center gap-2">
-      <label class="text-[12px] opacity-70">Action:</label>
-      <select id="filter-action-type" onchange="filterAuditLogs()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-        <option value="All">All Actions</option>
-        {% for a in action_types %}
-          <option value="{{ a }}">{{ a }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- User Filter -->
-    <div class="flex items-center gap-2">
-      <label class="text-[12px] opacity-70">User:</label>
-      <select id="filter-user" onchange="filterAuditLogs()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-        <option value="All">All Personnel</option>
-        {% for u in users %}
-          <option value="{{ u }}">{{ u }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Family Filter -->
-    <div class="flex items-center gap-2">
-      <label class="text-[12px] opacity-70">Family:</label>
-      <select id="filter-family" onchange="filterAuditLogs()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-        <option value="All">All Families</option>
-        {% for f in families %}
-          <option value="{{ f }}">{{ f }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-
-  <!-- Audit Log Table Card -->
-  <div class="rounded-xl border shadow-sm flex-1 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-    <div class="flex-1 overflow-x-auto overflow-y-auto">
-      <table class="w-full text-left border-collapse text-[13px]">
-        <thead class="sticky top-0 z-10">
-          <tr class="border-b bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[11px] font-bold uppercase tracking-wider opacity-70">
-            <th class="py-3 px-4">Timestamp</th>
-            <th class="py-3 px-4">Personnel</th>
-            <th class="py-3 px-4">Action Event</th>
-            <th class="py-3 px-4">Type</th>
-            <th class="py-3 px-4">Entity</th>
-            <th class="py-3 px-4">Details / Delta</th>
-            <th class="py-3 px-4 text-center">Impact</th>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+            <th class="py-2.5 px-4">Timestamp</th>
+            <th class="py-2.5 px-4">Source / Sample</th>
+            <th class="py-2.5 px-4">Predicted Material Family</th>
+            <th class="py-2.5 px-4">Top Component Match</th>
+            <th class="py-2.5 px-4 text-right">Confidence</th>
+            <th class="py-2.5 px-4 text-center">Decision</th>
+            <th class="py-2.5 px-4 text-right">Action</th>
           </tr>
         </thead>
-        <tbody id="audit-table-body" class="divide-y divide-[#c0c8c2]/40 dark:divide-[#3a4a44]/40">
+        <tbody id="analyses-table-body" class="divide-y divide-slate-100">
+          {% for r in history_records %}
+            <tr class="analysis-row hover:bg-slate-50 transition-colors font-mono-code" data-family="{{ r.material_family }}" data-decision="{{ r.decision }}" data-source="{{ r.filename|default:r.source_type }}">
+              <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ r.timestamp }}</td>
+              <td class="py-3 px-4 font-sans">
+                <span class="font-bold text-slate-900 block truncate max-w-[180px]">{{ r.filename|default:r.source_type }}</span>
+                <span class="text-[11px] text-slate-400 font-mono-code">{{ r.id }}</span>
+              </td>
+              <td class="py-3 px-4 font-sans">
+                <div class="font-bold text-slate-900">{{ r.material_family }}</div>
+                <div class="text-[11px] text-slate-500">{{ r.grade_hint }}</div>
+              </td>
+              <td class="py-3 px-4 font-sans text-slate-700">
+                {% if r.get_candidates %}
+                  {{ r.get_candidates.0.name|default:"—" }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-right font-bold text-slate-900">
+                {{ r.compatibility|floatformat:0 }}%
+              </td>
+              <td class="py-3 px-4 text-center font-sans">
+                {% if r.decision == 'identified' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Identified</span>
+                {% elif r.decision == 'ambiguous' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">Ambiguous</span>
+                {% elif r.decision == 'conflict' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800">Conflict</span>
+                {% else %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Unknown</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-right font-sans">
+                <button type="button" onclick='viewAnalysisDetailsModal("{{ r.id }}", "{{ r.timestamp }}", "{{ r.material_family }}", "{{ r.grade_hint }}", {{ r.composition_json|safe }}, "{{ r.decision }}", {{ r.compatibility|floatformat:0 }})' class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-sm transition-colors">
+                  View Detail
+                </button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="py-6 text-center text-slate-500 font-sans">
+                No past analysis records logged yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 2: ANALYST FEEDBACK & CORRECTIONS LOG
+       ========================================================================= -->
+  <div id="view-history-feedback" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h2 class="text-base font-bold text-slate-900">Analyst Confirmations & Corrections</h2>
+      <span class="text-xs text-slate-500 font-mono-code">{{ feedback_records|length }} Total Feedback Events</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+            <th class="py-2.5 px-4">Timestamp</th>
+            <th class="py-2.5 px-4">Analyst</th>
+            <th class="py-2.5 px-4">Predicted Target</th>
+            <th class="py-2.5 px-4">Confirmed Specification</th>
+            <th class="py-2.5 px-4 text-center">Status</th>
+            <th class="py-2.5 px-4">Notes / Metallurgical Rationale</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for fb in feedback_records %}
+            <tr class="hover:bg-slate-50 transition-colors font-mono-code">
+              <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ fb.timestamp }}</td>
+              <td class="py-3 px-4 font-sans font-bold text-slate-900">{{ fb.analyst_name }}</td>
+              <td class="py-3 px-4 font-sans">
+                <div class="font-semibold text-slate-800">{{ fb.predicted_family }}</div>
+                <div class="text-[11px] text-slate-500">{{ fb.predicted_component|default:"None" }}</div>
+              </td>
+              <td class="py-3 px-4 font-sans">
+                <div class="font-bold text-[#ED0007]">{{ fb.confirmed_family }}</div>
+                <div class="text-[11px] text-slate-600">{{ fb.confirmed_component|default:"None" }}</div>
+              </td>
+              <td class="py-3 px-4 text-center font-sans">
+                {% if fb.status == 'confirmed' %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Confirmed</span>
+                {% else %}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-800">Corrected</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 font-sans text-slate-600 max-w-sm">{{ fb.notes|default:"Verified against reference standards." }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="py-6 text-center text-slate-500 font-sans">
+                No analyst feedback or corrections recorded yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 3: SYSTEM AUDIT TRAIL
+       ========================================================================= -->
+  <div id="view-history-audit" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h2 class="text-base font-bold text-slate-900">System Traceability Audit Log</h2>
+      <span class="text-xs text-slate-500 font-mono-code">{{ logs|length }} Audit Records</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+            <th class="py-2.5 px-4">Timestamp</th>
+            <th class="py-2.5 px-4">Personnel</th>
+            <th class="py-2.5 px-4">Action Event</th>
+            <th class="py-2.5 px-4">Category</th>
+            <th class="py-2.5 px-4">Entity</th>
+            <th class="py-2.5 px-4 text-center">Impact</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
           {% for log in logs %}
-            <tr class="audit-row hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-action="{{ log.actionType }}" data-user="{{ log.user }}" data-family="{{ log.familyCode }}">
-              <td class="py-2.5 px-4 font-mono-code text-[12px] whitespace-nowrap opacity-80">{{ log.timestamp }}</td>
-              <td class="py-2.5 px-4 whitespace-nowrap">
-                <span class="font-semibold block text-[#191c1e] dark:text-white">{{ log.user }}</span>
-                <span class="text-[11px] opacity-60">{{ log.userRole }}</span>
+            <tr class="hover:bg-slate-50 transition-colors font-mono-code">
+              <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ log.timestamp }}</td>
+              <td class="py-3 px-4 font-sans">
+                <div class="font-bold text-slate-900">{{ log.user }}</div>
+                <div class="text-[11px] text-slate-400">{{ log.userRole }}</div>
               </td>
-              <td class="py-2.5 px-4 max-w-md">
-                <span class="line-clamp-2">{{ log.action }}</span>
-              </td>
-              <td class="py-2.5 px-4 whitespace-nowrap">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-black/5 dark:bg-white/5">
+              <td class="py-3 px-4 font-sans text-slate-800 font-medium max-w-md truncate">{{ log.action }}</td>
+              <td class="py-3 px-4 font-sans">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
                   {{ log.actionType }}
                 </span>
               </td>
-              <td class="py-2.5 px-4 whitespace-nowrap">
-                <span class="font-mono-code text-[12px] font-semibold text-[#134231] dark:text-[#00ffcc]">
-                  {{ log.familyCode }}
-                </span>
-              </td>
-              <td class="py-2.5 px-4 text-[12px] max-w-xs font-mono-code opacity-80">
-                {% if log.changeDetails.from or log.changeDetails.to %}
-                  <span class="block truncate">From: {{ log.changeDetails.from|default:"--" }}</span>
-                  <span class="block truncate text-emerald-500">To: {{ log.changeDetails.to|default:"--" }}</span>
-                {% else %}
-                  <span class="opacity-60">{{ log.impactText }}</span>
-                {% endif %}
-              </td>
-              <td class="py-2.5 px-4 text-center whitespace-nowrap">
+              <td class="py-3 px-4 text-slate-600">{{ log.familyCode }}</td>
+              <td class="py-3 px-4 text-center font-sans">
                 {% if log.impactType == 'positive' %}
-                  <span class="material-symbols-outlined text-[18px] text-emerald-500" title="Positive calibration impact">check_circle</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Positive</span>
                 {% elif log.impactType == 'negative' %}
-                  <span class="material-symbols-outlined text-[18px] text-rose-500" title="Deletion / Negative impact">remove_circle</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800">Critical</span>
                 {% else %}
-                  <span class="material-symbols-outlined text-[18px] text-gray-400" title="Neutral system event">fiber_manual_record</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Neutral</span>
                 {% endif %}
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="7" class="py-8 text-center opacity-60 text-[13px]">No audit log entries recorded.</td>
+              <td colspan="6" class="py-6 text-center text-slate-500 font-sans">
+                No audit events recorded.
+              </td>
             </tr>
           {% endfor %}
         </tbody>
@@ -134,10 +256,90 @@
 </div>
 
 <script>
-  window.AUDIT_LOGS = {{ logs|safe }};
-</script>
-{% endblock %}
+  function switchHistoryTab(tab) {
+    document.getElementById('view-history-analyses').classList.toggle('hidden', tab !== 'analyses');
+    document.getElementById('view-history-feedback').classList.toggle('hidden', tab !== 'feedback');
+    document.getElementById('view-history-audit').classList.toggle('hidden', tab !== 'audit');
 
-{% block extra_scripts %}
-<script src="{% static 'js/history.js' %}"></script>
+    const activeClass = 'px-4 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all font-bold';
+    const inactiveClass = 'px-4 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-semibold';
+
+    document.getElementById('tab-btn-analyses').className = tab === 'analyses' ? activeClass : inactiveClass;
+    document.getElementById('tab-btn-feedback').className = tab === 'feedback' ? activeClass : inactiveClass;
+    document.getElementById('tab-btn-audit').className = tab === 'audit' ? activeClass : inactiveClass;
+  }
+
+  function handleHistorySearch(query) {
+    const q = query.toLowerCase().trim();
+    document.querySelectorAll('.analysis-row').forEach(row => {
+      const fam = (row.getAttribute('data-family') || '').toLowerCase();
+      const src = (row.getAttribute('data-source') || '').toLowerCase();
+      if (!q || fam.includes(q) || src.includes(q)) {
+        row.classList.remove('hidden');
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+  }
+
+  function applyHistoryFilters() {
+    const decision = document.getElementById('history-decision-filter').value;
+    document.querySelectorAll('.analysis-row').forEach(row => {
+      const d = row.getAttribute('data-decision');
+      if (decision === 'All' || d === decision) {
+        row.classList.remove('hidden');
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+  }
+
+  function viewAnalysisDetailsModal(id, timestamp, family, gradeHint, comp, decision, compPct) {
+    if (!window.openAppModal) return;
+
+    const compRows = Object.entries(comp || {}).map(([el, val]) => `
+      <div class="flex justify-between py-1 border-b border-slate-100 font-mono-code text-xs">
+        <span class="font-bold text-slate-800">${el}</span>
+        <span class="text-slate-900 font-semibold">${typeof val === 'number' ? val.toFixed(2) : val}%</span>
+      </div>
+    `).join('');
+
+    const content = `
+      <div class="space-y-4 text-xs">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded">
+          <div class="text-slate-500">Analysis Run ID: ${id}</div>
+          <div class="text-lg font-bold text-slate-900 mt-1">${family}</div>
+          <div class="text-slate-600 font-medium">Grade hint: ${gradeHint}</div>
+          <div class="text-slate-500 font-mono-code mt-1">${timestamp} &bull; Decision: <strong>${decision.toUpperCase()}</strong> (${compPct}% Compatibility)</div>
+        </div>
+
+        <div>
+          <div class="font-bold uppercase tracking-wider text-slate-500 mb-2">Measured Elemental Composition</div>
+          <div class="bg-white border border-slate-200 rounded p-3 max-h-48 overflow-y-auto">
+            ${compRows || '<div class="text-slate-500">No composition details available.</div>'}
+          </div>
+        </div>
+      </div>
+    `;
+
+    window.openAppModal({
+      title: 'Analysis Run Details',
+      subtitle: `ID: ${id}`,
+      contentHtml: content,
+      actionsHtml: `
+        <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-slate-900 text-white hover:bg-slate-800">
+          Close
+        </button>
+      `,
+    });
+  }
+
+  function exportHistoryCSV() {
+    window.open('/api/history', '_blank');
+  }
+
+  function exportHistoryJSON() {
+    window.open('/api/history', '_blank');
+  }
+</script>
 {% endblock %}

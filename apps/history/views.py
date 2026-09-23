@@ -8,12 +8,14 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from apps.history.models import AuditLog, AnalysisHistory
+from apps.feedback.models import PredictionFeedback
 from services.audit.logger import log_event, get_audit_logs
 
 
 def history_view(request: HttpRequest) -> HttpResponse:
     logs = [l.to_frontend_dict() for l in AuditLog.objects.all()[:200]]
-    history_records = AnalysisHistory.objects.all()[:50]
+    history_records = list(AnalysisHistory.objects.all()[:100])
+    feedback_records = list(PredictionFeedback.objects.all()[:100])
 
     users = sorted(list(set(l['user'] for l in logs)))
     action_types = sorted(list(set(l['actionType'] for l in logs)))
@@ -22,6 +24,7 @@ def history_view(request: HttpRequest) -> HttpResponse:
     context = {
         'logs': logs,
         'history_records': history_records,
+        'feedback_records': feedback_records,
         'users': users,
         'action_types': action_types,
         'families': families,

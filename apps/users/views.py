@@ -8,11 +8,15 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from apps.users.models import UserAccount
+from apps.knowledge.models import AlloyPreset
+from rule_engine.component_fingerprints import load_fingerprints
 from services.audit.logger import log_event
 
 
 def users_view(request: HttpRequest) -> HttpResponse:
     users = [u.to_dict() for u in UserAccount.objects.all()]
+    presets = [p.to_dict() for p in AlloyPreset.objects.all()]
+    fps = load_fingerprints()
 
     active_techs = len([u for u in users if u['role'] == 'Lab Tech' and u['isActive']])
     total_techs = len([u for u in users if u['role'] == 'Lab Tech'])
@@ -28,6 +32,9 @@ def users_view(request: HttpRequest) -> HttpResponse:
     context = {
         'users': users,
         'roles': roles,
+        'presets': presets,
+        'fingerprints_count': len(fps),
+        'total_spectra_count': 171,
         'active_techs': active_techs,
         'total_techs': total_techs,
         'metallurgists': metallurgists,

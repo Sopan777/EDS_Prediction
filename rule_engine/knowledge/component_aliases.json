@@ -1,0 +1,420 @@
+{
+  "version": "1.0.0",
+  "aliases": {
+    "Armature Bolt": "ARMATURE_BOLT",
+    "armature bolt": "ARMATURE_BOLT",
+    "ARMATURE BOLT": "ARMATURE_BOLT",
+    "Armature Guide": "ARMATURE_GUIDE",
+    "armature guide": "ARMATURE_GUIDE",
+    "ARMATURE GUIDE": "ARMATURE_GUIDE",
+    "Armature Plate": "ARMATURE_PLATE",
+    "armature plate": "ARMATURE_PLATE",
+    "ARMATURE PLATE": "ARMATURE_PLATE",
+    "Armature Spring": "ARMATURE_SPRING",
+    "armature spring": "ARMATURE_SPRING",
+    "ARMATURE SPRING": "ARMATURE_SPRING",
+    "Back Flow Tube": "BACK_FLOW_TUBE",
+    "back flow tube": "BACK_FLOW_TUBE",
+    "BACK FLOW TUBE": "BACK_FLOW_TUBE",
+    "Ball Guide": "BALL_GUIDE",
+    "ball guide": "BALL_GUIDE",
+    "BALL GUIDE": "BALL_GUIDE",
+    "Clamping Saddle": "CLAMPING_SADDLE",
+    "clamping saddle": "CLAMPING_SADDLE",
+    "CLAMPING SADDLE": "CLAMPING_SADDLE",
+    "C Shim": "C_SHIM",
+    "c shim": "C_SHIM",
+    "C SHIM": "C_SHIM",
+    "DFK Shim": "DFK_SHIM",
+    "dfk shim": "DFK_SHIM",
+    "DFK SHIM": "DFK_SHIM",
+    "Dowel Pin": "DOWEL_PIN",
+    "dowel pin": "DOWEL_PIN",
+    "DOWEL PIN": "DOWEL_PIN",
+    "Guide Bush": "GUIDE_BUSH",
+    "guide bush": "GUIDE_BUSH",
+    "GUIDE BUSH": "GUIDE_BUSH",
+    "HP Sealing": "HP_SEALING",
+    "hp sealing": "HP_SEALING",
+    "HP SEALING": "HP_SEALING",
+    "IC Stud": "IC_STUD",
+    "ic stud": "IC_STUD",
+    "IC STUD": "IC_STUD",
+    "Locking Sleeve": "LOCKING_SLEEVE",
+    "locking sleeve": "LOCKING_SLEEVE",
+    "LOCKING SLEEVE": "LOCKING_SLEEVE",
+    "Magnet Coil": "MAGNET_COIL",
+    "magnet coil": "MAGNET_COIL",
+    "MAGNET COIL": "MAGNET_COIL",
+    "Magnet Core": "MAGNET_CORE",
+    "magnet core": "MAGNET_CORE",
+    "MAGNET CORE": "MAGNET_CORE",
+    "Magnet housing": "MAGNET_HOUSING",
+    "magnet housing": "MAGNET_HOUSING",
+    "MAGNET HOUSING": "MAGNET_HOUSING",
+    "Nozzle Spring": "NOZZLE_SPRING",
+    "nozzle spring": "NOZZLE_SPRING",
+    "NOZZLE SPRING": "NOZZLE_SPRING",
+    "NR Nut": "NR_NUT",
+    "nr nut": "NR_NUT",
+    "NR NUT": "NR_NUT",
+    "Pille": "PILLE",
+    "pille": "PILLE",
+    "PILLE": "PILLE",
+    "RLS Shim": "RLS_SHIM",
+    "rls shim": "RLS_SHIM",
+    "RLS SHIM": "RLS_SHIM",
+    "Support Sealing": "SUPPORT_SEALING",
+    "support sealing": "SUPPORT_SEALING",
+    "SUPPORT SEALING": "SUPPORT_SEALING",
+    "Valve Nut": "VALVE_NUT",
+    "valve nut": "VALVE_NUT",
+    "VALVE NUT": "VALVE_NUT",
+    "Valve Piece": "VALVE_PIECE",
+    "valve piece": "VALVE_PIECE",
+    "VALVE PIECE": "VALVE_PIECE",
+    "Valve Piston": "VALVE_PISTON",
+    "valve piston": "VALVE_PISTON",
+    "VALVE PISTON": "VALVE_PISTON",
+    "Valve Spring": "VALVE_SPRING",
+    "valve spring": "VALVE_SPRING",
+    "VALVE SPRING": "VALVE_SPRING",
+    "VFK Shim": "VFK_SHIM",
+    "vfk shim": "VFK_SHIM",
+    "VFK SHIM": "VFK_SHIM",
+    "Armature Shim": "ARMATURE_SHIM",
+    "armature shim": "ARMATURE_SHIM",
+    "ARMATURE SHIM": "ARMATURE_SHIM",
+    "Blade Terminal": "BLADE_TERMINAL",
+    "blade terminal": "BLADE_TERMINAL",
+    "BLADE TERMINAL": "BLADE_TERMINAL",
+    "CRI Injector Body": "CRI_INJECTOR_BODY",
+    "cri injector body": "CRI_INJECTOR_BODY",
+    "CRI INJECTOR BODY": "CRI_INJECTOR_BODY",
+    "CRI Sealing ring": "CRI_SEALING_RING",
+    "cri sealing ring": "CRI_SEALING_RING",
+    "CRI SEALING RING": "CRI_SEALING_RING",
+    "CRI Shim": "CRI_SHIM",
+    "cri shim": "CRI_SHIM",
+    "CRI SHIM": "CRI_SHIM",
+    "Sealing Ring": "SEALING_RING",
+    "sealing ring": "SEALING_RING",
+    "SEALING RING": "SEALING_RING",
+    "DFK Spring": "DFK_SPRING",
+    "dfk spring": "DFK_SPRING",
+    "DFK SPRING": "DFK_SPRING",
+    "UFK Spring": "UFK_SPRING",
+    "ufk spring": "UFK_SPRING",
+    "UFK SPRING": "UFK_SPRING",
+    "Union Nut": "UNION_NUT",
+    "union nut": "UNION_NUT",
+    "UNION NUT": "UNION_NUT",
+    "High Pressure Pipe": "HIGH_PRESSURE_PIPE",
+    "high pressure pipe": "HIGH_PRESSURE_PIPE",
+    "HIGH PRESSURE PIPE": "HIGH_PRESSURE_PIPE",
+    "Sleeve": "SLEEVE",
+    "sleeve": "SLEEVE",
+    "SLEEVE": "SLEEVE",
+    "union nut plating": "UNION_NUT_PLATING",
+    "UNION NUT PLATING": "UNION_NUT_PLATING",
+    "High pressure pipe plating": "HIGH_PRESSURE_PIPE_PLATING",
+    "high pressure pipe plating": "HIGH_PRESSURE_PIPE_PLATING",
+    "HIGH PRESSURE PIPE PLATING": "HIGH_PRESSURE_PIPE_PLATING",
+    "M&M HPP Component": "M_M_HPP_COMPONENT",
+    "m&m hpp component": "M_M_HPP_COMPONENT",
+    "M&M HPP COMPONENT": "M_M_HPP_COMPONENT",
+    "Pinning Wire for DLLA": "PINNING_WIRE_FOR_DLLA",
+    "pinning wire for dlla": "PINNING_WIRE_FOR_DLLA",
+    "PINNING WIRE FOR DLLA": "PINNING_WIRE_FOR_DLLA",
+    "CRI Phosphated Body From Turkey": "CRI_PHOSPHATED_BODY_FROM_TURKEY",
+    "cri phosphated body from turkey": "CRI_PHOSPHATED_BODY_FROM_TURKEY",
+    "CRI PHOSPHATED BODY FROM TURKEY": "CRI_PHOSPHATED_BODY_FROM_TURKEY",
+    "CRI NHB - RBTR": "CRI_NHB_RBTR",
+    "cri nhb - rbtr": "CRI_NHB_RBTR",
+    "CRI  Body Preclened in HNO3": "CRI_BODY_PRECLENED_IN_HNO3",
+    "cri  body preclened in hno3": "CRI_BODY_PRECLENED_IN_HNO3",
+    "CRI  BODY PRECLENED IN HNO3": "CRI_BODY_PRECLENED_IN_HNO3",
+    "HSX 110 NR nut": "HSX_110_NR_NUT",
+    "hsx 110 nr nut": "HSX_110_NR_NUT",
+    "HSX 110 NR NUT": "HSX_110_NR_NUT",
+    "Zinc Phosphating of CRI-BaP": "ZINC_PHOSPHATING_OF_CRI_BAP",
+    "zinc phosphating of cri-bap": "ZINC_PHOSPHATING_OF_CRI_BAP",
+    "ZINC PHOSPHATING OF CRI-BAP": "ZINC_PHOSPHATING_OF_CRI_BAP",
+    "ZnP on NaP CRI NHB": "ZNP_ON_NAP_CRI_NHB",
+    "znp on nap cri nhb": "ZNP_ON_NAP_CRI_NHB",
+    "ZNP ON NAP CRI NHB": "ZNP_ON_NAP_CRI_NHB"
+  },
+  "canonical": {
+    "ARMATURE_BOLT": {
+      "display_name": "Armature Bolt",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "ARMATURE_GUIDE": {
+      "display_name": "Armature Guide",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "ARMATURE_PLATE": {
+      "display_name": "Armature Plate",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "ARMATURE_SPRING": {
+      "display_name": "Armature Spring",
+      "family_ids": [
+        "F1c"
+      ]
+    },
+    "BACK_FLOW_TUBE": {
+      "display_name": "Back Flow Tube",
+      "family_ids": [
+        "F4"
+      ]
+    },
+    "BALL_GUIDE": {
+      "display_name": "Ball Guide",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "CLAMPING_SADDLE": {
+      "display_name": "Clamping Saddle",
+      "family_ids": [
+        "F5"
+      ]
+    },
+    "C_SHIM": {
+      "display_name": "C Shim",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "DFK_SHIM": {
+      "display_name": "DFK Shim",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "DOWEL_PIN": {
+      "display_name": "Dowel Pin",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "GUIDE_BUSH": {
+      "display_name": "Guide Bush",
+      "family_ids": [
+        "F1b"
+      ]
+    },
+    "HP_SEALING": {
+      "display_name": "HP Sealing",
+      "family_ids": [
+        "F6b"
+      ]
+    },
+    "IC_STUD": {
+      "display_name": "IC Stud",
+      "family_ids": [
+        "F1a",
+        "F8b"
+      ]
+    },
+    "LOCKING_SLEEVE": {
+      "display_name": "Locking Sleeve",
+      "family_ids": [
+        "F4"
+      ]
+    },
+    "MAGNET_COIL": {
+      "display_name": "Magnet Coil",
+      "family_ids": [
+        "F7"
+      ]
+    },
+    "MAGNET_CORE": {
+      "display_name": "Magnet Core",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "MAGNET_HOUSING": {
+      "display_name": "Magnet housing",
+      "family_ids": [
+        "F4"
+      ]
+    },
+    "NOZZLE_SPRING": {
+      "display_name": "Nozzle Spring",
+      "family_ids": [
+        "F1c"
+      ]
+    },
+    "NR_NUT": {
+      "display_name": "NR Nut",
+      "family_ids": [
+        "F8a",
+        "F8b"
+      ]
+    },
+    "PILLE": {
+      "display_name": "Pille",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "RLS_SHIM": {
+      "display_name": "RLS Shim",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "SUPPORT_SEALING": {
+      "display_name": "Support Sealing",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "VALVE_NUT": {
+      "display_name": "Valve Nut",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "VALVE_PIECE": {
+      "display_name": "Valve Piece",
+      "family_ids": [
+        "F2"
+      ]
+    },
+    "VALVE_PISTON": {
+      "display_name": "Valve Piston",
+      "family_ids": [
+        "F3"
+      ]
+    },
+    "VALVE_SPRING": {
+      "display_name": "Valve Spring",
+      "family_ids": [
+        "F1c"
+      ]
+    },
+    "VFK_SHIM": {
+      "display_name": "VFK Shim",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "ARMATURE_SHIM": {
+      "display_name": "Armature Shim",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "BLADE_TERMINAL": {
+      "display_name": "Blade Terminal",
+      "family_ids": [
+        "F6a",
+        "F7"
+      ]
+    },
+    "CRI_INJECTOR_BODY": {
+      "display_name": "CRI Injector Body",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "CRI_SEALING_RING": {
+      "display_name": "CRI Sealing ring",
+      "family_ids": [
+        "F6a"
+      ]
+    },
+    "CRI_SHIM": {
+      "display_name": "CRI Shim",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "SEALING_RING": {
+      "display_name": "Sealing Ring",
+      "family_ids": [
+        "F1a"
+      ]
+    },
+    "DFK_SPRING": {
+      "display_name": "DFK Spring",
+      "family_ids": [
+        "F1a",
+        "F1c"
+      ]
+    },
+    "UFK_SPRING": {
+      "display_name": "UFK Spring",
+      "family_ids": [
+        "F1a",
+        "F1c"
+      ]
+    },
+    "UNION_NUT": {
+      "display_name": "Union Nut",
+      "family_ids": []
+    },
+    "HIGH_PRESSURE_PIPE": {
+      "display_name": "High Pressure Pipe",
+      "family_ids": []
+    },
+    "SLEEVE": {
+      "display_name": "Sleeve",
+      "family_ids": []
+    },
+    "UNION_NUT_PLATING": {
+      "display_name": "union nut plating",
+      "family_ids": []
+    },
+    "HIGH_PRESSURE_PIPE_PLATING": {
+      "display_name": "High pressure pipe plating",
+      "family_ids": []
+    },
+    "M_M_HPP_COMPONENT": {
+      "display_name": "M&M HPP Component",
+      "family_ids": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ]
+    },
+    "PINNING_WIRE_FOR_DLLA": {
+      "display_name": "Pinning Wire for DLLA",
+      "family_ids": []
+    },
+    "CRI_PHOSPHATED_BODY_FROM_TURKEY": {
+      "display_name": "CRI Phosphated Body From Turkey",
+      "family_ids": []
+    },
+    "CRI_NHB_RBTR": {
+      "display_name": "CRI NHB - RBTR",
+      "family_ids": []
+    },
+    "CRI_BODY_PRECLENED_IN_HNO3": {
+      "display_name": "CRI  Body Preclened in HNO3",
+      "family_ids": []
+    },
+    "HSX_110_NR_NUT": {
+      "display_name": "HSX 110 NR nut",
+      "family_ids": []
+    },
+    "ZINC_PHOSPHATING_OF_CRI_BAP": {
+      "display_name": "Zinc Phosphating of CRI-BaP",
+      "family_ids": []
+    },
+    "ZNP_ON_NAP_CRI_NHB": {
+      "display_name": "ZnP on NaP CRI NHB",
+      "family_ids": []
+    }
+  }
+}

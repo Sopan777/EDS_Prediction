@@ -2,131 +2,67 @@
 services/prediction/engine.py
 =============================
 Wraps rule_engine.scoring for single and multi-spectrum particle prediction,
-component-level ranking from pooled spectra, and history persistence.
+component-level ranking from statistical fingerprints, conflict detection,
+and analysis history persistence.
 """
 
 import json
 import math
 import time
-from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from apps.history.models import AnalysisHistory
-from rule_engine.real_data import load_spectra
+from rule_engine.normalize import normalize_spectrum
 from rule_engine.scoring import (
     Decision,
     Prediction,
     predict_particle,
     predict_spectrum,
 )
+from rule_engine.component_scoring import (
+    ComponentScore,
+    decide_component,
+    rank_components,
+)
+from rule_engine.conflict_detector import detect_conflict, ConflictResult
 from services.audit.logger import log_event
 from services.knowledge.kb import format_material_family, get_all_families_mapped, get_kb
 
-# Cache component reference centroids
-_COMPONENT_CENTROIDS: Optional[Dict[str, Dict[str, float]]] = None
 
-
-def get_component_centroids() -> Dict[str, Dict[str, float]]:
-    global _COMPONENT_CENTROIDS
-    if _COMPONENT_CENTROIDS is not None:
-        return _COMPONENT_CENTROIDS
-
-    centroids: Dict[str, Dict[str, float]] = {}
-    try:
-        spectra_data = load_spectra()
-        comp_groups = defaultdict(list)
-        for s in spectra_data:
-            if s.component:
-                comp_groups[s.component].append(s.values)
-
-        for c_name, val_list in comp_groups.items():
-            if not val_list:
-                continue
-            mean_dict: Dict[str, float] = {}
-            for v in val_list:
-                for elem, wt in v.items():
-                    mean_dict[elem] = mean_dict.get(elem, 0.0) + (wt / len(val_list))
-            centroids[c_name] = {k: round(val, 3) for k, val in mean_dict.items()}
-    except Exception as err:
-        print(f"Warning: Could not build component centroids: {err}")
-
-    _COMPONENT_CENTROIDS = centroids
-    return _COMPONENT_CENTROIDS
-
-
-def rank_candidate_components(
-    candidate_names: List[str],
-    pooled_composition: Dict[str, float],
-    base_compatibility: float,
+def format_candidate_component(
+    cand: ComponentScore,
     family_id: str,
     grade_hint: str = "",
-) -> List[Dict[str, Any]]:
-    """Rank candidate components by distance to the particle's pooled spectra."""
-    centroids = get_component_centroids()
-    scored_candidates = []
+    is_top: bool = False,
+) -> Dict[str, Any]:
+    """Format a ComponentScore into a clean, honest candidate record."""
+    compat_pct = round(cand.compatibility * 100)
+    
+    notes = (
+        f"Statistical match to {cand.display_name} reference fingerprint ({cand.fingerprint_quality} confidence, "
+        f"{cand.sample_count} spectra). Evidence sufficiency: {cand.evidence_sufficiency * 100:.0f}%."
+    )
 
-    for c_name in candidate_names:
-        centroid = centroids.get(c_name)
-        dist = 0.0
-        shared_elements = 0
-
-        if centroid:
-            for elem, val in pooled_composition.items():
-                if elem in centroid:
-                    dist += (val - centroid[elem]) ** 2
-                    shared_elements += 1
-            euc_dist = math.sqrt(dist) if shared_elements > 0 else 15.0
-        else:
-            euc_dist = 12.0  # default distance if not in reference workbook
-
-        # Compute confidence penalty based on Euclidean distance
-        conf = max(52, min(99, round((base_compatibility * 100) - (euc_dist * 0.8))))
-
-        part_no = (
-            f"BOSCH-{family_id}-"
-            + "".join([c[0] for c in c_name.split() if c]).upper()
-            + f"{len(c_name) * 3}"
-        )
-
-        category = (
-            "Fuel Injector Assembly"
-            if "Injector" in c_name or "Nut" in c_name
-            else (
-                "Hydraulic Valve Subcomponent"
-                if "Valve" in c_name or "Seat" in c_name
-                else "Precision Metallurgical Subcomponent"
-            )
-        )
-
-        notes = (
-            f"Predicted component for {family_id}. "
-            + (
-                f"Matches reference centroid within {euc_dist:.2f} wt% distance."
-                if centroid
-                else "Consistent with material family stoichiometric specification."
-            )
-        )
-
-        scored_candidates.append({
-            "id": f"cand-{c_name.lower().replace(' ', '-')}",
-            "name": c_name,
-            "partNumber": part_no,
-            "category": category,
-            "nominalAlloy": grade_hint or "Stoichiometric Match",
-            "confidence": conf,
-            "distance": round(euc_dist, 2),
-            "notes": notes,
-            "isTopMatch": False,
-        })
-
-    # Sort so closest match has highest rank
-    scored_candidates.sort(key=lambda x: (-x["confidence"], x["distance"], x["name"]))
-
-    if scored_candidates:
-        scored_candidates[0]["isTopMatch"] = True
-
-    return scored_candidates
+    return {
+        "id": f"cand-{cand.component_id.lower().replace('_', '-')}",
+        "name": cand.display_name,
+        "component_id": cand.component_id,
+        "partNumber": cand.component_id,
+        "category": f"{cand.fingerprint_quality} Quality Reference ({cand.sample_count} spectra)",
+        "nominalAlloy": grade_hint or "Empirical Reference",
+        "confidence": compat_pct,
+        "compatibility": round(cand.compatibility, 4),
+        "sampleCount": cand.sample_count,
+        "fingerprintQuality": cand.fingerprint_quality,
+        "decision": cand.decision,
+        "matchedElements": cand.matched_elements,
+        "missingElements": cand.missing_elements,
+        "evidenceSufficiency": round(cand.evidence_sufficiency, 3),
+        "elementDistances": {k: round(v, 2) for k, v in cand.element_distances.items()},
+        "notes": notes,
+        "isTopMatch": is_top,
+    }
 
 
 def run_prediction(
@@ -135,10 +71,12 @@ def run_prediction(
     analysed_elements: Optional[List[str]] = None,
     source_type: str = "manual",
     source_filename: Optional[str] = None,
+    declared_material: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Execute prediction for single spectrum or multiple spectra (pooled particle).
-    Calculates pooled average, predicts material family, and ranks candidate components.
+    Calculates pooled average, predicts material family, checks declared material conflict,
+    and statistically matches and ranks candidate components.
     """
     start_time = time.perf_counter()
     kb = get_kb()
@@ -164,7 +102,7 @@ def run_prediction(
 
     is_pooled = len(spectra_list) > 1
 
-    # Execute deterministic rule engine
+    # Execute deterministic rule engine for family
     if is_pooled:
         prediction: Prediction = predict_particle(
             spectra_list,
@@ -227,27 +165,44 @@ def run_prediction(
         if vals:
             pooled_average[elem] = round(sum(vals) / len(vals), 2)
 
-    # Base compatibility percentage
+    # Base compatibility percentage - HONEST, NO ARTIFICIAL INFLATION
     comp_pct = round((top_score.compatibility if top_score else 0.0) * 100)
-    if decision_val == "identified" and comp_pct < 70:
-        comp_pct = 95
 
-    # Rank and score candidate components
-    raw_candidate_names = list(prediction.candidate_components)
-    if not raw_candidate_names and top_family_mapped:
-        raw_candidate_names = [c["name"] for c in top_family_mapped.get("candidateComponents", [])]
+    # Normalise pooled average spectrum for component scoring
+    norm_pooled = normalize_spectrum(pooled_average, analysed_elements=analysed_elements)
 
-    candidates_list = rank_candidate_components(
-        candidate_names=raw_candidate_names,
-        pooled_composition=pooled_average,
-        base_compatibility=top_score.compatibility if top_score else 0.85,
-        family_id=top_score.family_id if top_score else "REF",
-        grade_hint=top_score.grade_hint if top_score else "",
+    # Determine candidate family IDs to scope component matching
+    candidate_family_ids: List[str] = []
+    if top_score and decision_val == Decision.IDENTIFIED.value:
+        candidate_family_ids = [top_score.family_id]
+    elif decision_val == Decision.AMBIGUOUS.value:
+        candidate_family_ids = [f.family_id for f in prediction.families]
+    else:
+        # Fallback or unknown: consider all families
+        candidate_family_ids = list(kb.families.keys())
+
+    # Component-level matching against statistical fingerprints
+    raw_ranked_components = rank_components(
+        spectrum=norm_pooled,
+        candidate_family_ids=candidate_family_ids,
+        top_n=10,
     )
+    comp_decision_str, top_comp_score = decide_component(raw_ranked_components)
+
+    candidates_list: List[Dict[str, Any]] = []
+    for idx, cand in enumerate(raw_ranked_components):
+        is_top = (idx == 0)
+        formatted = format_candidate_component(
+            cand=cand,
+            family_id=top_score.family_id if top_score else "REF",
+            grade_hint=top_score.grade_hint if top_score else "",
+            is_top=is_top,
+        )
+        candidates_list.append(formatted)
 
     top_candidate = candidates_list[0] if candidates_list else None
 
-    # Constraint checks from top score
+    # Constraint checks from top family score
     checks_list = []
     if top_score:
         for chk in top_score.checks:
@@ -259,6 +214,35 @@ def run_prediction(
         caveats_list.insert(
             0,
             f"Multi-spectrum corroborated: {len(spectra_list)} spectra pooled across particle.",
+        )
+
+    # Conflict Detection: check declared material metadata against predicted family
+    conflict_result = detect_conflict(
+        declared_material=declared_material,
+        prediction_family_id=top_score.family_id if top_score else None,
+        prediction_family_label=top_score.label if top_score else None,
+    )
+    if conflict_result.has_conflict:
+        caveats_list.append(f"MATERIAL CONFLICT: {conflict_result.message}")
+        if conflict_result.severity == "critical" and decision_val == Decision.IDENTIFIED.value:
+            # Flag decision state as conflict if declared material is strongly violated
+            decision_val = Decision.CONFLICT.value
+
+    # Warnings aggregation
+    warnings_list: List[str] = []
+    if decision_val == Decision.AMBIGUOUS.value:
+        warnings_list.append("Ambiguous material family: separation is within measurement uncertainty.")
+    elif decision_val == Decision.INSUFFICIENT_DATA.value:
+        warnings_list.append("Insufficient data: too few alloy elements measured to establish identity.")
+    elif decision_val == Decision.UNKNOWN.value:
+        warnings_list.append("Unknown material: composition does not match any known reference family.")
+    elif decision_val == Decision.CONFLICT.value:
+        warnings_list.append(f"Material conflict: {conflict_result.message}")
+
+    if top_candidate and top_candidate.get("fingerprintQuality") == "LOW":
+        warnings_list.append(
+            f"Component '{top_candidate['name']}' has limited reference data "
+            f"({top_candidate.get('sampleCount', 0)} spectra); match should be reviewed."
         )
 
     # Persist to AnalysisHistory
@@ -293,13 +277,27 @@ def run_prediction(
                 "compatibility": f"{comp_pct}%",
                 "top_candidate": top_candidate["name"] if top_candidate else None,
                 "candidates_count": len(candidates_list),
+                "component_decision": comp_decision_str,
+                "conflict": conflict_result.has_conflict,
             },
             impact_type="positive" if decision_val == "identified" else "neutral",
         )
     except Exception as db_err:
         print(f"Warning: Failed to write analysis record to DB: {db_err}")
 
+    # Evidence details
+    evidence_data = {
+        "matched_elements": [e for e in analysed_elements if pooled_average.get(e, 0) > 0],
+        "analysed_elements": analysed_elements,
+        "n_analysed_elements": len(analysed_elements),
+        "alloy_signal_pct": norm_pooled.alloy_total,
+        "contamination_fraction": norm_pooled.contamination_fraction,
+        "coating_fraction": norm_pooled.coating_fraction,
+    }
+
     return {
+        # Standardized modern structure
+        "status": decision_val,
         "decision": decision_val,
         "materialFamily": top_score.label if top_score else "Unclassified Material",
         "familyCode": top_score.family_id if top_score else None,
@@ -321,4 +319,29 @@ def run_prediction(
         "topFamily": top_family_mapped,
         "extractedComposition": pooled_average,
         "allFamiliesScored": [f.to_dict() for f in prediction.families],
+        # Component & Evidence additions
+        "material_family": {
+            "id": top_score.family_id if top_score else None,
+            "name": top_score.label if top_score else "Unclassified Material",
+            "compatibility": round(top_score.compatibility, 4) if top_score else 0.0,
+            "grade_hint": top_score.grade_hint if top_score else None,
+        },
+        "component_prediction": {
+            "component": top_candidate["name"] if top_candidate else None,
+            "component_id": top_candidate.get("component_id") if top_candidate else None,
+            "compatibility": top_candidate.get("compatibility", 0.0) if top_candidate else 0.0,
+            "fingerprint_quality": top_candidate.get("fingerprintQuality") if top_candidate else None,
+            "sample_count": top_candidate.get("sampleCount", 0) if top_candidate else 0,
+            "decision": comp_decision_str,
+        } if top_candidate else None,
+        "candidates": candidates_list,
+        "evidence": evidence_data,
+        "conflict": {
+            "has_conflict": conflict_result.has_conflict,
+            "severity": conflict_result.severity,
+            "message": conflict_result.message,
+            "declared_material": conflict_result.declared_material,
+            "declared_family": conflict_result.declared_family,
+        },
+        "warnings": warnings_list,
     }

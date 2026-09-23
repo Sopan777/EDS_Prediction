@@ -107,11 +107,20 @@ class Verdict(str, Enum):
 
 
 class Decision(str, Enum):
-    """Overall decision for a spectrum or particle."""
+    """Overall decision for a spectrum or particle.
+
+    IDENTIFIED       - evidence clearly separates the top candidate.
+    AMBIGUOUS        - multiple candidates have similar scores.
+    UNKNOWN          - composition does not match any known material.
+    INSUFFICIENT_DATA - too few useful EDS elements to make any claim.
+    CONFLICT         - declared material metadata contradicts measured composition.
+    """
 
     IDENTIFIED = "identified"
     AMBIGUOUS = "ambiguous"
     UNKNOWN = "unknown"
+    INSUFFICIENT_DATA = "insufficient_data"
+    CONFLICT = "conflict"
 
 
 @dataclass
@@ -222,7 +231,9 @@ class Prediction:
           the set is what the analysts themselves report as "Magnet Nut,
           NR nut??".
         """
-        if self.decision is Decision.UNKNOWN:
+        if self.decision in (
+            Decision.UNKNOWN, Decision.INSUFFICIENT_DATA, Decision.CONFLICT
+        ):
             return []
         sources = (
             self.families[:1] if self.decision is Decision.IDENTIFIED else self.families
@@ -451,7 +462,13 @@ def score_family(
         z = (value - clamped) / sigma if sigma > 0 else 0.0
         weight = 0.3 if prefer_ratio else 1.0
         if element in discriminators:
-            weight *= 2.0
+            weight *= 3.0  # discriminators carry the most classification info
+        # Matrix elements (Fe in steel, Cu in bronze, Ni in Ni-alloy) should
+        # not dominate the distance: they sit in-band for nearly every family
+        # of the same system and carry little classification information.
+        is_matrix = value > 50.0 and not spec.get("required", False)
+        if is_matrix and element not in discriminators:
+            weight = min(weight, 0.5)
         z_terms.append((z, weight))
         # Only DECISIVE elements confirm this family. Fe sits inside almost
         # every steel family's band, so an in-band Fe reading must not by

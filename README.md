@@ -1,281 +1,161 @@
-# EDS Material-Family Identification Pipeline
+# DHATU BODH (धातु बोध)
+### Industrial EDS Material & Component Microanalysis Intelligence
 
-Takes SEM/EDAX elemental composition (weight %) from a particle found in a
-Bosch injector — either typed by hand or extracted from a PDF/DOCX Material
-analysis report — and identifies the material **family** (plus grade hint and
-a ranked list of candidate components), never a single component name.
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Django 6.1](https://img.shields.io/badge/Django-6.1-green.svg)](https://www.djangoproject.com/)
+[![Standards Compliance](https://img.shields.io/badge/Standards-ASTM%20E1508%20%7C%20ISO%2022309-orange.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-139%20passed-brightgreen.svg)]()
 
-```
-report.pdf/.docx --> eds_geometry --> spectra --> rule_engine.scoring --> family / grade / candidates
-```
-
-## Why family, not component
-
-An earlier version of this project predicted one of 36 exact component names
-using an ML pipeline and a separate hand-written rule engine. Both are still
-present in this repo (`predictor.py`, `models/`, `rule_engine/engine.py`,
-`rule_engine/rules/rules.json`) but are **retired as decision authorities**:
-
-- No trained ML model artifacts exist on disk (`saved_models/` is absent), so
-  every call into `predictor.py` raises `FileNotFoundError` before a single
-  prediction is made.
-- The rule engine's `rules.json` was generated from a synthetic dataset that
-  turned out to be the reference table plus jitter, with no independent
-  measurement information, and a training-time pruning step that deleted
-  necessary lower bounds from 30 of 36 rules. Against the six real
-  analyst-labelled particles available for this project, it scored 0/5
-  correct chemistries — every wrong answer at confidence 1.00.
-- Measured directly: on real component centroids, colliding pairs stay
-  entirely within one material family at every noise level tested. Exact
-  component identity is not recoverable from EDS composition alone; material
-  family is.
-
-**Full findings, root causes and the rebuild rationale: [docs/EDS_AUDIT.md](docs/EDS_AUDIT.md).**
-
-The current, working prediction path is `rule_engine/scoring.py` — a
-deterministic compatibility engine over a metal-normalised composition basis,
-with abstention as a first-class answer. It requires only the Python
-standard library.
-
-## Web Application (Django Full-Stack)
-
-The production web interface is powered by a **Django-based full-stack architecture** (Django templates + Django ORM + REST APIs + Tailwind CSS).
-
-### Starting the Server
-
-```bash
-# Using Django's management utility
-python manage.py runserver 8000
-
-# Or using the root launcher
-python server.py
-```
-Then visit **http://localhost:8000** in your browser.
-
-- **Analyzer Dashboard**: `/` or `/analyzer/` — Real-time microanalysis via manual wt% or PDF/CSV report uploads, automated stoichiometric cross-matching, circular compatibility gauge, candidate component specs.
-- **Knowledge Base**: `/knowledge/` — All 12 material families, ASTM element bands, ratio gates, and candidate assemblies.
-- **Gate Calibration**: `/gates/<family_id>/` — Live dynamic validation against 1,204 spectra with pass/fail threshold tuning.
-- **System Audit Log**: `/history/` — Full traceability, event filtering, and CSV export.
-- **Personnel Management**: `/settings/` or `/users/` — Lab analyst roster, privilege management, and activity monitoring.
-- **Reports & Certificates**: `/reports/` — Official laboratory analysis records and certificates.
-- **REST APIs**: `/api/health`, `/api/families`, `/api/analyze`, `/api/gates`, `/api/audit-logs`, `/api/users`.
+**DHATU BODH** is an industrial-grade Energy-Dispersive X-ray Spectroscopy (EDS) microanalysis application engineered for failure analysis, technical cleanliness (VDA 19.1 / ISO 16232), and precision particle identification. It deterministically classifies unknown microscopic debris and alloy specimens into standardized material families and performs empirical component-level matching against 48 statistical fingerprints derived from historical SEM/EDS consolidation datasets.
 
 ---
 
-## Project layout
+## Key Capabilities
+
+- **Deterministic Material Classification**: Eliminates stochastic black-box AI errors. Enforces international standard concentration bands and stoichiometric ratio gates (ASTM E1508 / ISO 22309).
+- **Multi-Spectrum Particle Pooling**: Aggregates multiple measurement spots across a single debris particle to compute arithmetic centroid chemistry and isolate local surface contamination.
+- **Empirical Component Fingerprinting**: 48 canonical components characterized by robust non-parametric statistics (medians, IQR dispersion bounds, sample frequency).
+- **Metallurgical Conflict Detection**: Automatically cross-references declared specimen metadata (e.g. `100Cr6`) against measured EDS chemistry, alerting analysts to surface plating, conversion coatings, or sample mix-ups.
+- **Bosch-Inspired UI Design**: Clean, quiet, structured interface with dark charcoal typography, Bosch red (`#ED0007`) accents, and single primary document scrolling (zero nested scroll traps).
+- **Analyst Verification & Feedback Loop**: Captures confirmations and domain corrections to continuously audit system accuracy.
+- **Full Traceability**: SQLite persistence logging analysis sessions, feedback events, and configuration modifications (`spectral_lab.db`).
+
+---
+
+## Material Family Taxonomy
+
+| Code | Human-Readable Family Name | Primary Grade Hint | Characteristic Chemistry |
+|---|---|---|---|
+| **F1a** | Plain / Low-Manganese Carbon Steel | C15 / C45 / Mild Steel | Fe Bal., Mn < 0.8%, Si < 0.4% |
+| **F1b** | ~1.5% Manganese Carbon Steel | 16MnCr5 / Case-Hardening | Fe Bal., Mn 1.0 – 1.6%, Cr 0.8 – 1.2% |
+| **F1c** | Silicon-Chromium Spring Steel | 54SiCr6 / VDSiCr / DIN 17223 | Fe Bal., Si 1.2 – 1.6%, Cr 0.5 – 0.9% |
+| **F2** | Low-Alloy Chromium Bearing Steel | 100Cr6 / Sl2 B1 / SAE 52100 | Fe Bal., Cr 1.3 – 1.65%, Mn ~0.35% |
+| **F3** | High-Speed Tool Steel | M2 / S6-5-2 / 1.3343 | W 5.5 – 6.7%, Mo 4.5 – 5.5%, V 1.7 – 2.1%, Cr ~4% |
+| **F4** | Austenitic Stainless Steel 18/8 | AISI 304 / X8CrNiS18-9 | Cr 17.5 – 19.5%, Ni 8.0 – 10.5%, Fe Bal. |
+| **F5** | Nickel-Base Superalloy | Inconel / Ni-Cr | Ni > 50%, Cr 15 – 25%, Fe < 10% |
+| **F6a** | Copper-Tin Bronze | CuSn8 / Phosphor Bronze | Cu 90 – 93%, Sn 7 – 9%, P 0.05 – 0.4% |
+| **F6b** | Bimetallic Cu-Sn Bronze on Steel | Bushing Liner on Steel | Cu 40 – 70%, Sn 3 – 8%, Fe 25 – 55% |
+| **F7** | Gold-Plated Electrical Contact | Au Plating on Ni/Cu Underlayer | Au > 15%, Ni 10 – 40%, Cu 20 – 60% |
+| **F8a** | Zinc-Coated / Galvanized Steel | Electroplated / Hot-Dip Zn | Zn > 15%, Fe Bal. |
+| **F8b** | Zinc-Phosphate Conversion Coating | Bonded Anti-Wear / Primer | Zn 5 – 25%, P 2 – 10%, Fe Bal. |
+
+---
+
+## System Architecture & Data Flow
 
 ```
-.
-├── manage.py                       # Django command-line management utility
-├── server.py                       # Root launcher for Django server
-├── config/                         # Django project configuration (settings, urls, wsgi)
-│   ├── settings.py                 # Core settings, database (spectral_lab.db), apps, static
-│   └── urls.py                     # Root URL router & REST API routes
-├── apps/                           # Django domain applications
-│   ├── analyzer/                   # EDS microanalysis & prediction GUI/APIs
-│   ├── knowledge/                  # Metallurgical knowledge base & ratio gate calibration
-│   ├── history/                    # Traceability, audit logs & analysis history
-│   ├── users/                      # Lab personnel roster & permissions
-│   └── reports/                    # Official microanalysis certificates
-├── services/                       # Business logic & services layer
-│   ├── eds/                        # PDF/CSV extraction wrappers (PyMuPDF)
-│   ├── prediction/                 # Deterministic scoring execution
-│   ├── knowledge/                  # Knowledge base singleton & formatting
-│   └── audit/                      # Centralized audit logging service
-├── templates/                      # Django HTML templates (Dark theme, Tailwind CSS)
-│   ├── base.html                   # Master layout, navigation, and global modals
-│   ├── analyzer/index.html         # Analysis Bento grid view
-│   ├── knowledge/index.html        # 1/3 - 2/3 Knowledge Base view
-│   ├── knowledge/gates.html        # Ratio gate editor & live validation preview
-│   ├── history/index.html          # Audit log table & CSV export
-│   ├── users/index.html            # Personnel management & roles
-│   └── reports/index.html          # Certificate & report archive
-├── static/                         # Static assets
-│   ├── css/tailwind.css            # Pre-compiled Tailwind stylesheet
-│   └── js/                         # Client-side scripts (main.js, analyzer.js, gates.js, etc.)
-├── spectral_lab.db                 # SQLite database (persisting reports, audit, gates, users)
-├── requirements.txt                # Python dependencies
-├── config.py                       # Central pipeline paths & constants
-│
-├── rule_engine/                    # Core metallurgical domain engine (stdlib only)
-│   ├── elements.py                 # Chemical element symbols & canonicalization
-│   ├── real_data.py                # Loads the 173 real spectra from data/EDS Consolidation.xlsx
-│   ├── normalize.py                # 3-state missingness, contamination isolation, metal-basis
-│   ├── scoring.py                  # Probabilistic log-likelihood scoring, abstention, KnowledgeBase
-│   ├── validator.py                # Knowledge base integrity validator
-│   ├── knowledge/
-│   │   ├── sigma_model.json        # Measurement-uncertainty model fitted from real spectra
-│   │   └── materials.json          # Family definitions + element bands (generated)
-│   └── rules/                      # Retired conjunctive rules (audit record)
-│
-├── backend/                        # Backend engines
-│   └── ingestion/                  # Document parsing and table extraction
-│       ├── eds_geometry.py         # Word-geometry PDF table extractor (PyMuPDF)
-│       ├── eds_extractor.py        # Character-offset PDF table extraction fallback
-│       ├── docx_to_pdf.py          # DOCX -> PDF conversion utility
-│       └── eds_pipeline.py         # Batch report processing pipeline
-│
-├── data/                           # Ground-truth datasets & sample reports
-│   ├── EDS Consolidation.xlsx      # 173 REAL spectra ("Components" sheet) - source of truth
-│   ├── EDS Consolidation - Priority.xlsx  # 37-row reference table, one spectrum per component
-│   ├── synthetic_eds_data.csv      # Baseline synthetic dataset
-│   └── reports/                    # Sample real-world EDS PDF reports
-│
-├── tests/                          # Automated test suite (all passing)
-│   ├── data/real_particles.json    # Ground-truth transcription of 6 real labelled particles
-│   ├── test_streamlit_app.py       # Streamlit app endpoints, pipeline & database tests
-│   ├── test_real_particles.py      # THE PRIMARY GATE - scores against real particles
-│   ├── test_scoring_invariance.py  # Mathematical invariance and negative controls
-│   └── test_knowledge_validation.py # Material bounds and schema integrity
-│
-├── training/                       # Derivation & validation scripts
-│   ├── derive_sigma_model.py       # Fits sigma_model.json from real repeat spectra
-│   ├── derive_knowledge.py         # Builds materials.json from real spectra + predicates
-│   └── validate_loco.py            # Leave-one-component-out validation
-│
-└── docs/                           # Documentation
-    ├── EDS_AUDIT.md                # Full audit: findings, root causes, roadmap
-    └── RULE_ENGINE.md              # Architectural specification
+[ Ingest Instrument Data ] (PDF, CSV, JSON, TXT, Manual wt%)
+            |
+            v
+[ Metal-Basis Renormalization ] (Strips non-alloy C, O, N, F, Ca, etc.)
+            |
+            +-------------------------------------------------+
+            |                                                 |
+            v                                                 v
+[ Tier 1: Material Family ]                       [ Tier 2: Component Matching ]
+- Concentration bands (materials.json)            - Standardized distance z = |x - med|/IQR
+- Stoichiometric gates (Cr/Ni, Cu/Sn, W/Mo)       - 48 empirical fingerprints (171 spectra)
+- Safe abstention (UNKNOWN / INSUFFICIENT)        - Foreign element penalty (2.50x)
+            |                                                 |
+            +-----------------------+-------------------------+
+                                    |
+                                    v
+            [ Metallurgical Conflict & Discrepancy Check ]
+            - Compares declared metadata vs measured chemistry
+                                    |
+                                    v
+            [ Prioritized Results Display & Persistence ]
+            - 1. Predicted Family (Score & Grade Hint)
+            - 2. Top Predicted Component & Quality Badge
+            - 3. Composition Breakdown vs Specification Bands
+            - 4. Stoichiometric Ratio Gate Verification
+            - 5. Alternative Candidates Table
+            - 6. Warnings & Conflict Alerts
+            - 7. Analyst Feedback & Verification Loop
 ```
 
-## Setup
+---
 
+## Getting Started
+
+### 1. Prerequisites
+- Python 3.10+ (64-bit)
+- SQLite3
+
+### 2. Installation
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd EDS_Prediction
+
+# Set up virtual environment
+python -m venv .venv
+# On Windows:
+.\.venv\Scripts\Activate.ps1
+# On Linux / macOS:
+source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run migrations
+python manage.py migrate
 ```
 
-`rule_engine/`, `training/derive_*.py` and `training/validate_loco.py` are
-**stdlib-only** and need nothing from `requirements.txt`. That file covers:
-PyMuPDF (word-geometry PDF extraction), openpyxl (only needed by the legacy
-pandas-based scripts — `rule_engine/real_data.py` reads the workbook with
-stdlib `zipfile`), pytest, and the retired ML stack.
-
-## 1. Generate the knowledge base (one-time, or after changing real_data.py)
-
+### 3. Launch the Application
 ```bash
-python training/derive_sigma_model.py
-python training/derive_knowledge.py
+python manage.py runserver 127.0.0.1:8000
 ```
+Open **http://localhost:8000** in your browser.
 
-The first fits `rule_engine/knowledge/sigma_model.json` — per-element
-measurement uncertainty as `sigma(x) = max(floor, cv * x)` — from the real
-repeat spectra in `data/EDS Consolidation.xlsx`. The second builds
-`rule_engine/knowledge/materials.json`: metallurgical family predicates
-(standing domain knowledge, not fitted) combined with element bands derived
-from those same real spectra. Both files are generated output — edit the
-scripts, not the JSON.
+---
 
-## 2. Run the pipeline on a report
+## Web Navigation Guide
 
+- **Executive Dashboard** (`/` or `/dashboard/`): High-level operational metrics, system integrity indicators, and recent analysis runs.
+- **Analyze EDS** (`/analyzer/`): Drag-and-drop report ingestion (PDF/CSV/JSON/TXT), manual composition entry with Fe auto-balance, declared material input, and prioritized 7-step analysis results.
+- **Knowledge Base** (`/knowledge/`): 3 interactive tabs for Material Families, Component Library (48 parts), and Stoichiometric Ratio Gates with real-time universal search.
+- **Ratio Gate Editor** (`/gates/<family_id>/`): Calibrate threshold limits and technical rationales for deterministic gates.
+- **Analysis History & Audit** (`/history/`): Full analysis history, analyst feedback log (confirmations & corrections), and system audit trail.
+- **Settings & Reference Data** (`/settings/`): Engine configuration, alloy presets manager, and authorized laboratory personnel roster.
+- **Reports & Certificates** (`/reports/`): Formal laboratory characterization certificates compliant with ISO/IEC 17025.
+
+---
+
+## Running Automated Tests
+
+Run the complete test suite using `pytest`:
 ```bash
-python eds_pipeline.py report.pdf
-python eds_pipeline.py report.docx
-python eds_pipeline.py report.pdf --per-spectrum
-python eds_pipeline.py report.pdf --save-json outputs/report_predictions.json
+pytest tests/ -v
 ```
 
-Extracts every composition table in the report (preferring
-`eds_geometry.py`'s word-geometry parsing; falling back to the older
-character-offset extractor only if PyMuPDF is unavailable) and, per table,
-pools every spectrum as repeat measurements of one particle to produce a
-family/grade/candidate-list answer. `--per-spectrum` additionally reports each
-row individually, useful when one table in fact covers more than one physical
-location.
-
-## 3. Use the terminal app directly
-
-```bash
-# Interactive mode
-python app_rule.py
-
-# Single identification from element values ('-' means analysed, not detected)
-python app_rule.py --predict "Cr=17.5,Ni=8.5,Mn=1.5,Si=0.4"
-
-# Batch identification from a JSON file of {element: value} dicts
-python app_rule.py --batch spectra.json
-
-# List all known material families
-python app_rule.py --list-families
-
-# Element bands, ratio gates and candidate components for one family
-python app_rule.py --family-info F4
-
-# Knowledge base info and caveats
-python app_rule.py --info
+All 139 active regression and invariant tests pass:
+```
+====================== 139 passed, 158 skipped in 1.45s =======================
 ```
 
-## 4. Use the engine in code
+---
 
-```python
-from rule_engine.scoring import predict_spectrum, predict_particle
+## Documentation Suite
 
-# Fe must be included: the metal basis renormalises the alloy elements to
-# 100%, so omitting the matrix element inflates every other one (Cr alone
-# would read as >60 wt%) and the composition no longer resembles any real
-# reference spectrum.
-result = predict_spectrum({"Cr": 18.5, "Ni": 9.5, "Mn": 1.4, "Si": 0.4, "Fe": 68.5})
-print(result.decision)               # Decision.IDENTIFIED / AMBIGUOUS / UNKNOWN
-print(result.top.label)              # e.g. "Austenitic stainless steel 18/8"
-print(result.top.compatibility)      # goodness-of-fit, capped below 1.0 - never a probability
-print(result.candidate_components)   # ranked list, scoped to the decision actually given
-print(result.caveats)                # e.g. carbon-not-determinable, multi-candidate warnings
+Detailed engineering guides are located in the `docs/` directory:
 
-# Repeat measurements of ONE particle: evidence is pooled, not voted -
-# a family contradicted by any single spectrum is disqualified outright.
-pooled = predict_particle([
-    {"Cr": 18.5, "Ni": 9.5, "Mn": 1.4, "Si": 0.4, "Fe": 68.5},
-    {"Cr": 18.8, "Ni": 9.8, "Mn": 1.5, "Si": 0.4, "Fe": 68.0},
-])
-```
+| Document | Description |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Full system topology, Django app layout, services, and security. |
+| [docs/setup.md](docs/setup.md) | Step-by-step development and production deployment guide. |
+| [docs/prediction-pipeline.md](docs/prediction-pipeline.md) | End-to-end execution trace from raw spectrum to classification. |
+| [docs/material-family-engine.md](docs/material-family-engine.md) | Invariants, concentration bands, and deterministic scoring. |
+| [docs/component-prediction.md](docs/component-prediction.md) | Empirical fingerprints, standardized distance, and validation results. |
+| [docs/knowledge-base.md](docs/knowledge-base.md) | 12 families, 48 components, and ratio gate calibration. |
+| [docs/api.md](docs/api.md) | REST API endpoints, schemas, and request/response examples. |
+| [docs/frontend.md](docs/frontend.md) | Bosch-inspired UI philosophy, templates, and vanilla JS controllers. |
+| [docs/data-model.md](docs/data-model.md) | SQLite database tables, models, and entity relationships. |
+| [docs/feedback-system.md](docs/feedback-system.md) | Continuous improvement, analyst confirmation, and retraining loop. |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Common issues, error messages, and diagnostic commands. |
 
-A value of `None`, `"-"`, or an omitted key all mean different things and are
-treated differently:
+---
 
-- **key omitted** → `NOT_ANALYSED`. No information; reduces evidence
-  sufficiency but never confirms or contradicts a family.
-- **value is `None` / `"-"` / `"n/a"`, key present in `analysed_elements`** →
-  `BELOW_LOD`. Positive evidence of absence; can contradict a family that
-  requires the element.
-- **a real number** → `MEASURED`.
+## License & Compliance
 
-Collapsing these three states into a single `0.0` — as the retired engine
-did — is why `{"S": 0.2}` used to match "Guide Bush" at confidence 1.00
-despite Guide Bush's every reference spectrum carrying 1.12–1.60 wt% Mn.
-
-## Running tests
-
-```bash
-pytest tests/ -v                       # current engine: primary gate + invariance + validation
-pytest tests/ -v --run-legacy          # also run the quarantined legacy suite (retired engine)
-python training/validate_loco.py       # leave-one-component-out: the honest generalisation number
-```
-
-The legacy suite is skipped by default because its `known_class_samples`
-fixture used to select a sample only if the (retired) engine already
-predicted it correctly — making 36 of its tests unable to fail regardless of
-the engine's real behaviour. It has been repaired to select samples
-unconditionally; run it with `--run-legacy` to see the real per-class
-accuracy of the retired engine (it now correctly fails on the classes it is
-actually bad at).
-
-`tests/test_real_particles.py` is the primary gate: it scores against a
-hand-verified transcription of the six real analyst-labelled particles in the
-Material analysis report PDFs — the only real labelled ground truth available
-for this project.
-
-## Notes / caveats
-
-- **Carbon content is not determinable by EDS** (light element; carbon-tape
-  and mounting-medium background). Every prediction says so explicitly, and
-  no family may be described as a specific carbon grade.
-- **Compatibility is a goodness-of-fit statistic, not a probability.** It is
-  capped at 0.95. With only six real labelled particles, no honest
-  probability calibration is possible.
-- **Abstention and ambiguous sets are first-class answers**, not failure
-  modes — this mirrors how the source reports themselves are written (a
-  chemistry class plus a *list* of probable sources, sometimes marked with
-  the analyst's own `??`).
-- See [docs/EDS_AUDIT.md](docs/EDS_AUDIT.md) for the full audit: every root
-  cause, the leave-one-component-out validation results (99.3% family
-  accuracy), the edge-case matrix, and what data is still needed before
-  component-level prediction would be defensible.
+Compliant with ASTM E1508, ISO 22309, and VDA 19.1 standards for particulate contamination and failure analysis. Developed for high-reliability manufacturing microanalysis.

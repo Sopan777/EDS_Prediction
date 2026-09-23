@@ -1,409 +1,383 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Spectral Lab - MaterialID v2.4{% endblock %}</title>
+  <title>{% block title %}DHATU BODH — EDS Material Intelligence{% endblock %}</title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
-  <!-- Compiled Tailwind CSS -->
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
 
-  <script>
-    // Immediate Theme Initialization
-    if (localStorage.getItem('spectral_theme') === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      document.documentElement.classList.add('dark');
-    }
-  </script>
-
   <style>
+    :root {
+      --bosch-red: #ED0007;
+      --bosch-red-dark: #C90006;
+      --bosch-charcoal: #111827;
+      --bosch-slate: #1E293B;
+      --bosch-muted: #64748B;
+      --bosch-border: #E2E8F0;
+      --bosch-surface: #F8FAFC;
+      --bosch-white: #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bosch-surface);
+      color: var(--bosch-charcoal);
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
     .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
       display: inline-block;
       vertical-align: middle;
       line-height: 1;
     }
-    .material-symbols-outlined.fill {
-      font-variation-settings: 'FILL' 1;
+
+    /* Multi-color Bosch top ribbon gradient */
+    .top-spectrum-ribbon {
+      height: 6px;
+      width: 100%;
+      background: linear-gradient(90deg, #005691 0%, #0098a6 20%, #7b2b82 40%, #ED0007 60%, #ed6b00 80%, #ffc000 100%);
     }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* Active navigation item styling with left red accent */
+    .nav-item-active {
+      background-color: #FFF1F2;
+      color: #ED0007;
+      border-left: 4px solid #ED0007;
+      font-weight: 600;
     }
-    .font-display {
-      font-family: 'Hanken Grotesk', 'Inter', sans-serif;
+
+    .nav-item-inactive {
+      color: #334155;
+      border-left: 4px solid transparent;
+      font-weight: 500;
+      transition: all 0.15s ease-in-out;
     }
-    .font-mono-code {
-      font-family: 'JetBrains Mono', monospace;
+
+    .nav-item-inactive:hover {
+      background-color: #F1F5F9;
+      color: #0F172A;
     }
-    /* Custom Scrollbar */
+
+    /* Primary Bosch Red buttons */
+    .btn-bosch-primary {
+      background-color: var(--bosch-red);
+      color: #FFFFFF;
+      font-weight: 600;
+      transition: background-color 0.15s ease-in-out;
+    }
+    .btn-bosch-primary:hover {
+      background-color: var(--bosch-red-dark);
+    }
+
+    /* Clean subtle outline buttons */
+    .btn-bosch-secondary {
+      background-color: #FFFFFF;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
+      font-weight: 500;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-bosch-secondary:hover {
+      background-color: #F8FAFC;
+      border-color: #94A3B8;
+    }
+
+    /* Clean scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: transparent;
+      background: #F1F5F9;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(131, 149, 141, 0.3);
-      border-radius: 4px;
+      background: #CBD5E1;
+      border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(131, 149, 141, 0.6);
+      background: #94A3B8;
     }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen flex transition-colors duration-200 bg-[#f7f9fb] text-[#191c1e] dark:bg-[#0c1512] dark:text-[#dbe5df]">
+<body class="min-h-screen flex flex-col bg-[#F8FAFC]">
 
-  <!-- CSRF Token Meta for Fetch -->
-  {% csrf_token %}
+  <!-- 1. TOP SPECTRUM RIBBON -->
+  <div class="top-spectrum-ribbon shrink-0"></div>
 
-  <!-- ========================================================================= -->
-  <!-- SIDE NAVIGATION BAR (280px FIXED)                                         -->
-  <!-- ========================================================================= -->
-  <aside id="side-navbar" class="fixed left-0 top-0 h-full w-[280px] z-50 flex flex-col py-6 shadow-xl transition-colors duration-200 bg-[#2c3c51] text-white dark:bg-[#1a2420] dark:text-[#dbe5df] dark:border-r dark:border-[#3a4a44]">
-    <!-- Brand Header -->
-    <div class="px-6 mb-8">
-      <a href="{% url 'analyzer_page' %}" class="flex items-center gap-3.5 group">
-        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all bg-[#26fedc] text-[#007261] dark:bg-[#00ffcc] dark:text-[#00382b] group-hover:scale-105 shadow-sm">
-          <span class="material-symbols-outlined fill text-[22px]">science</span>
-        </div>
-        <div>
-          <h1 class="font-display text-[20px] font-bold leading-tight text-white tracking-tight">
-            MaterialID
-          </h1>
-          <p class="text-[11px] font-semibold tracking-wider uppercase text-[#b6c6e0] dark:text-[#b9cbc2]">
-            Spectral Lab v2.4
+  <!-- 2. TOP APPLICATION HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shrink-0 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+    <!-- Utility Links Row (Upper right) -->
+    <div class="border-b border-slate-100 px-6 py-1.5 flex items-center justify-end text-[11px] font-medium text-slate-500 gap-6">
+      <a href="#" class="hover:text-slate-800 transition-colors">Bosch in India</a>
+      <span class="text-slate-300">|</span>
+      <a href="#" class="hover:text-slate-800 transition-colors">Careers</a>
+      <span class="text-slate-300">|</span>
+      <a href="#" class="hover:text-slate-800 transition-colors">Contact us</a>
+      <span class="text-slate-300">|</span>
+      <div class="flex items-center gap-1 cursor-pointer hover:text-slate-800">
+        <span>EN</span>
+        <span class="material-symbols-outlined text-[13px]">expand_more</span>
+      </div>
+    </div>
+
+    <!-- Main Header Row -->
+    <div class="px-6 py-3.5 flex items-center justify-between gap-4">
+      <!-- Left: Logo & Wordmark -->
+      <div class="flex items-center gap-4">
+        <a href="{% url 'home' %}" class="flex items-center gap-3 group">
+          <!-- Circular Armature / Precision Logo Mark -->
+          <div class="w-10 h-10 rounded-full border-2 border-slate-900 flex items-center justify-center p-1 bg-white group-hover:border-[#ED0007] transition-colors shrink-0">
+            <svg viewBox="0 0 40 40" class="w-full h-full text-slate-900 group-hover:text-[#ED0007] transition-colors" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="20" cy="20" r="16" />
+              <circle cx="20" cy="20" r="7" stroke-width="2" />
+              <line x1="20" y1="4" x2="20" y2="13" />
+              <line x1="20" y1="27" x2="20" y2="36" />
+              <line x1="4" y1="20" x2="13" y2="20" />
+              <line x1="27" y1="20" x2="36" y2="20" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-1.5 leading-none">
+              <span class="font-extrabold text-[20px] tracking-tight text-slate-900">DHATU</span>
+              <span class="font-extrabold text-[20px] tracking-tight text-[#ED0007]">BODH</span>
+            </div>
+            <div class="text-[9.5px] font-bold tracking-[0.18em] uppercase text-slate-500 mt-1">
+              EDS MATERIAL INTELLIGENCE
+            </div>
+          </div>
+        </a>
+
+        <!-- Center / Supporting Slogan -->
+        <div class="hidden lg:block pl-6 border-l border-slate-200">
+          <p class="text-xs text-slate-500 font-medium">
+            Understanding Materials. Enabling Reliability.
           </p>
         </div>
-      </a>
-
-      <!-- New Analysis CTA -->
-      <button id="btn-sidebar-new-analysis" onclick="openNewAnalysisModal()" class="mt-6 w-full py-2.5 px-4 rounded-lg font-medium text-[14px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-[#006b5b] hover:bg-[#134231] text-white dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd] dark:font-semibold">
-        <span class="material-symbols-outlined text-[18px]">add</span>
-        New Analysis
-      </button>
-    </div>
-
-    <!-- Primary Navigation Items -->
-    <nav class="flex-1 px-3 space-y-1.5 overflow-y-auto">
-      <!-- Analyzer -->
-      <a id="nav-item-analyzer" href="{% url 'analyzer_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'analyzer' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
-        <span class="material-symbols-outlined text-[20px] {% if current_section == 'analyzer' %}fill{% endif %}">science</span>
-        <span class="text-[14px]">Analyzer</span>
-      </a>
-
-      <!-- History -->
-      <a id="nav-item-history" href="{% url 'history_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'history' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
-        <span class="material-symbols-outlined text-[20px] {% if current_section == 'history' %}fill{% endif %}">history</span>
-        <span class="text-[14px]">History</span>
-      </a>
-
-      <!-- Knowledge Base -->
-      <a id="nav-item-knowledge" href="{% url 'knowledge_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'knowledge' or current_section == 'gate-editor' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
-        <span class="material-symbols-outlined text-[20px] {% if current_section == 'knowledge' or current_section == 'gate-editor' %}fill{% endif %}">menu_book</span>
-        <span class="text-[14px]">Knowledge Base</span>
-      </a>
-
-      <!-- Settings / Personnel -->
-      <a id="nav-item-settings" href="{% url 'settings_page' %}" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all {% if current_section == 'settings' %}bg-[#26fedc] text-[#007261] dark:bg-[#414b47] dark:text-[#00ffcc] font-semibold scale-[0.98]{% else %}text-[#b6c6e0] hover:bg-[#435369] hover:text-white dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white{% endif %}">
-        <span class="material-symbols-outlined text-[20px] {% if current_section == 'settings' %}fill{% endif %}">settings</span>
-        <span class="text-[14px]">Settings</span>
-      </a>
-    </nav>
-
-    <!-- Footer info & user card -->
-    <div class="mt-auto px-4 pt-4 mx-3 border-t border-[#435369] dark:border-[#2e3733]">
-      <div class="space-y-1 mb-4">
-        <div class="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-[#b6c6e0] dark:text-[#b9cbc2]">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="material-symbols-outlined text-[16px]">check_circle</span>
-          <span>System: Online</span>
-        </div>
-        <a href="#docs" onclick="alert('Spectral Lab documentation & ASTM E1508 / ISO 22309 standards loaded.'); return false;" class="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider text-[#b6c6e0] hover:text-white hover:bg-[#435369] dark:text-[#b9cbc2] dark:hover:text-white dark:hover:bg-[#232c28] transition-colors">
-          <span class="material-symbols-outlined text-[16px]">help</span>
-          <span>Documentation</span>
-        </a>
       </div>
 
-      <!-- User Profile avatar -->
-      <a href="{% url 'settings_page' %}" class="flex items-center gap-2.5 p-1.5 rounded-lg cursor-pointer transition-colors hover:bg-[#435369] dark:hover:bg-[#232c28]" title="Logged in as Lead Metallurgist">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 font-bold text-[12px] border border-emerald-400 shrink-0">
-          <span class="material-symbols-outlined text-[18px]">person</span>
+      <!-- Right: Utility Actions & Engineering Slogan -->
+      <div class="flex items-center gap-5">
+        <!-- Utility Action Icons -->
+        <div class="flex items-center gap-2 text-slate-600">
+          <button type="button" onclick="triggerGlobalSearch()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-700" title="Search Knowledge Base">
+            <span class="material-symbols-outlined text-[19px]">search</span>
+          </button>
+          
+          <div class="relative">
+            <button type="button" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-700" title="Notifications">
+              <span class="material-symbols-outlined text-[19px]">notifications</span>
+              <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#ED0007]"></span>
+            </button>
+          </div>
+
+          <a href="{% url 'settings_page' %}" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-700" title="System Settings">
+            <span class="material-symbols-outlined text-[19px]">settings</span>
+          </a>
+
+          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 ml-1">
+            <span class="material-symbols-outlined text-[20px]">person</span>
+          </div>
         </div>
-        <div class="min-w-0 flex-1">
-          <p class="text-[13px] font-medium text-white truncate">Dr. Marcus Vance</p>
-          <p class="text-[10px] uppercase font-bold tracking-wider truncate text-[#26fedc] dark:text-[#00ffcc]">
-            Snr. Metallurgist
-          </p>
+
+        <!-- Vertical Divider -->
+        <div class="hidden sm:block h-8 w-[1px] bg-slate-200"></div>
+
+        <!-- Far Right: Engineering Statement with Red Vertical Bar -->
+        <div class="hidden sm:flex items-center gap-3 text-right">
+          <div class="leading-tight">
+            <span class="block text-[10px] font-bold tracking-wider uppercase text-slate-700">ENGINEERING</span>
+            <span class="block text-[10px] font-bold tracking-wider uppercase text-slate-500">FOR A BETTER</span>
+            <span class="block text-[10px] font-bold tracking-wider uppercase text-slate-500">TOMORROW</span>
+          </div>
+          <div class="w-1 h-8 bg-[#ED0007] rounded-full shrink-0"></div>
         </div>
-      </a>
-    </div>
-  </aside>
-
-  <!-- ========================================================================= -->
-  <!-- TOP NAVIGATION BAR (64px FIXED)                                           -->
-  <!-- ========================================================================= -->
-  <header id="top-navbar" class="fixed top-0 left-[280px] right-0 h-16 px-6 z-40 flex items-center justify-between border-b transition-colors duration-200 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
-    <!-- Left: Title or Back breadcrumb -->
-    <div class="flex items-center gap-6 h-full">
-      {% if current_section == 'gate-editor' %}
-        <a id="btn-back-to-knowledge" href="{% url 'knowledge_page' %}" class="flex items-center gap-1.5 font-semibold text-[14px] transition-colors text-[#134231] hover:text-[#006b5b] dark:text-[#00ffcc] dark:hover:underline">
-          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-          <span>Back</span>
-          <span class="opacity-40 ml-1">/</span>
-          <span class="ml-1 text-[13px] opacity-75">Particle Identification System</span>
-        </a>
-      {% else %}
-        <span class="font-semibold text-[15px] tracking-tight text-[#134231] dark:text-white">
-          Particle Identification System
-        </span>
-      {% endif %}
-
-      <!-- Sub Navigation Links -->
-      <div class="hidden md:flex h-full items-center gap-4 ml-4">
-        <a id="top-tab-dashboard" href="{% url 'analyzer_page' %}" class="h-full flex items-center px-2 text-[14px] transition-all border-b-2 {% if top_tab == 'dashboard' and current_section == 'analyzer' %}border-[#134231] text-[#134231] dark:border-[#00ffcc] dark:text-[#00ffcc] font-bold{% else %}border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white{% endif %}">
-          Dashboard
-        </a>
-        <button id="top-tab-reports" onclick="openExportModal()" class="h-full flex items-center px-2 text-[14px] transition-all border-b-2 border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white">
-          Reports
-        </button>
-        <a id="top-tab-archive" href="{% url 'history_page' %}" class="h-full flex items-center px-2 text-[14px] transition-all border-b-2 {% if top_tab == 'archive' or current_section == 'history' %}border-[#134231] text-[#134231] dark:border-[#00ffcc] dark:text-[#00ffcc] font-bold{% else %}border-transparent text-[#717974] hover:text-[#191c1e] dark:hover:text-white{% endif %}">
-          Archive
-        </a>
       </div>
-    </div>
-
-    <!-- Right Actions -->
-    <div class="flex items-center gap-3">
-      <!-- Search Box -->
-      <div class="relative">
-        <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-[#717974] dark:text-[#83958d]">
-          search
-        </span>
-        <input id="global-search-input" type="text" placeholder="Search data, grades, components..." class="pl-8 pr-4 py-1.5 text-[13px] rounded-full border transition-all w-56 focus:w-64 focus:outline-none bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] focus:border-[#134231] focus:ring-1 focus:ring-[#134231] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-[#dbe5df] dark:focus:border-[#00ffcc] dark:focus:ring-1 dark:focus:ring-[#00ffcc]">
-      </div>
-
-      <!-- Theme Toggle Button -->
-      <button id="btn-toggle-theme" onclick="toggleTheme()" title="Toggle Dark/Light Mode" class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-[#2c3c51] hover:bg-[#e0e3e5] dark:text-[#00ffcc] dark:hover:bg-[#232c28]">
-        <span id="theme-icon" class="material-symbols-outlined text-[19px]">light_mode</span>
-      </button>
-
-      <!-- Support -->
-      <button id="btn-support" onclick="alert('Support Helpdesk: Particle Identification System v2.4 (Spectral Lab).\nDirect line: ext-4029 (Metallurgy Lab).')" class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full transition-colors text-[#414944] hover:bg-[#eceef0] hover:text-[#191c1e] dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white">
-        Support
-      </button>
-
-      <!-- Export Data -->
-      <button id="btn-topbar-export" onclick="openExportModal()" class="text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full transition-all shadow-sm bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
-        Export Data
-      </button>
-
-      <div class="h-6 w-px mx-1 bg-[#c0c8c2] dark:bg-[#3a4a44]"></div>
-
-      <!-- Notifications -->
-      <button id="btn-notifications" onclick="alert('3 Notifications:\n• ASTM E1508 calibration passed at 08:30:00\n• 1 new particle scan added\n• 16 changes recorded in system audit log')" class="relative w-8 h-8 flex items-center justify-center rounded-full transition-colors text-[#414944] hover:bg-[#eceef0] hover:text-[#191c1e] dark:text-[#b9cbc2] dark:hover:bg-[#232c28] dark:hover:text-white">
-        <span class="material-symbols-outlined text-[20px]">notifications</span>
-        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500"></span>
-      </button>
-
-      <!-- Top user avatar -->
-      <a id="btn-topbar-avatar" href="{% url 'settings_page' %}" class="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:ring-2 hover:ring-emerald-400 transition-all shrink-0" title="User Settings & Role Management">
-        <span class="material-symbols-outlined text-[20px]">account_circle</span>
-      </a>
     </div>
   </header>
 
-  <!-- ========================================================================= -->
-  <!-- MAIN CONTENT CONTAINER                                                    -->
-  <!-- ========================================================================= -->
-  <main id="main-content-viewport" class="ml-[280px] mt-16 flex-1 p-6 overflow-hidden h-[calc(100vh-64px)]">
-    {% block content %}{% endblock %}
-  </main>
+  <!-- 3. MAIN WORKSPACE WITH LEFT NAVIGATION -->
+  <div class="flex-1 flex min-h-0">
+    
+    <!-- LEFT SIDEBAR NAVIGATION (Width: 230px, Light Neutral, Sticky) -->
+    <aside class="w-[230px] bg-white border-r border-slate-200 shrink-0 hidden md:flex flex-col justify-between py-4">
+      <!-- Primary Nav Items -->
+      <nav class="space-y-1">
+        <a href="{% url 'home' %}" class="flex items-center gap-3 px-4 py-3 text-xs tracking-wide {% if current_section == 'dashboard' %}nav-item-active{% else %}nav-item-inactive{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">home</span>
+          <span>Dashboard</span>
+        </a>
 
-  <!-- ========================================================================= -->
-  <!-- GLOBAL MODALS                                                             -->
-  <!-- ========================================================================= -->
+        <a href="{% url 'analyzer_page' %}" class="flex items-center gap-3 px-4 py-3 text-xs tracking-wide {% if current_section == 'analyzer' %}nav-item-active{% else %}nav-item-inactive{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">document_scanner</span>
+          <span>Analyze EDS</span>
+        </a>
 
-  <!-- 1. Candidate Component Spec Modal -->
-  <div id="component-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
-      <div class="flex justify-between items-start mb-4 pb-3 border-b border-inherit">
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span id="modal-comp-partno" class="px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#f2f4f6] text-[#134231] dark:bg-[#151d1a] dark:text-[#00ffcc]">
-              BOSCH-EDS-0001
-            </span>
-            <span id="modal-comp-category" class="text-[12px] opacity-60">• Fuel Injector Assembly</span>
+        <a href="{% url 'history_page' %}" class="flex items-center gap-3 px-4 py-3 text-xs tracking-wide {% if current_section == 'history' %}nav-item-active{% else %}nav-item-inactive{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">schedule</span>
+          <span>History</span>
+        </a>
+
+        <a href="{% url 'knowledge_page' %}" class="flex items-center gap-3 px-4 py-3 text-xs tracking-wide {% if current_section == 'knowledge' or current_section == 'gate-editor' %}nav-item-active{% else %}nav-item-inactive{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">database</span>
+          <span>Knowledge Base</span>
+        </a>
+
+        <a href="{% url 'reports_page' %}" class="flex items-center gap-3 px-4 py-3 text-xs tracking-wide {% if current_section == 'reports' %}nav-item-active{% else %}nav-item-inactive{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">description</span>
+          <span>Reports</span>
+        </a>
+
+        <a href="{% url 'settings_page' %}" class="flex items-center gap-3 px-4 py-3 text-xs tracking-wide {% if current_section == 'settings' %}nav-item-active{% else %}nav-item-inactive{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">settings</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer / Version Info -->
+      <div class="px-5 pt-4 border-t border-slate-100 text-[11px] text-slate-400 leading-relaxed font-sans">
+        <div class="w-4 h-[2px] bg-slate-300 mb-2"></div>
+        <div>Version 1.0.0</div>
+        <div>&copy; 2024 Dhatu Bodh</div>
+        <div>All rights reserved.</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT CANVAS (Single Natural Page Scroll) -->
+    <div class="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]">
+      <!-- Mobile Navigation Sub-Bar (Screens < 768px) -->
+      <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-around text-xs font-semibold text-slate-600 overflow-x-auto">
+        <a href="{% url 'home' %}" class="py-1 px-2 {% if current_section == 'dashboard' %}text-[#ED0007] border-b-2 border-[#ED0007]{% endif %}">Dashboard</a>
+        <a href="{% url 'analyzer_page' %}" class="py-1 px-2 {% if current_section == 'analyzer' %}text-[#ED0007] border-b-2 border-[#ED0007]{% endif %}">Analyze</a>
+        <a href="{% url 'history_page' %}" class="py-1 px-2 {% if current_section == 'history' %}text-[#ED0007] border-b-2 border-[#ED0007]{% endif %}">History</a>
+        <a href="{% url 'knowledge_page' %}" class="py-1 px-2 {% if current_section == 'knowledge' %}text-[#ED0007] border-b-2 border-[#ED0007]{% endif %}">Knowledge</a>
+        <a href="{% url 'reports_page' %}" class="py-1 px-2 {% if current_section == 'reports' %}text-[#ED0007] border-b-2 border-[#ED0007]{% endif %}">Reports</a>
+        <a href="{% url 'settings_page' %}" class="py-1 px-2 {% if current_section == 'settings' %}text-[#ED0007] border-b-2 border-[#ED0007]{% endif %}">Settings</a>
+      </div>
+
+      <!-- Main Body Content Block -->
+      <main class="flex-1 p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+        {% block content %}{% endblock %}
+      </main>
+
+      <!-- 4. GLOBAL ENGINEERING FOOTER -->
+      <footer class="bg-white border-t border-slate-200 mt-auto shrink-0">
+        <!-- Top Banner Row with Facility Image -->
+        <div class="relative overflow-hidden bg-gradient-to-r from-slate-50 via-white to-transparent border-b border-slate-100">
+          <div class="max-w-[1400px] mx-auto px-6 lg:px-8 py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div class="space-y-2 max-w-lg">
+              <div class="w-6 h-1 bg-[#ED0007] rounded-full"></div>
+              <h3 class="text-xl font-bold text-slate-900 tracking-tight">Engineering for a better tomorrow</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Accurate material identification. Reliable components. A more sustainable future.
+              </p>
+            </div>
+
+            <!-- Right Architectural Accent Graphic -->
+            <div class="hidden md:flex items-center gap-4 opacity-90 pr-4">
+              <div class="h-20 w-72 rounded-lg overflow-hidden border border-slate-200 shadow-xs relative">
+                <img src="{% static 'images/footer_facility.jpg' %}" alt="Industrial Engineering Center" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent"></div>
+              </div>
+            </div>
           </div>
-          <h3 id="modal-comp-name" class="font-display text-[22px] font-bold">Component Name</h3>
         </div>
-        <button onclick="closeComponentModal()" class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white">
-          <span class="material-symbols-outlined">close</span>
+
+        <!-- Bottom Legal Links Row -->
+        <div class="max-w-[1400px] mx-auto px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
+          <div class="flex items-center gap-4">
+            <a href="#" class="hover:text-slate-800 transition-colors">Privacy</a>
+            <span class="text-slate-300">|</span>
+            <a href="#" class="hover:text-slate-800 transition-colors">Terms of Use</a>
+            <span class="text-slate-300">|</span>
+            <a href="#" class="hover:text-slate-800 transition-colors">Support</a>
+          </div>
+          <div class="font-medium text-slate-600">
+            A Bosch Inspired Initiative &bull; Industrial EDS Intelligence
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Reusable App Modal Dialog -->
+  <div id="app-modal-backdrop" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="w-full max-w-xl bg-white rounded-lg border border-slate-300 shadow-2xl p-6 text-slate-900 space-y-4">
+      <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h3 id="app-modal-title" class="text-base font-bold text-slate-900">Modal Title</h3>
+          <p id="app-modal-subtitle" class="text-xs text-slate-500 mt-0.5">Modal Subtitle</p>
+        </div>
+        <button type="button" onclick="closeAppModal()" class="text-slate-400 hover:text-slate-700 p-1">
+          <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
       </div>
 
-      <div class="space-y-4 text-[13px]">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
-            <span class="text-[11px] font-bold uppercase tracking-wider block mb-1 opacity-60">Nominal Metallurgy</span>
-            <span id="modal-comp-alloy" class="font-semibold">AISI 304 / 1.4301</span>
-          </div>
-          <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
-            <span class="text-[11px] font-bold uppercase tracking-wider block mb-1 opacity-60">Cross-Match Confidence</span>
-            <span id="modal-comp-conf" class="font-mono-code font-bold text-emerald-500 text-[15px]">95%</span>
-          </div>
-        </div>
-
-        <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
-          <h4 class="text-[11px] font-bold uppercase tracking-wider mb-1.5 opacity-60">Laboratory Engineering Notes</h4>
-          <p id="modal-comp-notes" class="leading-relaxed">
-            High-friction contact face subject to cyclical fatigue wear. Particulate debris routinely correlates with standard austenitic stainless steel signatures.
-          </p>
-        </div>
-
-        <div class="flex items-center justify-between py-2 border-t border-inherit text-[12px]">
-          <span class="opacity-70">ASTM Standard Ref: E1508 / E2142</span>
-          <span class="font-mono-code">Spectral Library v2.4 Verified</span>
-        </div>
+      <div id="app-modal-body" class="text-xs text-slate-700 leading-relaxed">
+        <!-- Body Content -->
       </div>
 
-      <div class="mt-6 flex justify-end gap-2">
-        <button onclick="closeComponentModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
+      <div id="app-modal-actions" class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+        <button type="button" onclick="closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded border border-slate-300 text-slate-700 bg-white hover:bg-slate-50">
           Close
         </button>
-        <button onclick="alert('Exporting CAD specs and metallurgical certificate...'); closeComponentModal();" class="px-4 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700">
-          Export Spec Sheet
-        </button>
       </div>
     </div>
   </div>
 
-  <!-- 2. Export Modal -->
-  <div id="export-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
-      <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[22px] text-emerald-500">download</span>
-          <h3 class="font-display text-[20px] font-bold">Export Laboratory Data</h3>
-        </div>
-        <button onclick="closeExportModal()" class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <div class="space-y-4 text-[13px]">
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider mb-2 opacity-70">Select Export Format</label>
-          <div class="grid grid-cols-3 gap-2.5">
-            <button type="button" onclick="setExportFormat('pdf')" id="export-fmt-pdf" class="p-3 rounded-lg border text-center transition-all bg-[#f2f4f6] border-[#134231] text-[#134231] font-bold dark:bg-[#151d1a] dark:border-[#00ffcc] dark:text-[#00ffcc]">
-              <span class="material-symbols-outlined text-[22px] block mb-1">picture_as_pdf</span>
-              PDF Report
-            </button>
-            <button type="button" onclick="setExportFormat('csv')" id="export-fmt-csv" class="p-3 rounded-lg border text-center transition-all border-gray-300 dark:border-[#3a4a44] hover:border-emerald-500">
-              <span class="material-symbols-outlined text-[22px] block mb-1">table_view</span>
-              CSV Data
-            </button>
-            <button type="button" onclick="setExportFormat('json')" id="export-fmt-json" class="p-3 rounded-lg border text-center transition-all border-gray-300 dark:border-[#3a4a44] hover:border-emerald-500">
-              <span class="material-symbols-outlined text-[22px] block mb-1">code</span>
-              JSON Model
-            </button>
-          </div>
-        </div>
-
-        <div class="space-y-2 border-t border-inherit pt-3">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" id="export-include-audit" checked class="rounded border-gray-400 text-emerald-500 focus:ring-emerald-500">
-            <span>Include traceability and system audit logs</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" id="export-include-raw" checked class="rounded border-gray-400 text-emerald-500 focus:ring-emerald-500">
-            <span>Include raw spectral intensity wt% measurements</span>
-          </label>
-        </div>
-
-        <div class="p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[12px]">
-          <span class="block font-semibold">Laboratory Certification</span>
-          <span class="opacity-75 block mt-0.5">Compliant with ISO/IEC 17025 microstructural characterization standards.</span>
-        </div>
-      </div>
-
-      <div class="mt-6 flex justify-end gap-2">
-        <button onclick="closeExportModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
-          Cancel
-        </button>
-        <button onclick="executeExportDownload()" class="px-5 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-[17px]">download</span>
-          Download Export
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. New Analysis Modal -->
-  <div id="new-analysis-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-xl border shadow-2xl p-6 transition-colors bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
-      <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[22px] text-emerald-500">biotech</span>
-          <h3 class="font-display text-[20px] font-bold">Initialize New Particle Scan</h3>
-        </div>
-        <button onclick="closeNewAnalysisModal()" class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-white">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <form id="form-new-analysis" onsubmit="handleStartNewSession(event)" class="space-y-4 text-[13px]">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Sample / Particle ID</label>
-            <input type="text" id="modal-particle-id" required class="w-full border rounded p-2 font-mono-code bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Spectrometer Source</label>
-            <select id="modal-spectrometer-source" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-              <option value="Oxford Instruments Aztec (20 kV)">Oxford Instruments Aztec (20 kV)</option>
-              <option value="Thermo Fisher Phenom XL">Thermo Fisher Phenom XL</option>
-              <option value="Bruker ESPRIT EDS">Bruker ESPRIT EDS</option>
-              <option value="JEOL JSM-IT800">JEOL JSM-IT800</option>
-              <option value="Zeiss EVO 15 MA">Zeiss EVO 15 MA</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Sample Context / Sampling Location</label>
-          <input type="text" id="modal-sample-desc" placeholder="e.g. Filter basket wear particle, scavenge oil return..." class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-        </div>
-
-        <div class="flex items-center justify-between p-3 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44]">
-          <span class="text-[12px] opacity-80">ASTM E1508 calibration baseline active</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Calibrated</span>
-        </div>
-
-        <div class="mt-6 flex justify-end gap-2">
-          <button type="button" onclick="closeNewAnalysisModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
-            Cancel
+  <!-- Global Modal JS API -->
+  <script>
+    function openAppModal({ title, subtitle = '', contentHtml, actionsHtml = '' }) {
+      document.getElementById('app-modal-title').textContent = title;
+      document.getElementById('app-modal-subtitle').textContent = subtitle;
+      document.getElementById('app-modal-body').innerHTML = contentHtml;
+      if (actionsHtml) {
+        document.getElementById('app-modal-actions').innerHTML = actionsHtml;
+      } else {
+        document.getElementById('app-modal-actions').innerHTML = `
+          <button type="button" onclick="closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-slate-900 text-white hover:bg-slate-800">
+            Close
           </button>
-          <button type="submit" class="px-5 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-[17px]">play_arrow</span>
-            Start Analysis Session
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+        `;
+      }
+      document.getElementById('app-modal-backdrop').classList.remove('hidden');
+    }
 
-  <!-- Global JS -->
-  <script src="{% static 'js/main.js' %}"></script>
+    function closeAppModal() {
+      document.getElementById('app-modal-backdrop').classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAppModal();
+    });
+
+    function getCSRFToken() {
+      const match = document.cookie.match(/csrftoken=([^;]+)/);
+      return match ? match[1] : '';
+    }
+
+    function triggerGlobalSearch() {
+      window.location.href = "{% url 'knowledge_page' %}";
+    }
+  </script>
+
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

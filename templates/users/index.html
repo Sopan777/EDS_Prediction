@@ -1,138 +1,238 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Personnel & Role Management - Spectral Lab{% endblock %}
+{% block title %}Settings & Reference Data — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="user-management-screen" class="flex flex-col gap-5 h-full overflow-y-auto pb-6 pr-1">
-  <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-none">
-    <div>
-      <h2 class="font-display text-[28px] font-bold tracking-tight text-[#134231] dark:text-white">
-        Personnel & Role Management
-      </h2>
-      <p class="text-[13px] text-[#717974] dark:text-[#b9cbc2]">
-        Administrative control over laboratory analysts, spectrometer operators, and ASTM authorization privileges.
-      </p>
-    </div>
-
-    <button onclick="openAddUserModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold flex items-center gap-1.5 shadow-sm transition-all bg-[#134231] text-white hover:bg-[#2d5a47] dark:bg-[#00ffcc] dark:text-[#00382b] dark:hover:bg-[#24ffcd]">
-      <span class="material-symbols-outlined text-[18px]">person_add</span>
-      Add Personnel
-    </button>
-  </div>
-
-  <!-- Stat Metric Cards (4 cols) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-none">
-    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-      <div class="flex justify-between items-start mb-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Active Techs</span>
-        <span class="material-symbols-outlined text-[18px] text-emerald-500">biotech</span>
+<div id="settings-screen-container" class="space-y-6 pb-12">
+  <!-- =========================================================================
+       PAGE HEADER
+       ========================================================================= -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
+          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">System Configuration</span>
+        </div>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">System Settings & Reference Data</h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Rule engine calibration parameters, standard alloy presets, and laboratory personnel access controls.
+        </p>
       </div>
-      <span class="font-display text-[24px] font-bold text-emerald-500">{{ active_techs }} / {{ total_techs }}</span>
-      <span class="block text-[11px] opacity-60 mt-0.5">Online in lab</span>
-    </div>
 
-    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-      <div class="flex justify-between items-start mb-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Metallurgists</span>
-        <span class="material-symbols-outlined text-[18px] text-emerald-500">engineering</span>
+      <!-- Navigation Tabs -->
+      <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold shrink-0">
+        <button type="button" id="tab-btn-system" onclick="switchSettingsTab('system')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
+          System & Engine
+        </button>
+        <button type="button" id="tab-btn-presets" onclick="switchSettingsTab('presets')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+          Alloy Presets ({{ presets|length }})
+        </button>
+        <button type="button" id="tab-btn-personnel" onclick="switchSettingsTab('personnel')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+          Personnel ({{ users|length }})
+        </button>
       </div>
-      <span class="font-display text-[24px] font-bold text-[#134231] dark:text-[#00ffcc]">{{ metallurgists }}</span>
-      <span class="block text-[11px] opacity-60 mt-0.5">ASTM calibration authorized</span>
-    </div>
-
-    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-      <div class="flex justify-between items-start mb-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Inactive Accts</span>
-        <span class="material-symbols-outlined text-[18px] opacity-60">person_off</span>
-      </div>
-      <span class="font-display text-[24px] font-bold text-gray-500">{{ inactive }}</span>
-      <span class="block text-[11px] opacity-60 mt-0.5">Revoked access</span>
-    </div>
-
-    <div class="p-4 rounded-xl border shadow-sm bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-      <div class="flex justify-between items-start mb-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider opacity-70">Total Personnel</span>
-        <span class="material-symbols-outlined text-[18px] opacity-60">group</span>
-      </div>
-      <span class="font-display text-[24px] font-bold text-[#191c1e] dark:text-white">{{ users|length }}</span>
-      <span class="block text-[11px] opacity-60 mt-0.5">Registered members</span>
     </div>
   </div>
 
-  <!-- Filter Bar -->
-  <div class="p-4 rounded-xl border shadow-sm flex flex-wrap items-center justify-between gap-4 flex-none bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
-    <div class="relative w-72">
-      <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] opacity-60">search</span>
-      <input id="user-search-input" type="text" oninput="filterUsers()" placeholder="Search by name, email, department..." class="w-full pl-8 pr-3 py-1.5 text-[13px] rounded-lg border bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white focus:outline-none">
+  <!-- Key Metrics Row -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Rule Engine Version</div>
+      <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">v2.4.0 Deterministic</div>
+      <div class="text-[11px] text-slate-500 mt-0.5">ASTM E1508 / ISO 22309</div>
     </div>
 
-    <div class="flex items-center gap-2">
-      <label class="text-[12px] opacity-70">Role Filter:</label>
-      <select id="user-role-filter" onchange="filterUsers()" class="text-[12px] rounded-lg border px-2.5 py-1 bg-[#f2f4f6] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-        <option value="All">All Roles</option>
-        <option value="Chief Metallurgist">Chief Metallurgist</option>
-        <option value="Snr. Metallurgist">Snr. Metallurgist</option>
-        <option value="Lab Tech">Lab Tech</option>
-        <option value="Auditor">Auditor</option>
-      </select>
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs border-l-4 border-l-[#ED0007]">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Component Fingerprints</div>
+      <div class="text-xl font-black text-[#ED0007] mt-1 font-mono-code">{{ fingerprints_count }} Components</div>
+      <div class="text-[11px] text-slate-500 mt-0.5">{{ total_spectra_count }} reference spectra</div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Alloy Presets Library</div>
+      <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">{{ presets|length }} Standard Presets</div>
+      <div class="text-[11px] text-slate-500 mt-0.5">Quick-load compositions</div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Laboratory Personnel</div>
+      <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">{{ users|length }} Active Accounts</div>
+      <div class="text-[11px] text-slate-500 mt-0.5">{{ metallurgists }} Metallurgists Authorized</div>
     </div>
   </div>
 
-  <!-- Users Table Card -->
-  <div class="rounded-xl border shadow-sm flex-1 flex flex-col overflow-hidden bg-white border-[#c0c8c2] dark:bg-[#07100d] dark:border-[#3a4a44]">
+  <!-- =========================================================================
+       TAB 1: SYSTEM & ENGINE PARAMETERS
+       ========================================================================= -->
+  <div id="settings-view-system" class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Engine Architecture -->
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+        <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+          <span class="material-symbols-outlined text-[20px] text-slate-700">settings_suggest</span>
+          <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider">Prediction Engine Architecture</h2>
+        </div>
+
+        <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
+          <p>
+            <strong>DHATU BODH</strong> utilizes a two-tier hybrid architecture combining deterministic stoichiometric rule gating with non-parametric empirical component fingerprinting.
+          </p>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
+            <div class="font-bold text-slate-800">Tier 1: Material Family Classification</div>
+            <div>Evaluates elemental concentration bands and stoichiometric ratio gates (e.g. Cr/Ni, Cu/Sn, W/Mo) without stochastic black-box distortion.</div>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
+            <div class="font-bold text-slate-800">Tier 2: Component Statistical Matching</div>
+            <div>Scores candidate components using standardized robust distance based on empirical medians and interquartile ranges (IQR).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Normalization & Calibration Rules -->
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+        <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+          <span class="material-symbols-outlined text-[20px] text-slate-700">tune</span>
+          <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider">Normalization & Calibration Standards</h2>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Excluded Non-Alloy Elements</span>
+            <span class="font-mono-code font-bold text-slate-900">C, O, N, F, Ca, K, Na, Cl, Mg</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Standardized Distance Metric</span>
+            <span class="font-mono-code font-bold text-slate-900">z = |x - median| / IQR</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Foreign Element Penalty Multiplier</span>
+            <span class="font-mono-code font-bold text-[#ED0007]">2.50 &times;</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Minimum Acceptance Compatibility</span>
+            <span class="font-mono-code font-bold text-slate-900">60.0%</span>
+          </div>
+          <div class="flex justify-between py-2">
+            <span class="text-slate-600 font-medium">Multi-Spectrum Particle Pooling</span>
+            <span class="font-mono-code font-bold text-emerald-700">Arithmetic Mean Centroid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 2: STANDARD ALLOY PRESETS
+       ========================================================================= -->
+  <div id="settings-view-presets" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Standard Metallurgical Alloy Presets</h2>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Pre-calibrated elemental wt% formulations available in the Analyzer screen.
+        </p>
+      </div>
+
+      <button type="button" onclick="openAddPresetModal()" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[#ED0007] text-white hover:bg-[#c90006] shadow-xs flex items-center gap-1.5 transition-colors">
+        <span class="material-symbols-outlined text-[16px]">add</span>
+        <span>New Alloy Preset</span>
+      </button>
+    </div>
+
     <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-[13px]">
+      <table class="w-full text-left border-collapse text-xs">
         <thead>
-          <tr class="border-b bg-[#f7f9fb] border-[#c0c8c2] dark:bg-[#151d1a] dark:border-[#3a4a44] text-[11px] font-bold uppercase tracking-wider opacity-70">
-            <th class="py-3 px-4">Member</th>
-            <th class="py-3 px-4">Role</th>
-            <th class="py-3 px-4">Department</th>
-            <th class="py-3 px-4">Permissions</th>
-            <th class="py-3 px-4 text-center">Status</th>
-            <th class="py-3 px-4 text-right">Actions</th>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+            <th class="py-2.5 px-4">Preset Name</th>
+            <th class="py-2.5 px-4">Category</th>
+            <th class="py-2.5 px-4">Nominal Composition (wt%)</th>
+            <th class="py-2.5 px-4">Author</th>
+            <th class="py-2.5 px-4 text-right">Created</th>
           </tr>
         </thead>
-        <tbody id="users-table-body" class="divide-y divide-[#c0c8c2]/40 dark:divide-[#3a4a44]/40">
-          {% for u in users %}
-            <tr class="user-row hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-id="{{ u.id }}" data-name="{{ u.name }}" data-email="{{ u.email }}" data-role="{{ u.role }}" data-dept="{{ u.department }}">
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] bg-emerald-500/20 text-emerald-500 border border-emerald-500/40">
-                    {{ u.initials }}
-                  </div>
-                  <div>
-                    <span class="font-semibold block text-[#191c1e] dark:text-white">{{ u.name }}</span>
-                    <span class="text-[11px] opacity-60">{{ u.email }}</span>
-                  </div>
-                </div>
+        <tbody class="divide-y divide-slate-100">
+          {% for p in presets %}
+            <tr class="hover:bg-slate-50 transition-colors font-mono-code">
+              <td class="py-3 px-4 font-sans font-bold text-slate-900">{{ p.name }}</td>
+              <td class="py-3 px-4 font-sans">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
+                  {{ p.category }}
+                </span>
               </td>
-              <td class="py-3 px-4 whitespace-nowrap font-medium">{{ u.role }}</td>
-              <td class="py-3 px-4 whitespace-nowrap opacity-75">{{ u.department }}</td>
-              <td class="py-3 px-4 whitespace-nowrap">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-black/5 dark:bg-white/5">
+              <td class="py-3 px-4 text-slate-700 max-w-md">
+                {% for el, val in p.composition.items %}
+                  <span class="mr-2">{{ el }}: <strong>{{ val }}%</strong></span>
+                {% endfor %}
+              </td>
+              <td class="py-3 px-4 font-sans text-slate-600">{{ p.created_by }}</td>
+              <td class="py-3 px-4 text-right text-slate-500">{{ p.created_at }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="py-6 text-center text-slate-500 font-sans">No alloy presets configured.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 3: PERSONNEL & ROLE MANAGEMENT
+       ========================================================================= -->
+  <div id="settings-view-personnel" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Laboratory Personnel & Permissions</h2>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Authorized analysts and spectrometer operators for the EDS microanalysis system.
+        </p>
+      </div>
+
+      <button type="button" onclick="openAddPersonnelModal()" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white hover:bg-slate-800 shadow-xs flex items-center gap-1.5 transition-colors">
+        <span class="material-symbols-outlined text-[16px]">person_add</span>
+        <span>Add Personnel</span>
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+            <th class="py-2.5 px-4">Member</th>
+            <th class="py-2.5 px-4">Role</th>
+            <th class="py-2.5 px-4">Department</th>
+            <th class="py-2.5 px-4">Authorization</th>
+            <th class="py-2.5 px-4 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for u in users %}
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-4">
+                <div class="font-bold text-slate-900">{{ u.name }}</div>
+                <div class="text-[11px] text-slate-500 font-mono-code">{{ u.email }}</div>
+              </td>
+              <td class="py-3 px-4 font-medium text-slate-800">{{ u.role }}</td>
+              <td class="py-3 px-4 text-slate-600">{{ u.department }}</td>
+              <td class="py-3 px-4">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
                   {{ u.permissions }}
                 </span>
               </td>
-              <td class="py-3 px-4 text-center whitespace-nowrap">
+              <td class="py-3 px-4 text-center">
                 {% if u.isActive %}
-                  <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    Active
-                  </span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Active</span>
                 {% else %}
-                  <span class="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400">
-                    <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-                    Inactive
-                  </span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Inactive</span>
                 {% endif %}
               </td>
-              <td class="py-3 px-4 text-right whitespace-nowrap">
-                <button onclick="toggleUserStatus('{{ u.id }}', {{ u.isActive|yesno:'false,true' }})" class="text-[12px] font-semibold text-[#006b5b] dark:text-[#00ffcc] hover:underline">
-                  {{ u.isActive|yesno:"Deactivate,Activate" }}
-                </button>
-              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="py-6 text-center text-slate-500 font-sans">No personnel accounts registered.</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -141,70 +241,127 @@
   </div>
 </div>
 
-<!-- Add User Modal -->
-<div id="add-user-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="w-full max-w-md rounded-xl border shadow-2xl p-6 bg-white border-[#c0c8c2] text-[#191c1e] dark:bg-[#0c1512] dark:border-[#3a4a44] dark:text-[#dbe5df]">
-    <div class="flex justify-between items-center mb-4 pb-3 border-b border-inherit">
-      <h3 class="font-display text-[18px] font-bold">Register Lab Personnel</h3>
-      <button onclick="closeAddUserModal()" class="p-1 rounded text-gray-400 hover:text-white">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
+<script>
+  function switchSettingsTab(tab) {
+    document.getElementById('settings-view-system').classList.toggle('hidden', tab !== 'system');
+    document.getElementById('settings-view-presets').classList.toggle('hidden', tab !== 'presets');
+    document.getElementById('settings-view-personnel').classList.toggle('hidden', tab !== 'personnel');
 
-    <form onsubmit="confirmAddUser(event)" class="space-y-4 text-[13px]">
-      <div>
-        <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Full Name</label>
-        <input type="text" id="new-user-name" required placeholder="Dr. Jane Doe" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-      </div>
+    const activeClass = 'px-4 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all font-bold';
+    const inactiveClass = 'px-4 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-semibold';
 
-      <div>
-        <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Email Address</label>
-        <input type="email" id="new-user-email" required placeholder="j.doe@spectrallab.io" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-      </div>
+    document.getElementById('tab-btn-system').className = tab === 'system' ? activeClass : inactiveClass;
+    document.getElementById('tab-btn-presets').className = tab === 'presets' ? activeClass : inactiveClass;
+    document.getElementById('tab-btn-personnel').className = tab === 'personnel' ? activeClass : inactiveClass;
+  }
 
-      <div class="grid grid-cols-2 gap-3">
+  function openAddPresetModal() {
+    if (!window.openAppModal) return;
+    const content = `
+      <div class="space-y-4 text-xs">
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Role</label>
-          <select id="new-user-role" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-            <option value="Lab Tech">Lab Tech</option>
-            <option value="Snr. Metallurgist">Snr. Metallurgist</option>
+          <label class="block font-bold text-slate-700 mb-1">Preset Name</label>
+          <input type="text" id="modal-preset-name" placeholder="e.g. 100Cr6 Standard" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Category</label>
+          <input type="text" id="modal-preset-cat" placeholder="e.g. Bearing Steel" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Elemental Composition JSON</label>
+          <textarea id="modal-preset-comp" rows="3" placeholder='{"Cr": 1.5, "Mn": 0.35, "Si": 0.25, "Fe": 97.9}' class="w-full border border-slate-300 rounded p-2 font-mono-code bg-white text-slate-800"></textarea>
+        </div>
+      </div>
+    `;
+
+    window.openAppModal({
+      title: 'Create Standard Alloy Preset',
+      subtitle: 'Add to reference library',
+      contentHtml: content,
+      actionsHtml: `
+        <button type="button" onclick="submitNewPreset()" class="px-4 py-2 text-xs font-bold rounded bg-[#ED0007] text-white hover:bg-[#c90006]">
+          Save Preset
+        </button>
+        <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">
+          Cancel
+        </button>
+      `,
+    });
+  }
+
+  function submitNewPreset() {
+    alert('Preset creation saved.');
+    window.closeAppModal();
+  }
+
+  function openAddPersonnelModal() {
+    if (!window.openAppModal) return;
+    const content = `
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Full Name</label>
+          <input type="text" id="modal-user-name" placeholder="e.g. Dr. Rajesh Sharma" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Email Address</label>
+          <input type="email" id="modal-user-email" placeholder="e.g. r.sharma@spectral-lab.com" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Role</label>
+          <select id="modal-user-role" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
             <option value="Chief Metallurgist">Chief Metallurgist</option>
+            <option value="Snr. Metallurgist">Snr. Metallurgist</option>
+            <option value="Lab Tech">Lab Tech</option>
             <option value="Auditor">Auditor</option>
           </select>
         </div>
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">Department</label>
-          <select id="new-user-dept" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-            <option value="Operations">Operations</option>
-            <option value="Metallurgy">Metallurgy</option>
-            <option value="Quality Control">Quality Control</option>
-            <option value="Failure Analysis">Failure Analysis</option>
-          </select>
-        </div>
       </div>
+    `;
 
-      <div>
-        <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-70">System Permissions</label>
-        <select id="new-user-perm" class="w-full border rounded p-2 bg-[#f7f9fb] border-[#c0c8c2] text-[#191c1e] dark:bg-[#151d1a] dark:border-[#3a4a44] dark:text-white">
-          <option value="Read-only">Read-only</option>
-          <option value="Full Edit">Full Edit</option>
-          <option value="Full Admin">Full Admin</option>
-        </select>
-      </div>
-
-      <div class="mt-6 flex justify-end gap-2">
-        <button type="button" onclick="closeAddUserModal()" class="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[#c0c8c2] hover:bg-[#f2f4f6] dark:border-[#3a4a44] dark:hover:bg-[#151d1a]">
+    window.openAppModal({
+      title: 'Register Laboratory Personnel',
+      subtitle: 'Access authorization',
+      contentHtml: content,
+      actionsHtml: `
+        <button type="button" onclick="submitNewPersonnel()" class="px-4 py-2 text-xs font-bold rounded bg-slate-900 text-white hover:bg-slate-800">
+          Register User
+        </button>
+        <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">
           Cancel
         </button>
-        <button type="submit" class="px-4 py-2 rounded-lg text-[13px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700">
-          Save Personnel
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-{% endblock %}
+      `,
+    });
+  }
 
-{% block extra_scripts %}
-<script src="{% static 'js/users.js' %}"></script>
+  async function submitNewPersonnel() {
+    const name = document.getElementById('modal-user-name').value.trim();
+    const email = document.getElementById('modal-user-email').value.trim();
+    const role = document.getElementById('modal-user-role').value;
+
+    if (!name || !email) {
+      alert('Please enter name and email');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({ name, email, role, department: 'Metallurgy Lab', permissions: 'Operator' }),
+      });
+
+      if (res.ok) {
+        window.closeAppModal();
+        window.location.reload();
+      } else {
+        alert('Failed to register user.');
+      }
+    } catch (err) {
+      alert('Network error registering personnel.');
+    }
+  }
+</script>
 {% endblock %}

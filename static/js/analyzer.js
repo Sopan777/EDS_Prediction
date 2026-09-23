@@ -1,9 +1,10 @@
 /**
  * static/js/analyzer.js
  * =====================
- * Interactive controller for Analyzer screen (drag-and-drop, multi-spectrum
- * particle pooling, elemental wt% entry, presets, top component prediction,
- * and ASTM / ISO compliant metallurgical cross-correlation).
+ * Controller for DHATU BODH EDS Analyzer screen.
+ * Handles single/multi-spectrum input, drag-and-drop file ingestion,
+ * Fe auto-balancing, declared material conflict detection, and prioritized
+ * 7-step metallurgical results display.
  */
 
 let spectraListState = [
@@ -12,7 +13,24 @@ let spectraListState = [
 let activeSpectrumIdx = 0;
 let extraElementsState = {};
 let uploadedFileState = null;
+let currentPredictionData = null;
 let currentTopCandidate = null;
+
+// Human-readable family names lookup fallback
+const FAMILY_NAME_MAP = {
+  'F1a': 'Plain / Low-Manganese Carbon Steel',
+  'F1b': '~1.5% Manganese Carbon Steel',
+  'F1c': 'Silicon-Chromium Spring Steel',
+  'F2': 'Low-Alloy Chromium Bearing Steel (100Cr6)',
+  'F3': 'High-Speed Tool Steel (M2 / S6-5-2)',
+  'F4': 'Austenitic Stainless Steel 18/8 (AISI 304)',
+  'F5': 'Nickel-Base Superalloy (Ni-Cr)',
+  'F6a': 'Copper-Tin Bronze (CuSn8)',
+  'F6b': 'Bimetallic Cu-Sn Bronze on Steel',
+  'F7': 'Gold-Plated Electrical Contact',
+  'F8a': 'Zinc-Coated / Galvanized Steel',
+  'F8b': 'Zinc-Phosphate Conversion Coated Steel',
+};
 
 function switchIngestTab(tab) {
   const btnUpload = document.getElementById('tab-btn-upload');
@@ -21,12 +39,12 @@ function switchIngestTab(tab) {
 
   if (tab === 'upload') {
     uploadSection.classList.remove('hidden');
-    btnUpload.className = 'px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all bg-white text-[#134231] dark:bg-[#1a2420] dark:text-[#00ffcc] shadow-sm';
-    btnManual.className = 'px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all text-[#717974] hover:text-[#191c1e] dark:text-[#83958d] dark:hover:text-white';
+    btnUpload.className = 'px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm transition-all';
+    btnManual.className = 'px-3 py-1 font-medium text-slate-600 hover:text-slate-900 transition-all';
   } else {
     uploadSection.classList.add('hidden');
-    btnManual.className = 'px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all bg-white text-[#134231] dark:bg-[#1a2420] dark:text-[#00ffcc] shadow-sm';
-    btnUpload.className = 'px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all text-[#717974] hover:text-[#191c1e] dark:text-[#83958d] dark:hover:text-white';
+    btnManual.className = 'px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm transition-all';
+    btnUpload.className = 'px-3 py-1 font-medium text-slate-600 hover:text-slate-900 transition-all';
   }
 }
 
@@ -39,14 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
     ['dragenter', 'dragover'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
-        dropZone.classList.add('border-emerald-500', 'bg-emerald-50/10');
+        dropZone.classList.add('border-slate-500', 'bg-slate-100');
       });
     });
 
     ['dragleave', 'drop'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
-        dropZone.classList.remove('border-emerald-500', 'bg-emerald-50/10');
+        dropZone.classList.remove('border-slate-500', 'bg-slate-100');
       });
     });
 
@@ -59,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================================================
-   Multi-Spectrum State Management
+   Spectrum & Composition State Management
    ========================================================================= */
 
 function renderSpectrumTabs() {
@@ -68,8 +86,8 @@ function renderSpectrumTabs() {
 
   container.innerHTML = spectraListState.map((spec, idx) => {
     const isActive = idx === activeSpectrumIdx;
-    const activeClass = 'px-2.5 py-1 text-[11px] font-bold rounded-md transition-all bg-[#134231] text-white dark:bg-[#00ffcc] dark:text-[#00382b] shadow-sm';
-    const inactiveClass = 'px-2.5 py-1 text-[11px] font-medium rounded-md transition-all border border-[#c0c8c2] bg-[#f7f9fb] text-[#414944] hover:text-[#191c1e] hover:bg-[#eceef0] dark:border-[#3a4a44] dark:bg-[#151d1a] dark:text-[#83958d] dark:hover:text-white';
+    const activeClass = 'px-2.5 py-1 text-xs font-bold rounded bg-slate-900 text-white shadow-sm transition-all';
+    const inactiveClass = 'px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all';
 
     return `
       <button type="button" onclick="switchSpectrumTab(${idx})" class="${isActive ? activeClass : inactiveClass}">
@@ -78,16 +96,12 @@ function renderSpectrumTabs() {
     `;
   }).join('');
 
-  // Active badge label
   const badge = document.getElementById('active-spectrum-badge');
   if (badge) {
     const total = spectraListState.length;
-    badge.textContent = total > 1
-      ? `Editing: Spectrum ${activeSpectrumIdx + 1} of ${total}`
-      : `Spectrum 1`;
+    badge.textContent = total > 1 ? `Editing Spectrum ${activeSpectrumIdx + 1} of ${total}` : 'Spectrum 1';
   }
 
-  // Delete button visibility
   const delBtn = document.getElementById('btn-delete-spectrum');
   if (delBtn) {
     delBtn.classList.toggle('hidden', spectraListState.length <= 1);
@@ -129,7 +143,6 @@ function switchSpectrumTab(idx) {
 
 function addNewSpectrumTab() {
   syncCurrentSpectrumFromInputs();
-  // Clone current extra keys with 0 values for convenience
   const clonedExtras = {};
   for (const k of Object.keys(extraElementsState)) {
     clonedExtras[k] = 0;
@@ -155,16 +168,33 @@ function removeCurrentSpectrumTab() {
   renderSpectrumTabs();
 }
 
+function autoBalanceFe() {
+  syncCurrentSpectrumFromInputs();
+  const cr = parseFloat(document.getElementById('input-cr').value) || 0;
+  const ni = parseFloat(document.getElementById('input-ni').value) || 0;
+  const mn = parseFloat(document.getElementById('input-mn').value) || 0;
+  const si = parseFloat(document.getElementById('input-si').value) || 0;
+  
+  let extrasSum = 0;
+  for (const v of Object.values(extraElementsState)) {
+    extrasSum += (parseFloat(v) || 0);
+  }
+
+  const sumOther = cr + ni + mn + si + extrasSum;
+  const feRem = Math.max(0, Math.round((100 - sumOther) * 100) / 100);
+  document.getElementById('input-fe').value = feRem.toFixed(2);
+  syncCurrentSpectrumFromInputs();
+}
+
 function handleFileSelected(file) {
   if (!file) return;
   uploadedFileState = file;
 
   const statusText = document.getElementById('upload-status-text');
   if (statusText) {
-    statusText.innerHTML = `Loaded: <strong class="text-emerald-500">${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+    statusText.innerHTML = `Loaded: <strong class="text-slate-900">${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
   }
 
-  // Automatically analyze on upload
   triggerPrediction();
 }
 
@@ -180,7 +210,6 @@ function applyPreset(presetId) {
   document.getElementById('input-si').value = comp.Si || 0;
   document.getElementById('input-fe').value = comp.Fe !== undefined ? comp.Fe : 'Bal.';
 
-  // Extra elements
   extraElementsState = {};
   for (const [k, v] of Object.entries(comp)) {
     if (!['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k) && typeof v === 'number') {
@@ -230,12 +259,12 @@ function renderExtraElements() {
 
   container.classList.remove('hidden');
   grid.innerHTML = keys.map(elem => `
-    <div class="relative group">
-      <div class="flex justify-between items-center mb-1">
-        <label class="text-[11px] font-bold uppercase tracking-wider text-emerald-500">${elem}</label>
-        <button type="button" onclick="removeExtraElement('${elem}')" class="text-[11px] text-rose-500 hover:text-rose-700 opacity-0 group-hover:opacity-100 transition-opacity" title="Remove">✕</button>
+    <div class="bg-slate-50 border border-slate-200 rounded p-2.5 relative group">
+      <div class="flex items-center justify-between mb-1">
+        <label class="text-xs font-bold text-slate-700">${elem}</label>
+        <button type="button" onclick="removeExtraElement('${elem}')" class="text-[10px] text-rose-500 hover:text-rose-700 font-bold" title="Remove element">✕</button>
       </div>
-      <input type="number" step="0.01" value="${extraElementsState[elem]}" onchange="extraElementsState['${elem}'] = parseFloat(this.value)||0; syncCurrentSpectrumFromInputs();" class="w-full border rounded p-2 text-right font-mono-code text-[13px] font-medium bg-[#f7f9fb] border-emerald-500/40 dark:bg-[#151d1a] dark:border-[#00ffcc]/40 dark:text-white focus:outline-none">
+      <input type="number" step="0.01" value="${extraElementsState[elem]}" onchange="extraElementsState['${elem}'] = parseFloat(this.value)||0; syncCurrentSpectrumFromInputs();" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-600">
     </div>
   `).join('');
 }
@@ -254,10 +283,13 @@ function clearAnalyzerForm() {
   if (fileInput) fileInput.value = '';
   const statusText = document.getElementById('upload-status-text');
   if (statusText) statusText.textContent = 'Drag & Drop EDS Report or Click to Browse';
+  const declaredInput = document.getElementById('input-declared-material');
+  if (declaredInput) declaredInput.value = '';
 
   document.getElementById('awaiting-analysis-card').classList.remove('hidden');
   document.getElementById('analysis-results-card').classList.add('hidden');
   document.getElementById('btn-reset-analysis').classList.add('hidden');
+  currentPredictionData = null;
   currentTopCandidate = null;
 }
 window.clearAnalyzerForm = clearAnalyzerForm;
@@ -270,9 +302,10 @@ async function triggerPrediction() {
   const btn = document.getElementById('btn-predict-family');
   const btnText = document.getElementById('predict-btn-text');
   const spinner = document.getElementById('predict-btn-spinner');
+  const declaredMaterial = document.getElementById('input-declared-material') ? document.getElementById('input-declared-material').value.trim() : '';
 
   btn.disabled = true;
-  btnText.textContent = 'Analyzing Spectrums...';
+  btnText.textContent = 'Processing EDS Spectrum...';
   spinner.classList.remove('hidden');
 
   const start = performance.now();
@@ -282,6 +315,9 @@ async function triggerPrediction() {
     if (uploadedFileState) {
       const fd = new FormData();
       fd.append('file', uploadedFileState);
+      if (declaredMaterial) {
+        fd.append('declared_material', declaredMaterial);
+      }
       res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCSRFToken() },
@@ -290,7 +326,6 @@ async function triggerPrediction() {
     } else {
       syncCurrentSpectrumFromInputs();
 
-      // Compile spectra array
       const spectraPayload = spectraListState.map(spec => {
         const item = {
           Cr: spec.Cr || 0,
@@ -305,14 +340,13 @@ async function triggerPrediction() {
         return item;
       });
 
-      // Verify that at least one spectrum has non-zero inputs
       const hasData = spectraPayload.some(s => {
         return (s.Cr || 0) + (s.Ni || 0) + (s.Mn || 0) + (s.Si || 0) +
           Object.entries(s).filter(([k]) => !['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k)).reduce((acc, [, v]) => acc + (typeof v === 'number' ? v : 0), 0) > 0;
       });
 
       if (!hasData) {
-        alert('Please enter elemental concentrations (wt%) or upload an EDS report to perform microanalysis.');
+        alert('Please enter elemental concentrations (wt%) or select a reference preset to perform analysis.');
         return;
       }
 
@@ -322,17 +356,22 @@ async function triggerPrediction() {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCSRFToken(),
         },
-        body: JSON.stringify({ spectra: spectraPayload }),
+        body: JSON.stringify({
+          spectra: spectraPayload,
+          declared_material: declaredMaterial || undefined,
+        }),
       });
     }
 
     const data = await res.json();
     if (!res.ok) {
-      alert(data.error || 'Prediction failed');
+      alert(data.error || 'Prediction analysis failed');
       return;
     }
 
-    // Populate extracted multi-spectrum data back into tabs for user inspection
+    currentPredictionData = data;
+
+    // Populate extracted multi-spectrum data back into tabs if file uploaded
     if (data.allSpectra && data.allSpectra.length > 0) {
       spectraListState = data.allSpectra.map(spec => {
         const extras = {};
@@ -353,54 +392,29 @@ async function triggerPrediction() {
       activeSpectrumIdx = 0;
       loadSpectrumToInputs(0);
       renderSpectrumTabs();
-    } else if (data.extractedComposition) {
-      const ext = data.extractedComposition;
-      document.getElementById('input-cr').value = ext.Cr || 0;
-      document.getElementById('input-ni').value = ext.Ni || 0;
-      document.getElementById('input-mn').value = ext.Mn || 0;
-      document.getElementById('input-si').value = ext.Si || 0;
-      document.getElementById('input-fe').value = ext.Fe !== undefined ? `${ext.Fe}%` : 'Bal.';
-
-      const extras = {};
-      for (const [k, v] of Object.entries(ext)) {
-        if (!['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k) && typeof v === 'number') {
-          extras[k] = v;
-        }
-      }
-      extraElementsState = extras;
-      renderExtraElements();
-      syncCurrentSpectrumFromInputs();
     }
 
     renderPredictionResults(data, ((performance.now() - start) / 1000).toFixed(2));
   } catch (err) {
-    console.error('Analysis error:', err);
-    alert('Connection error communicating with EDS analysis API.');
+    console.error('Analysis execution error:', err);
+    alert('Failed to communicate with the DHATU BODH analysis service.');
   } finally {
     btn.disabled = false;
-    btnText.textContent = 'Predict Family & Component';
+    btnText.textContent = 'Analyze EDS Spectrum';
     spinner.classList.add('hidden');
   }
 }
 
 /* =========================================================================
-   Results Rendering
+   Results Rendering (Strict Priority Order 1 to 7)
    ========================================================================= */
-
-function formatCompositionSummary(comp) {
-  if (!comp) return '';
-  const entries = Object.entries(comp)
-    .filter(([k, v]) => typeof v === 'number' && v > 0.05)
-    .sort((a, b) => b[1] - a[1]);
-  return entries.slice(0, 4).map(([k, v]) => `${k} ${v.toFixed(1)}%`).join(', ');
-}
 
 function renderPredictionResults(data, elapsedSecs) {
   document.getElementById('awaiting-analysis-card').classList.add('hidden');
   document.getElementById('analysis-results-card').classList.remove('hidden');
   document.getElementById('btn-reset-analysis').classList.remove('hidden');
 
-  // Timer
+  // --- 1. PREDICTED MATERIAL FAMILY ---
   document.getElementById('result-duration').textContent = data.processingTime || `${elapsedSecs}s`;
 
   // Pooled Spectra Badge
@@ -415,179 +429,489 @@ function renderPredictionResults(data, elapsedSecs) {
 
   // Decision Badge
   const badge = document.getElementById('result-decision-badge');
-  if (data.decision === 'identified') {
-    badge.className = 'inline-flex items-center gap-1.5 bg-[#bcedd4] text-[#002115] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#a1d1b9]';
-    badge.innerHTML = '<span class="material-symbols-outlined text-[14px]">check_circle</span> IDENTIFIED';
-  } else if (data.decision === 'ambiguous') {
-    badge.className = 'inline-flex items-center gap-1.5 bg-[#fef3c7] text-[#92400e] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#fde68a]';
-    badge.innerHTML = '<span class="material-symbols-outlined text-[14px]">help</span> AMBIGUOUS SET';
+  const decision = data.decision || 'identified';
+  if (decision === 'identified') {
+    badge.className = 'px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200';
+    badge.textContent = 'IDENTIFIED';
+  } else if (decision === 'ambiguous') {
+    badge.className = 'px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200';
+    badge.textContent = 'AMBIGUOUS MATCH';
+  } else if (decision === 'conflict') {
+    badge.className = 'px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200';
+    badge.textContent = 'METALLURGICAL CONFLICT';
   } else {
-    badge.className = 'inline-flex items-center gap-1.5 bg-[#fee2e2] text-[#991b1b] px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border border-[#fecaca]';
-    badge.innerHTML = '<span class="material-symbols-outlined text-[14px]">cancel</span> UNKNOWN / ABSTAINED';
+    badge.className = 'px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200';
+    badge.textContent = 'UNCLASSIFIED / ABSTAINED';
   }
 
-  // Material Title & Hint
-  const titleEl = document.getElementById('result-material-title');
-  const hintEl = document.getElementById('result-grade-hint');
+  // Family Code Badge & Title
+  const familyCode = data.familyCode || 'REF';
+  const humanFamilyName = FAMILY_NAME_MAP[familyCode] || data.materialFamily || 'Unclassified Material Family';
+  document.getElementById('result-family-code-badge').textContent = familyCode;
+  document.getElementById('result-material-title').textContent = humanFamilyName;
+  document.getElementById('result-grade-hint').textContent = `Grade hint: ${data.gradeHint || 'Standard Reference Library'}`;
 
-  if (data.decision === 'unknown') {
-    titleEl.textContent = 'Unclassified Material';
-    hintEl.innerHTML = `<span class="material-symbols-outlined text-[16px]">info</span> ${data.reason || 'Abstained: insufficient alloy signal for reliable specification check'}`;
-  } else {
-    titleEl.textContent = data.materialFamily;
-    hintEl.innerHTML = `<span class="material-symbols-outlined text-[16px]">info</span> Grade hint: ${data.gradeHint || 'Reference standard'}${data.decision === 'ambiguous' ? ' (Tied candidate families)' : ''}`;
-  }
-
-  // Circular Gauge
+  // Compatibility score
   const pct = data.compatibilityPct || 0;
-  const strokeEl = document.getElementById('gauge-stroke-path');
-  const pctText = document.getElementById('gauge-pct-text');
-  const gaugeTitle = document.getElementById('gauge-title-text');
+  document.getElementById('gauge-pct-text').textContent = `${pct}%`;
   const gaugeDesc = document.getElementById('gauge-desc-text');
-
-  strokeEl.setAttribute('stroke-dasharray', `${pct}, 100`);
-  pctText.textContent = `${pct}%`;
-
-  if (data.decision === 'unknown') {
-    strokeEl.className = 'text-rose-500';
-    pctText.className = 'font-mono-code font-bold text-[13px] text-rose-500';
-    gaugeTitle.textContent = 'Abstained by Rule Engine';
-    gaugeDesc.textContent = data.reason || 'Measurement did not exhibit decisive alloy markers. Safe abstention prevents misclassification.';
-  } else if (data.decision === 'ambiguous') {
-    strokeEl.className = 'text-amber-500';
-    pctText.className = 'font-mono-code font-bold text-[13px] text-amber-500';
-    gaugeTitle.textContent = 'Ambiguous Spectral Fit';
-    gaugeDesc.textContent = 'Observed stoichiometry is consistent with multiple material families within measurement error.';
+  if (decision === 'identified') {
+    gaugeDesc.textContent = `Elemental signature conforms to specification bands for ${humanFamilyName} (${data.gradeHint || ''}) with ${pct}% compatibility.`;
+  } else if (decision === 'conflict') {
+    gaugeDesc.textContent = data.conflict ? data.conflict.message : 'Measured elemental chemistry contradicts declared specimen metadata.';
   } else {
-    strokeEl.className = 'text-[#134231] dark:text-[#00ffcc]';
-    pctText.className = 'font-mono-code font-bold text-[13px] text-[#134231] dark:text-[#00ffcc]';
-    gaugeTitle.textContent = 'High Compatibility';
-    const pooledPrefix = data.isPooled ? `Pooled average across ${data.spectraCount} spectra ` : 'Spectral signature ';
-    gaugeDesc.textContent = `${pooledPrefix}closely matches reference library standards for ${data.familyCode || 'sample'} (${data.gradeHint || ''}).`;
+    gaugeDesc.textContent = data.reason || 'Measured stoichiometry does not exhibit definitive alloy discriminators for a single family.';
   }
 
-  // Top Predicted Component Card
+  // --- 2. PREDICTED COMPONENT (TOP MATCH) ---
   currentTopCandidate = data.topCandidate || (data.candidateComponents && data.candidateComponents[0]) || null;
-  const topCompCard = document.getElementById('top-predicted-component-card');
+  const topCard = document.getElementById('top-predicted-component-card');
 
-  if (currentTopCandidate && topCompCard) {
-    topCompCard.classList.remove('hidden');
+  if (currentTopCandidate && topCard) {
+    topCard.classList.remove('hidden');
     document.getElementById('top-comp-name').textContent = currentTopCandidate.name;
-    document.getElementById('top-comp-sub').textContent = `${currentTopCandidate.category || 'Precision System'} • Part #: ${currentTopCandidate.partNumber || 'BOSCH-EDS-REF'}`;
-    document.getElementById('top-comp-alloy').textContent = currentTopCandidate.nominalAlloy || 'Standard Alloy';
-    document.getElementById('top-comp-conf-badge').textContent = `${currentTopCandidate.confidence || 95}% Match`;
+    const qBadge = currentTopCandidate.fingerprintQuality || 'EMPIRICAL';
+    const sCount = currentTopCandidate.sampleCount || 0;
+    document.getElementById('top-comp-quality-badge').textContent = `${qBadge} Quality (${sCount} reference spectra)`;
+    document.getElementById('top-comp-conf-badge').textContent = `${currentTopCandidate.confidence || Math.round((currentTopCandidate.compatibility || 0) * 100)}% Match`;
+    document.getElementById('top-comp-sub').textContent = `Component ID: ${currentTopCandidate.component_id || currentTopCandidate.id} • Nominal Alloy: ${currentTopCandidate.nominalAlloy || 'Standard Material'}`;
+    document.getElementById('top-comp-notes').textContent = currentTopCandidate.notes || 'Closest statistical distance against historical EDS reference fingerprints.';
 
-    const distEl = document.getElementById('top-comp-distance');
-    if (distEl) {
-      distEl.textContent = currentTopCandidate.distance !== undefined
-        ? `Centroid Dist: ${currentTopCandidate.distance}`
-        : `Centroid Match`;
-    }
+    const evSuff = currentTopCandidate.evidenceSufficiency !== undefined ? Math.round(currentTopCandidate.evidenceSufficiency * 100) : 100;
+    document.getElementById('top-comp-evidence').textContent = `Evidence Sufficiency: ${evSuff}%`;
 
-    const notesEl = document.getElementById('top-comp-notes');
-    if (notesEl) {
-      notesEl.textContent = currentTopCandidate.notes || 'Optimal metallurgical distance fit against reference database centroids.';
-    }
-  } else if (topCompCard) {
-    topCompCard.classList.add('hidden');
+    const matchedStr = currentTopCandidate.matchedElements && currentTopCandidate.matchedElements.length > 0
+      ? currentTopCandidate.matchedElements.join(', ')
+      : 'Fe, Cr';
+    document.getElementById('top-comp-matched-elements').textContent = `Matched Elements: ${matchedStr}`;
+  } else if (topCard) {
+    topCard.classList.add('hidden');
   }
 
-  // Multi-Spectra Inspector Card
-  const inspectorCard = document.getElementById('multi-spectra-inspector-card');
-  const inspectorList = document.getElementById('inspector-spectra-list');
-  const inspectorCount = document.getElementById('inspector-spectra-count');
+  // --- 3. COMPOSITION BREAKDOWN (MEASURED VS EXPECTED BANDS) ---
+  renderCompositionBreakdown(data);
 
-  if (data.isPooled && data.perSpectrum && data.perSpectrum.length > 1 && inspectorCard && inspectorList) {
-    inspectorCard.classList.remove('hidden');
-    inspectorCount.textContent = `${data.perSpectrum.length} Spectra Analyzed`;
+  // --- 4. RATIO GATE ANALYSIS ---
+  renderRatioGates(data);
 
-    inspectorList.innerHTML = data.perSpectrum.map(s => `
-      <div class="flex items-center justify-between p-2 rounded-lg border bg-[#f7f9fb] border-[#c0c8c2]/50 dark:bg-[#151d1a] dark:border-[#3a4a44]/50 text-[11.5px]">
-        <div class="min-w-0 pr-2">
-          <span class="font-bold text-[#134231] dark:text-[#00ffcc]">${s.label}:</span>
-          <span class="font-mono-code ml-1 text-[#414944] dark:text-[#b9cbc2] truncate inline-block max-w-[220px] align-bottom">
-            ${formatCompositionSummary(s.composition)}
-          </span>
-        </div>
-        <div class="shrink-0 flex items-center gap-1.5 font-semibold text-[11px] text-emerald-600 dark:text-[#00ffcc]">
-          <span>${s.family}</span>
-          <span class="font-mono-code text-[10px] opacity-75">(${s.compatibilityPct}%)</span>
-        </div>
-      </div>
-    `).join('');
-  } else if (inspectorCard) {
-    inspectorCard.classList.add('hidden');
-  }
+  // --- 5. ALTERNATIVE CANDIDATES TABLE ---
+  renderCandidatesTable(data);
 
-  // Other Candidate Components List
-  const candList = document.getElementById('candidates-list');
-  const allCandidates = data.candidateComponents || [];
-  // If topCandidate is displayed in top card, show ranks 2..N, else show all
-  const otherCandidates = (currentTopCandidate && allCandidates.length > 1)
-    ? allCandidates.slice(1, 4)
-    : allCandidates.slice(0, 3);
-
-  if (otherCandidates.length === 0) {
-    candList.innerHTML = `
-      <div class="h-full flex flex-col items-center justify-center text-center p-3 opacity-60">
-        <span class="material-symbols-outlined text-[24px] mb-1">category</span>
-        <p class="text-[12px] font-semibold">No additional candidates mapped</p>
-      </div>`;
-  } else {
-    candList.innerHTML = otherCandidates.map((comp, idx) => {
-      const displayIdx = currentTopCandidate ? idx + 2 : idx + 1;
-      return `
-        <div onclick='openComponentModal(${JSON.stringify(comp)})' class="flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer group bg-[#f7f9fb] border-transparent hover:border-[#134231] hover:bg-[#f2f4f6] dark:bg-[#151d1a] dark:border-transparent dark:hover:border-[#00ffcc] dark:hover:bg-[#1a2420]">
-          <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full flex items-center justify-center font-mono-code text-[10px] font-bold bg-[#eceef0] text-[#717974] dark:bg-[#232c28] dark:text-[#b9cbc2]">
-              ${displayIdx}
-            </span>
-            <div class="min-w-0">
-              <span class="font-semibold text-[12.5px] block truncate text-[#191c1e] dark:text-white group-hover:underline">${comp.name}</span>
-              <span class="text-[10px] font-mono-code text-[#717974] dark:text-[#83958d]">${comp.partNumber} • ${comp.nominalAlloy}</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-[16px] text-[#717974] dark:text-[#83958d] transition-transform group-hover:translate-x-0.5">chevron_right</span>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // Analysis Caveats
-  const caveatsList = document.getElementById('caveats-list');
-  const caveats = data.caveats || [];
-  const defaultCaveats = [
-    { title: 'Carbon untracked', description: 'C content not reliably determinable via standard EDS.', icon: 'warning' },
-    { title: 'Renormalized', description: 'Metal-basis renormalized excluding O, C, N, F.', icon: 'calculate' },
-  ];
-  if (data.isPooled) {
-    defaultCaveats.unshift({
-      title: 'Multi-Spectrum Pooled',
-      description: `Compositions pooled across ${data.spectraCount} spectra (particle centroid estimation).`,
-      icon: 'layers',
-    });
-  }
-  const allCaveats = [...defaultCaveats, ...caveats.map(c => ({ title: 'System Note', description: c, icon: 'info' }))];
-
-  caveatsList.innerHTML = allCaveats.map(c => `
-    <div class="p-2 rounded border flex gap-2 items-start bg-[#f7f9fb] border-[#c0c8c2]/50 dark:bg-[#151d1a] dark:border-[#3a4a44]/50">
-      <span class="material-symbols-outlined text-[15px] mt-0.5 shrink-0 text-[#717974] dark:text-[#00ffcc]">${c.icon}</span>
-      <div>
-        <span class="block font-semibold text-[11.5px] text-[#191c1e] dark:text-white">${c.title}</span>
-        <span class="block text-[10.5px] leading-tight mt-0.5 text-[#717974] dark:text-[#b9cbc2]">${c.description}</span>
-      </div>
-    </div>
-  `).join('');
-
-  // Update Global Active Family reference for Export modal
-  if (data.topFamily) {
-    window.ACTIVE_FAMILY = data.topFamily;
-  }
+  // --- 6. WARNINGS & CONFLICTS ---
+  renderWarningsAndConflicts(data);
 }
 
+function renderCompositionBreakdown(data) {
+  const tbody = document.getElementById('composition-breakdown-body');
+  if (!tbody) return;
+
+  const rawComp = data.extractedComposition || {};
+  const activeFam = data.topFamily || {};
+  const bands = activeFam.elementBands || [];
+
+  // Map bands by element
+  const bandMap = {};
+  bands.forEach(b => { bandMap[b.element] = b; });
+
+  const allElements = Array.from(new Set([...Object.keys(rawComp), ...Object.keys(bandMap)]))
+    .filter(el => !['C', 'O', 'N', 'F', 'Ca'].includes(el));
+
+  if (allElements.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-500">No elemental breakdown available.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = allElements.map(el => {
+    const val = rawComp[el] !== undefined ? parseFloat(rawComp[el]) : 0;
+    const band = bandMap[el];
+    let bandStr = '—';
+    let statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Trace / Unbound</span>';
+    let fitBar = '<div class="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden"><div class="bg-slate-400 h-full" style="width: 50%"></div></div>';
+
+    if (band) {
+      bandStr = `${band.min_wt_pct.toFixed(1)}% – ${band.max_wt_pct.toFixed(1)}%`;
+      if (val >= band.min_wt_pct && val <= band.max_wt_pct) {
+        statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Within Band</span>';
+        fitBar = '<div class="w-24 bg-emerald-100 h-1.5 rounded-full overflow-hidden"><div class="bg-emerald-600 h-full" style="width: 100%"></div></div>';
+      } else if (val < band.min_wt_pct) {
+        statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">Below Min</span>';
+        fitBar = '<div class="w-24 bg-amber-100 h-1.5 rounded-full overflow-hidden"><div class="bg-amber-500 h-full" style="width: 40%"></div></div>';
+      } else {
+        statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800">Above Max</span>';
+        fitBar = '<div class="w-24 bg-rose-100 h-1.5 rounded-full overflow-hidden"><div class="bg-rose-600 h-full" style="width: 100%"></div></div>';
+      }
+    }
+
+    return `
+      <tr class="hover:bg-slate-50 transition-colors font-mono-code">
+        <td class="py-2.5 px-4 font-bold text-slate-900">${el}</td>
+        <td class="py-2.5 px-4 text-right font-semibold text-slate-900">${val.toFixed(2)}%</td>
+        <td class="py-2.5 px-4 text-right text-slate-600">${bandStr}</td>
+        <td class="py-2.5 px-4">${fitBar}</td>
+        <td class="py-2.5 px-4 text-center">${statusBadge}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderRatioGates(data) {
+  const container = document.getElementById('ratio-gates-container');
+  if (!container) return;
+
+  const gates = data.ratioGates || data.checks || [];
+
+  if (gates.length === 0) {
+    container.innerHTML = `
+      <div class="p-4 bg-slate-50 rounded text-xs text-slate-500 text-center">
+        No stoichiometric ratio gates configured for this candidate family.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = gates.map(gate => {
+    const passed = gate.passed !== undefined ? gate.passed : true;
+    const name = gate.name || gate.check_name || 'Stoichiometric Ratio Gate';
+    const detail = gate.detail || (gate.observed_ratio !== undefined ? `Observed: ${gate.observed_ratio} (Threshold: ${gate.threshold || 'N/A'})` : 'Evaluated via rule engine');
+    const badge = passed
+      ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 shrink-0">PASS</span>'
+      : '<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800 shrink-0">FAIL</span>';
+
+    return `
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="material-symbols-outlined text-[18px] ${passed ? 'text-emerald-600' : 'text-rose-600'} shrink-0">
+            ${passed ? 'check_circle' : 'cancel'}
+          </span>
+          <div class="min-w-0">
+            <div class="font-bold text-slate-900 truncate">${name}</div>
+            <div class="text-[11px] text-slate-500 font-mono-code">${detail}</div>
+          </div>
+        </div>
+        ${badge}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCandidatesTable(data) {
+  const tbody = document.getElementById('candidates-table-body');
+  if (!tbody) return;
+
+  const candidates = data.candidateComponents || [];
+  // Show ranks 2 to 6 if top candidate displayed in hero card, or 1 to 5
+  const alts = candidates.length > 1 ? candidates.slice(1, 6) : candidates;
+
+  if (alts.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="py-4 text-center text-slate-500 text-xs">
+          No alternative candidate components mapped to this specification.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = alts.map((c, idx) => {
+    const rank = candidates.length > 1 ? idx + 2 : idx + 1;
+    const q = c.fingerprintQuality || 'MED';
+    const score = c.confidence || Math.round((c.compatibility || 0) * 100);
+
+    return `
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="py-2.5 px-4 font-mono-code font-bold text-slate-500">#${rank}</td>
+        <td class="py-2.5 px-4 font-semibold text-slate-900">
+          <button type="button" onclick='openComponentDetailModal(${JSON.stringify(c)})' class="hover:underline text-left text-slate-900 hover:text-[#ED0007]">
+            ${c.name}
+          </button>
+        </td>
+        <td class="py-2.5 px-4">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            ${q} Quality
+          </span>
+        </td>
+        <td class="py-2.5 px-4 text-right font-mono-code text-slate-600">${c.sampleCount || 0}</td>
+        <td class="py-2.5 px-4 text-right font-mono-code font-bold text-slate-900">${score}%</td>
+        <td class="py-2.5 px-4 text-slate-500 text-[11px] truncate max-w-xs">${c.notes || 'Reference fingerprint'}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderWarningsAndConflicts(data) {
+  const card = document.getElementById('warnings-conflicts-card');
+  const list = document.getElementById('warnings-list');
+  if (!card || !list) return;
+
+  const warnings = [];
+
+  // Check declared material conflict
+  if (data.conflict && data.conflict.has_conflict) {
+    warnings.push({
+      title: 'Declared Material Conflict Detected',
+      message: data.conflict.message || `Declared metadata '${data.conflict.declared_material}' conflicts with measured EDS family '${data.conflict.predicted_family}'.`,
+      severity: 'high',
+      suggested: data.conflict.suggested_action || 'Inspect physical sample markings or verify whether surface plating is present.'
+    });
+  }
+
+  // Low confidence warning
+  if (data.compatibilityPct < 60) {
+    warnings.push({
+      title: 'Marginal Compatibility Fit',
+      message: `Compatibility score (${data.compatibilityPct}%) is below nominal confidence threshold (60%).`,
+      severity: 'medium',
+      suggested: 'Consider rescanning particle or pooling additional spectra points.'
+    });
+  }
+
+  // System caveats
+  if (data.caveats && data.caveats.length > 0) {
+    data.caveats.forEach(c => {
+      warnings.push({
+        title: 'Analytical Caveat',
+        message: c,
+        severity: 'info',
+      });
+    });
+  }
+
+  if (warnings.length === 0) {
+    card.classList.add('hidden');
+    list.innerHTML = '';
+    return;
+  }
+
+  card.classList.remove('hidden');
+  list.innerHTML = warnings.map(w => `
+    <div class="p-3 bg-rose-50/50 border border-rose-200 rounded">
+      <div class="font-bold text-rose-900 flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px] text-rose-600">error</span>
+        ${w.title}
+      </div>
+      <p class="text-slate-700 mt-1">${w.message}</p>
+      ${w.suggested ? `<p class="text-[11px] text-rose-700 mt-1 italic font-medium">Recommended: ${w.suggested}</p>` : ''}
+    </div>
+  `).join('');
+}
+
+/* =========================================================================
+   Inspection & Feedback Actions
+   ========================================================================= */
+
 function inspectTopComponent() {
-  if (currentTopCandidate && typeof openComponentModal === 'function') {
-    openComponentModal(currentTopCandidate);
+  if (currentTopCandidate) {
+    openComponentDetailModal(currentTopCandidate);
   }
 }
 window.inspectTopComponent = inspectTopComponent;
+
+function openComponentDetailModal(comp) {
+  if (!comp || !window.openAppModal) return;
+
+  fetch(`/api/components/${comp.component_id || comp.id}`)
+    .then(res => res.json())
+    .then(data => {
+      const elements = data.elements || {};
+      const rows = Object.entries(elements).map(([el, st]) => `
+        <tr class="hover:bg-slate-50 border-b border-slate-100 font-mono-code text-xs">
+          <td class="py-1.5 px-3 font-bold text-slate-800">${el}</td>
+          <td class="py-1.5 px-3 text-right">${st.median.toFixed(2)}%</td>
+          <td class="py-1.5 px-3 text-right text-slate-500">${st.q1.toFixed(2)}% – ${st.q3.toFixed(2)}%</td>
+          <td class="py-1.5 px-3 text-right">${st.iqr.toFixed(2)}</td>
+          <td class="py-1.5 px-3 text-center">
+            <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${st.role === 'expected' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+              ${st.role}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+
+      const content = `
+        <div class="space-y-4">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded text-xs">
+            <div class="font-bold text-slate-900">${data.display_name || comp.name}</div>
+            <div class="text-slate-500 font-mono-code mt-0.5">Component ID: ${data.component_id} • ${data.sample_count} Reference Spectra</div>
+            <div class="text-slate-600 mt-2">Material Body: <strong>${data.material_body || 'Standard Reference'}</strong></div>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Empirical Element Medians & IQR Bounds</div>
+            <div class="max-h-60 overflow-y-auto border border-slate-200 rounded">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold text-[10px]">
+                  <tr>
+                    <th class="py-2 px-3">Element</th>
+                    <th class="py-2 px-3 text-right">Median wt%</th>
+                    <th class="py-2 px-3 text-right">IQR Band (Q1-Q3)</th>
+                    <th class="py-2 px-3 text-right">IQR Width</th>
+                    <th class="py-2 px-3 text-center">Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows || '<tr><td colspan="5" class="p-3 text-center text-slate-500">No empirical elements logged.</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      window.openAppModal({
+        title: comp.name,
+        subtitle: 'Empirical Metallurgical Fingerprint',
+        contentHtml: content,
+        actionsHtml: `
+          <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-slate-900 text-white hover:bg-slate-800">
+            Close
+          </button>
+        `,
+      });
+    })
+    .catch(() => {
+      alert('Failed to load component statistical fingerprint.');
+    });
+}
+window.openComponentDetailModal = openComponentDetailModal;
+
+/* Feedback submission */
+async function confirmIdentification() {
+  if (!currentPredictionData) {
+    alert('No active prediction to confirm.');
+    return;
+  }
+
+  const payload = {
+    analysis_id: currentPredictionData.analysisId || null,
+    spectrum: currentPredictionData.extractedComposition || {},
+    predicted_family: currentPredictionData.materialFamily || 'Unknown',
+    predicted_component: currentTopCandidate ? currentTopCandidate.name : null,
+    confirmed_family: currentPredictionData.materialFamily || 'Unknown',
+    confirmed_component: currentTopCandidate ? currentTopCandidate.name : 'Unknown',
+    status: 'confirmed',
+    analyst_name: 'Lead Metallurgist',
+    notes: 'Analyst verified nominal EDS stoichiometry matches specification.',
+  };
+
+  try {
+    const res = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      alert('Analyst confirmation recorded successfully in the audit feedback loop.');
+    } else {
+      alert('Failed to save confirmation.');
+    }
+  } catch (err) {
+    alert('Network error saving feedback.');
+  }
+}
+window.confirmIdentification = confirmIdentification;
+
+function openSuggestCorrectionModal() {
+  if (!currentPredictionData) {
+    alert('No active prediction to correct.');
+    return;
+  }
+
+  const content = `
+    <div class="space-y-4 text-xs">
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded">
+        <div class="text-slate-500">Current Prediction:</div>
+        <div class="font-bold text-slate-900 text-sm mt-0.5">${currentPredictionData.materialFamily}</div>
+        <div class="text-slate-600 font-mono-code mt-0.5">Top Component: ${currentTopCandidate ? currentTopCandidate.name : 'None'}</div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Corrected Material Family</label>
+        <select id="modal-correct-family" class="w-full rounded border border-slate-300 p-2 bg-white text-slate-800">
+          <option value="Plain / Low-Manganese Carbon Steel">Plain / Low-Manganese Carbon Steel (F1a)</option>
+          <option value="~1.5% Manganese Carbon Steel">~1.5% Manganese Carbon Steel (F1b)</option>
+          <option value="Silicon-Chromium Spring Steel">Silicon-Chromium Spring Steel (F1c)</option>
+          <option value="Low-Alloy Chromium Bearing Steel (100Cr6)" selected>Low-Alloy Chromium Bearing Steel (100Cr6) (F2)</option>
+          <option value="High-Speed Tool Steel (M2 / S6-5-2)">High-Speed Tool Steel (M2 / S6-5-2) (F3)</option>
+          <option value="Austenitic Stainless Steel 18/8 (AISI 304)">Austenitic Stainless Steel 18/8 (AISI 304) (F4)</option>
+          <option value="Nickel-Base Superalloy (Ni-Cr)">Nickel-Base Superalloy (Ni-Cr) (F5)</option>
+          <option value="Copper-Tin Bronze (CuSn8)">Copper-Tin Bronze (CuSn8) (F6a)</option>
+          <option value="Bimetallic Cu-Sn Bronze on Steel">Bimetallic Cu-Sn Bronze on Steel (F6b)</option>
+          <option value="Gold-Plated Electrical Contact">Gold-Plated Electrical Contact (F7)</option>
+          <option value="Zinc-Coated / Galvanized Steel">Zinc-Coated / Galvanized Steel (F8a)</option>
+          <option value="Zinc-Phosphate Conversion Coated Steel">Zinc-Phosphate Conversion Coated Steel (F8b)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Corrected Component / Part Name</label>
+        <input type="text" id="modal-correct-component" placeholder="e.g. Armature Bolt, CRI Sealing Ring..." class="w-full rounded border border-slate-300 p-2 bg-white text-slate-800">
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Metallurgical Notes / Rationale</label>
+        <textarea id="modal-correct-notes" rows="3" placeholder="Provide reason for correction (e.g. surface plating interference, known part assembly)..." class="w-full rounded border border-slate-300 p-2 bg-white text-slate-800"></textarea>
+      </div>
+    </div>
+  `;
+
+  const actions = `
+    <button type="button" onclick="submitCorrectionFeedback()" class="px-4 py-2 text-xs font-bold rounded bg-[#ED0007] text-white hover:bg-[#c90006]">
+      Submit Correction
+    </button>
+    <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+      Cancel
+    </button>
+  `;
+
+  window.openAppModal({
+    title: 'Suggest Metallurgical Correction',
+    subtitle: 'Feedback loop audit log',
+    contentHtml: content,
+    actionsHtml: actions,
+  });
+}
+window.openSuggestCorrectionModal = openSuggestCorrectionModal;
+
+async function submitCorrectionFeedback() {
+  const fam = document.getElementById('modal-correct-family').value;
+  const comp = document.getElementById('modal-correct-component').value.trim() || 'Custom Component';
+  const notes = document.getElementById('modal-correct-notes').value.trim();
+
+  const payload = {
+    analysis_id: currentPredictionData.analysisId || null,
+    spectrum: currentPredictionData.extractedComposition || {},
+    predicted_family: currentPredictionData.materialFamily || 'Unknown',
+    predicted_component: currentTopCandidate ? currentTopCandidate.name : null,
+    confirmed_family: fam,
+    confirmed_component: comp,
+    status: 'corrected',
+    analyst_name: 'Lead Metallurgist',
+    notes: notes,
+  };
+
+  try {
+    const res = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      window.closeAppModal();
+      alert('Correction logged successfully to the feedback training dataset.');
+    } else {
+      alert('Failed to submit correction.');
+    }
+  } catch (err) {
+    alert('Network error submitting feedback.');
+  }
+}
+window.submitCorrectionFeedback = submitCorrectionFeedback;

@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — DHATU BODH{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- =========================================================================
+       1. HERO SECTION (PRECISION INDUSTRIAL METAL BANNER)
+       ========================================================================= -->
+  <div class="relative rounded-xl overflow-hidden shadow-sm border border-slate-200 min-h-[320px] lg:min-h-[360px] flex items-center bg-slate-900">
+    <!-- Machined Metal Industrial Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img src="{% static 'images/hero_metal.jpg' %}" alt="Precision Machined Metal Assembly" class="w-full h-full object-cover object-right opacity-90">
+      <!-- Dark Industrial Gradient Vignette (Strong dark overlay on left for readable white text) -->
+      <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent"></div>
+    </div>
+
+    <!-- Hero Content Overlay (Left Aligned) -->
+    <div class="relative z-10 p-8 sm:p-10 lg:p-12 max-w-2xl text-white space-y-4">
+      <!-- Brand Sub-Badge -->
+      <div class="flex items-center gap-2">
+        <span class="w-5 h-[3px] bg-[#ED0007] rounded-full"></span>
+        <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-300">DHATU BODH</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight leading-[1.15] text-white">
+        From Elements<br>
+        to Engineering Confidence
+      </h1>
+
+      <!-- Supporting Explanation -->
+      <p class="text-sm sm:text-[15px] text-slate-300 font-normal leading-relaxed max-w-xl">
+        AI-powered material and component identification from EDS analysis. Built for engineers. Inspired by precision.
+      </p>
+
+      <!-- Primary Action Button (Bosch Red) -->
+      <div class="pt-2">
+        <a href="{% url 'analyzer_page' %}" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg text-sm font-bold bg-[#ED0007] hover:bg-[#C90006] text-white shadow-md transition-all group">
+          <span class="material-symbols-outlined text-[20px]">upload</span>
+          <span>Analyze EDS Report</span>
+          <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Bottom-Right Slogan Motif (Matching Reference) -->
+    <div class="hidden lg:flex flex-col items-end absolute bottom-8 right-8 z-10 text-right text-slate-300">
+      <div class="w-6 h-[2px] bg-[#ED0007] mb-2"></div>
+      <div class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">MATERIAL INSIGHTS</div>
+      <div class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">FOR A MORE</div>
+      <div class="text-[10px] font-bold uppercase tracking-[0.18em] text-white">RELIABLE TOMORROW</div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       2. DASHBOARD QUICK ACTIONS (3 HORIZONTAL CARDS)
+       ========================================================================= -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <!-- Action 1: Analyze EDS -->
+    <a href="{% url 'analyzer_page' %}" class="group bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-5 shadow-xs hover:shadow-sm transition-all flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 group-hover:text-[#ED0007] group-hover:border-rose-200 group-hover:bg-rose-50/50 transition-colors shrink-0">
+          <span class="material-symbols-outlined text-[24px]">document_scanner</span>
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-sm font-bold text-slate-900 group-hover:text-[#ED0007] transition-colors">Analyze EDS</h2>
+          <p class="text-xs text-slate-500 mt-0.5 truncate">
+            Upload your EDS report (PDF/DOCX) to identify material and component.
+          </p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0 text-[20px]">chevron_right</span>
+    </a>
+
+    <!-- Action 2: Knowledge Base -->
+    <a href="{% url 'knowledge_page' %}" class="group bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-5 shadow-xs hover:shadow-sm transition-all flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 group-hover:text-[#ED0007] group-hover:border-rose-200 group-hover:bg-rose-50/50 transition-colors shrink-0">
+          <span class="material-symbols-outlined text-[24px]">database</span>
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-sm font-bold text-slate-900 group-hover:text-[#ED0007] transition-colors">Knowledge Base</h2>
+          <p class="text-xs text-slate-500 mt-0.5 truncate">
+            Explore material families, components and reference spectra.
+          </p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0 text-[20px]">chevron_right</span>
+    </a>
+
+    <!-- Action 3: View History -->
+    <a href="{% url 'history_page' %}" class="group bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-5 shadow-xs hover:shadow-sm transition-all flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 group-hover:text-[#ED0007] group-hover:border-rose-200 group-hover:bg-rose-50/50 transition-colors shrink-0">
+          <span class="material-symbols-outlined text-[24px]">schedule</span>
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-sm font-bold text-slate-900 group-hover:text-[#ED0007] transition-colors">View History</h2>
+          <p class="text-xs text-slate-500 mt-0.5 truncate">
+            Access your past analyses and results.
+          </p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0 text-[20px]">chevron_right</span>
+    </a>
+  </div>
+
+  <!-- =========================================================================
+       3. TWO-COLUMN MAIN SECTION: RECENT ANALYSES & KNOWLEDGE BASE OVERVIEW
+       ========================================================================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN (approx 68%): RECENT ANALYSES TABLE -->
+    <div class="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <h2 class="text-base font-bold text-slate-900">Recent Analyses</h2>
+          <a href="{% url 'history_page' %}" class="text-xs font-semibold text-slate-600 hover:text-[#ED0007] flex items-center gap-1 transition-colors">
+            <span>View All</span>
+            <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                <th class="py-2.5 px-3">Date & Time</th>
+                <th class="py-2.5 px-3">Report Name</th>
+                <th class="py-2.5 px-3">Identified Component</th>
+                <th class="py-2.5 px-3">Material Family</th>
+                <th class="py-2.5 px-3 text-center">Status</th>
+                <th class="py-2.5 px-3 text-right">Confidence</th>
+                <th class="py-2.5 px-3 w-8"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {% for item in recent_analyses %}
+                <tr class="hover:bg-slate-50 transition-colors group">
+                  <td class="py-3 px-3 font-mono-code text-slate-500 whitespace-nowrap text-[11.5px]">
+                    {{ item.timestamp }}
+                  </td>
+                  <td class="py-3 px-3 font-medium text-slate-900 truncate max-w-[150px]">
+                    {{ item.filename|default:item.source_type }}
+                  </td>
+                  <td class="py-3 px-3 font-semibold text-slate-800">
+                    {% if item.get_candidates %}
+                      {{ item.get_candidates.0.name|default:"—" }}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+                  <td class="py-3 px-3 text-slate-600">
+                    {{ item.material_family }}
+                  </td>
+                  <td class="py-3 px-3 text-center whitespace-nowrap">
+                    {% if item.decision == 'identified' %}
+                      <span class="px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        Identified
+                      </span>
+                    {% elif item.decision == 'ambiguous' %}
+                      <span class="px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                        Ambiguous
+                      </span>
+                    {% elif item.decision == 'conflict' %}
+                      <span class="px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                        Conflict
+                      </span>
+                    {% elif item.decision == 'insufficient_data' %}
+                      <span class="px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-orange-100 text-orange-800 border border-orange-200">
+                        Insufficient Data
+                      </span>
+                    {% else %}
+                      <span class="px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                        Unknown
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono-code font-bold text-slate-900">
+                    {{ item.compatibility|floatformat:0 }}%
+                  </td>
+                  <td class="py-3 px-3 text-right">
+                    <a href="{% url 'history_page' %}" class="text-slate-400 group-hover:text-slate-700">
+                      <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                    </a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="7" class="py-10 text-center text-slate-500">
+                    <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                      <span class="material-symbols-outlined text-[22px]">inbox</span>
+                    </div>
+                    <p class="font-medium text-slate-700">No analyses logged yet</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Upload and analyze your first EDS report to generate records.</p>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
+        <span>Showing recent microanalysis records</span>
+        <span class="font-mono-code">Database: spectral_lab.db</span>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN (approx 32%): KNOWLEDGE BASE OVERVIEW -->
+    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <h2 class="text-base font-bold text-slate-900">Knowledge Base Overview</h2>
+          <a href="{% url 'knowledge_page' %}" class="text-slate-400 hover:text-slate-700 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+          </a>
+        </div>
+
+        <!-- 3 Metric Counters in a Row (Matching Reference) -->
+        <div class="grid grid-cols-3 gap-3 pb-5 border-b border-slate-100">
+          <!-- Material Families -->
+          <div class="space-y-1">
+            <div class="flex items-center gap-1.5 text-sky-600">
+              <span class="material-symbols-outlined text-[18px]">menu_book</span>
+              <span class="text-xl font-bold font-mono-code text-slate-900">{{ families_count }}</span>
+            </div>
+            <div class="text-[10.5px] font-medium text-slate-500 leading-tight">Material Families</div>
+          </div>
+
+          <!-- Components -->
+          <div class="space-y-1">
+            <div class="flex items-center gap-1.5 text-sky-600">
+              <span class="material-symbols-outlined text-[18px]">precision_manufacturing</span>
+              <span class="text-xl font-bold font-mono-code text-slate-900">{{ components_count }}</span>
+            </div>
+            <div class="text-[10.5px] font-medium text-slate-500 leading-tight">Components</div>
+          </div>
+
+          <!-- Reference Spectra -->
+          <div class="space-y-1">
+            <div class="flex items-center gap-1.5 text-sky-600">
+              <span class="material-symbols-outlined text-[18px]">database</span>
+              <span class="text-xl font-bold font-mono-code text-slate-900">{{ total_reference_spectra }}</span>
+            </div>
+            <div class="text-[10.5px] font-medium text-slate-500 leading-tight">Reference Spectra</div>
+          </div>
+        </div>
+
+        <!-- Recent Updates Feed (Matching Reference) -->
+        <div class="pt-4 space-y-3">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Recent Updates</div>
+
+          <div class="space-y-2.5 text-xs">
+            <div class="flex items-start gap-3">
+              <span class="font-mono-code text-[11px] text-slate-400 shrink-0 mt-0.5">10 Nov 2024</span>
+              <span class="text-slate-700 leading-snug">Added new reference spectra (Family: Stainless Steel)</span>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="font-mono-code text-[11px] text-slate-400 shrink-0 mt-0.5">05 Nov 2024</span>
+              <span class="text-slate-700 leading-snug">Updated component definition (Armature Bolt)</span>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="font-mono-code text-[11px] text-slate-400 shrink-0 mt-0.5">28 Oct 2024</span>
+              <span class="text-slate-700 leading-snug">Added element rules (Family: Copper Alloys)</span>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="font-mono-code text-[11px] text-slate-400 shrink-0 mt-0.5">22 Oct 2024</span>
+              <span class="text-slate-700 leading-snug">Updated ratio thresholds (Family: Low-Alloy Steel)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 mt-6">
+        <a href="{% url 'knowledge_page' %}" class="w-full py-2 px-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+          <span>Explore Knowledge Base</span>
+          <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

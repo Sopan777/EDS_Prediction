@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.history.apps.HistoryConfig',
     'apps.users.apps.UsersConfig',
     'apps.reports.apps.ReportsConfig',
+    'apps.feedback.apps.FeedbackConfig',
 ]
 
 MIDDLEWARE = [

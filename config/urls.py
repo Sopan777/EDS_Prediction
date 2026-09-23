@@ -9,7 +9,16 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-from apps.analyzer.views import analyzer_view, health_api, AnalyzeAPIView, PresetsAPIView
+from apps.analyzer.views import (
+    dashboard_view,
+    analyzer_view,
+    health_api,
+    AnalyzeAPIView,
+    PresetsAPIView,
+    list_components_api,
+    get_component_detail_api,
+    validation_results_api,
+)
 from apps.knowledge.views import (
     knowledge_view,
     gate_editor_view,
@@ -21,12 +30,14 @@ from apps.knowledge.views import (
 from apps.history.views import history_view, AuditLogsAPIView, AnalysisHistoryAPIView
 from apps.users.views import users_view, UsersAPIView, UserDetailAPIView
 from apps.reports.views import reports_view, ReportsAPIView
+from apps.feedback.views import FeedbackAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Frontend Views (Full-Stack Django Templates)
-    path('', analyzer_view, name='home'),
+    path('', dashboard_view, name='home'),
+    path('dashboard/', dashboard_view, name='dashboard_page'),
     path('analyzer/', analyzer_view, name='analyzer_page'),
     path('knowledge/', knowledge_view, name='knowledge_page'),
     path('gates/<str:fid>/', gate_editor_view, name='gate_editor'),
@@ -52,6 +63,12 @@ urlpatterns = [
 
     path('api/users', UsersAPIView.as_view(), name='api_users'),
     path('api/users/<str:uid>', UserDetailAPIView.as_view(), name='api_user_detail'),
+
+    path('api/components', list_components_api, name='api_components'),
+    path('api/components/<str:cid>', get_component_detail_api, name='api_component_detail'),
+    path('api/validate', validation_results_api, name='api_validate'),
+
+    path('api/feedback', FeedbackAPIView.as_view(), name='api_feedback'),
 
     path('api/reports', ReportsAPIView.as_view(), name='api_reports'),
 ]

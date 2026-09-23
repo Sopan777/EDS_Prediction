@@ -1,0 +1,541 @@
+{
+  "total_confused_pairs": 34,
+  "hard_component_pairs": [
+    {
+      "true_component": "Armature Plate",
+      "predicted_component": "Armature Bolt",
+      "misclassification_count": 4,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 14,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "CRI Injector Body",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 4,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 16,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "CRI Shim",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 4,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Spring",
+      "predicted_component": "UFK Spring",
+      "misclassification_count": 3,
+      "same_family": true,
+      "true_families": [
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1c"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 6,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Support Sealing",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 3,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "VFK Shim",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 3,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Shim",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 3,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Guide",
+      "predicted_component": "Armature Bolt",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "DFK Shim",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 10,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Guide Bush",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F1b"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Magnet Core",
+      "predicted_component": "Sealing Ring",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a"
+      ],
+      "true_sample_count": 11,
+      "pred_sample_count": 8,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Valve Piece",
+      "predicted_component": "Armature Bolt",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 12,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Valve Spring",
+      "predicted_component": "Nozzle Spring",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1c"
+      ],
+      "true_sample_count": 10,
+      "pred_sample_count": 8,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "CRI Injector Body",
+      "predicted_component": "RLS Shim",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a"
+      ],
+      "true_sample_count": 16,
+      "pred_sample_count": 9,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Sealing Ring",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 2,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Bolt",
+      "predicted_component": "Valve Piece",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 12,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Bolt",
+      "predicted_component": "Armature Plate",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 12,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Bolt",
+      "predicted_component": "Ball Guide",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 12,
+      "pred_sample_count": 8,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Guide",
+      "predicted_component": "Valve Piece",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Guide",
+      "predicted_component": "Armature Plate",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Plate",
+      "predicted_component": "C Shim",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 14,
+      "pred_sample_count": 4,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant); Small sample count (True: n=14, Pred: n=4)"
+    },
+    {
+      "true_component": "Armature Plate",
+      "predicted_component": "Valve Piece",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 14,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Armature Spring",
+      "predicted_component": "Nozzle Spring",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1c"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 8,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "DFK Shim",
+      "predicted_component": "Valve Nut",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a"
+      ],
+      "true_sample_count": 10,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Dowel Pin",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 6,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "IC Stud",
+      "predicted_component": "Valve Nut",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a",
+        "F8b"
+      ],
+      "predicted_families": [
+        "F1a"
+      ],
+      "true_sample_count": 6,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Nozzle Spring",
+      "predicted_component": "Valve Spring",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1c"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 10,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Pille",
+      "predicted_component": "Armature Bolt",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 6,
+      "pred_sample_count": 12,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "RLS Shim",
+      "predicted_component": "M&M HPP Component",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1b",
+        "F8a"
+      ],
+      "true_sample_count": 9,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Valve Piece",
+      "predicted_component": "Armature Plate",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F2"
+      ],
+      "predicted_families": [
+        "F2"
+      ],
+      "true_sample_count": 12,
+      "pred_sample_count": 14,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "Valve Spring",
+      "predicted_component": "UFK Spring",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1c"
+      ],
+      "true_sample_count": 10,
+      "pred_sample_count": 6,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "VFK Shim",
+      "predicted_component": "RLS Shim",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a"
+      ],
+      "predicted_families": [
+        "F1a"
+      ],
+      "true_sample_count": 8,
+      "pred_sample_count": 9,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "DFK Spring",
+      "predicted_component": "UFK Spring",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a",
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1a",
+        "F1c"
+      ],
+      "true_sample_count": 6,
+      "pred_sample_count": 6,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    },
+    {
+      "true_component": "UFK Spring",
+      "predicted_component": "Valve Spring",
+      "misclassification_count": 1,
+      "same_family": true,
+      "true_families": [
+        "F1a",
+        "F1c"
+      ],
+      "predicted_families": [
+        "F1c"
+      ],
+      "true_sample_count": 6,
+      "pred_sample_count": 10,
+      "primary_cause": "Identical metallurgical family (isochemical alloy variant)"
+    }
+  ]
+}
