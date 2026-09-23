@@ -32,8 +32,11 @@ from apps.users.views import users_view, UsersAPIView, UserDetailAPIView
 from apps.reports.views import reports_view, ReportsAPIView
 from apps.feedback.views import FeedbackAPIView
 
+from django.views.generic.base import RedirectView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'images/favicon.ico', permanent=True)),
 
     # Frontend Views (Full-Stack Django Templates)
     path('', dashboard_view, name='home'),
