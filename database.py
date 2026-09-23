@@ -41,6 +41,8 @@ def init_db(reset: bool = False) -> None:
         cur.execute("DROP TABLE IF EXISTS ratio_gates")
         cur.execute("DROP TABLE IF EXISTS users")
         cur.execute("DROP TABLE IF EXISTS alloy_presets")
+        cur.execute("DROP TABLE IF EXISTS prediction_feedback")
+        cur.execute("DROP TABLE IF EXISTS analysis_history")
 
     # 1. Reports Table (Full Specimen Analysis Records)
     cur.execute("""
@@ -145,6 +147,23 @@ def init_db(reset: bool = False) -> None:
             status TEXT NOT NULL DEFAULT 'confirmed',
             analyst_name TEXT NOT NULL,
             notes TEXT
+        )
+    """)
+
+    # 7. Analysis History Table (Historical Runs for Dashboard & History View)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS analysis_history (
+            id TEXT PRIMARY KEY,
+            timestamp TEXT NOT NULL,
+            source_type TEXT NOT NULL,
+            filename TEXT,
+            composition_json TEXT NOT NULL,
+            decision TEXT NOT NULL,
+            material_family TEXT,
+            grade_hint TEXT,
+            compatibility REAL,
+            candidate_components_json TEXT,
+            processing_time_s REAL
         )
     """)
 

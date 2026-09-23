@@ -14,8 +14,17 @@ from services.audit.logger import log_event
 
 
 def users_view(request: HttpRequest) -> HttpResponse:
-    users = [u.to_dict() for u in UserAccount.objects.all()]
-    presets = [p.to_dict() for p in AlloyPreset.objects.all()]
+    try:
+        users = [u.to_dict() for u in UserAccount.objects.all()]
+        presets = [p.to_dict() for p in AlloyPreset.objects.all()]
+    except Exception:
+        try:
+            from database import init_db
+            init_db()
+            users = [u.to_dict() for u in UserAccount.objects.all()]
+            presets = [p.to_dict() for p in AlloyPreset.objects.all()]
+        except Exception:
+            users, presets = [], []
     fps = load_fingerprints()
 
     active_techs = len([u for u in users if u['role'] == 'Lab Tech' and u['isActive']])

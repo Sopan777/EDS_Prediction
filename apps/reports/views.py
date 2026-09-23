@@ -12,7 +12,15 @@ from services.audit.logger import log_event
 
 
 def reports_view(request: HttpRequest) -> HttpResponse:
-    reports = [r.to_dict() for r in Report.objects.all()[:100]]
+    try:
+        reports = [r.to_dict() for r in Report.objects.all()[:100]]
+    except Exception:
+        try:
+            from database import init_db
+            init_db()
+            reports = [r.to_dict() for r in Report.objects.all()[:100]]
+        except Exception:
+            reports = []
     context = {
         'reports': reports,
         'current_section': 'reports',

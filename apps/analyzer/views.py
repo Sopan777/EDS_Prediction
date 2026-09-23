@@ -23,8 +23,18 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
     
     kb = get_kb()
     fps = load_fingerprints()
-    recent = list(AnalysisHistory.objects.all()[:10])
-    total_count = AnalysisHistory.objects.count()
+    try:
+        recent = list(AnalysisHistory.objects.all()[:10])
+        total_count = AnalysisHistory.objects.count()
+    except Exception:
+        try:
+            from database import init_db
+            init_db()
+            recent = list(AnalysisHistory.objects.all()[:10])
+            total_count = AnalysisHistory.objects.count()
+        except Exception:
+            recent = []
+            total_count = 0
 
     context = {
         'recent_analyses': recent,
@@ -40,7 +50,15 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
 def analyzer_view(request: HttpRequest) -> HttpResponse:
     families = get_all_families_mapped()
     active_family = families[0] if families else None
-    presets = list(AlloyPreset.objects.all())
+    try:
+        presets = list(AlloyPreset.objects.all())
+    except Exception:
+        try:
+            from database import init_db
+            init_db()
+            presets = list(AlloyPreset.objects.all())
+        except Exception:
+            presets = []
 
     context = {
         'families': families,

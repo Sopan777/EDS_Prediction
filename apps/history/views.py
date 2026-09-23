@@ -13,9 +13,19 @@ from services.audit.logger import log_event, get_audit_logs
 
 
 def history_view(request: HttpRequest) -> HttpResponse:
-    logs = [l.to_frontend_dict() for l in AuditLog.objects.all()[:200]]
-    history_records = list(AnalysisHistory.objects.all()[:100])
-    feedback_records = list(PredictionFeedback.objects.all()[:100])
+    try:
+        logs = [l.to_frontend_dict() for l in AuditLog.objects.all()[:200]]
+        history_records = list(AnalysisHistory.objects.all()[:100])
+        feedback_records = list(PredictionFeedback.objects.all()[:100])
+    except Exception:
+        try:
+            from database import init_db
+            init_db()
+            logs = [l.to_frontend_dict() for l in AuditLog.objects.all()[:200]]
+            history_records = list(AnalysisHistory.objects.all()[:100])
+            feedback_records = list(PredictionFeedback.objects.all()[:100])
+        except Exception:
+            logs, history_records, feedback_records = [], [], []
 
     users = sorted(list(set(l['user'] for l in logs)))
     action_types = sorted(list(set(l['actionType'] for l in logs)))
