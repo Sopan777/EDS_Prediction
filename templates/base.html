@@ -48,11 +48,13 @@
       line-height: 1;
     }
 
-    /* Multi-color Bosch top ribbon gradient */
+    /* Top spectrum ribbon */
     .top-spectrum-ribbon {
-      height: 6px;
+      height: 5px;
       width: 100%;
-      background: linear-gradient(90deg, #005691 0%, #0098a6 20%, #7b2b82 40%, #ED0007 60%, #ed6b00 80%, #ffc000 100%);
+      background-image: url('{% static "images/spectrum_ribbon.png" %}');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
     }
 
     /* Active navigation item styling with left red accent */
@@ -120,24 +122,12 @@
 <body class="min-h-screen flex flex-col bg-[#F8FAFC]">
 
   <!-- 1. TOP SPECTRUM RIBBON -->
-  <div class="top-spectrum-ribbon shrink-0"></div>
+  <div class="top-spectrum-ribbon shrink-0 overflow-hidden leading-none block">
+    <img src="{% static 'images/spectrum_ribbon.png' %}" alt="Spectrum Ribbon" class="w-full h-full object-fill block" />
+  </div>
 
   <!-- 2. TOP APPLICATION HEADER -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shrink-0 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-    <!-- Utility Links Row (Upper right) -->
-    <div class="border-b border-slate-100 px-6 py-1.5 flex items-center justify-end text-[11px] font-medium text-slate-500 gap-6">
-      <a href="#" class="hover:text-slate-800 transition-colors">Bosch in India</a>
-      <span class="text-slate-300">|</span>
-      <a href="#" class="hover:text-slate-800 transition-colors">Careers</a>
-      <span class="text-slate-300">|</span>
-      <a href="#" class="hover:text-slate-800 transition-colors">Contact us</a>
-      <span class="text-slate-300">|</span>
-      <div class="flex items-center gap-1 cursor-pointer hover:text-slate-800">
-        <span>EN</span>
-        <span class="material-symbols-outlined text-[13px]">expand_more</span>
-      </div>
-    </div>
-
     <!-- Main Header Row -->
     <div class="px-6 py-3.5 flex items-center justify-between gap-4">
       <!-- Left: Logo & Wordmark -->
