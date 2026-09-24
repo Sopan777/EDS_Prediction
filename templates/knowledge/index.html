@@ -4,402 +4,388 @@
 {% block title %}Knowledge Base — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="knowledge-base-container" class="space-y-6 pb-12">
+<div class="page-content knowledge-page">
 
-  <!-- =========================================================================
-       PAGE HEADER
-       ========================================================================= -->
-  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Engineering Reference Library</span>
-        </div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Material & Component Knowledge Base</h1>
-        <p class="text-xs text-slate-500 mt-0.5">
-          International alloy specifications, empirical component fingerprints (48 parts), reference spectra (171 spectra), and stoichiometric gates.
-        </p>
+  <!-- =========================================
+       PAGE HERO
+       ========================================= -->
+  <div class="page-hero">
+    <div>
+      <div class="eyebrow">
+        ENGINEERING REFERENCE LIBRARY
       </div>
-
-      <!-- Navigation Tabs (4 Sections) -->
-      <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold shrink-0">
-        <button type="button" id="tab-btn-families" onclick="switchKbTab('families')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
-          Material Families ({{ families|length }})
-        </button>
-        <button type="button" id="tab-btn-components" onclick="switchKbTab('components')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Components ({{ components|length }})
-        </button>
-        <button type="button" id="tab-btn-spectra" onclick="switchKbTab('spectra')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Reference Spectra ({{ reference_spectra|length }})
-        </button>
-        <button type="button" id="tab-btn-gates" onclick="switchKbTab('gates')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Element Rules & Gates ({{ all_gates|length }})
-        </button>
-      </div>
+      <h1>
+        Material &amp; Component Knowledge Base
+      </h1>
+      <p>
+        International alloy specifications, empirical component fingerprints (48 parts), reference spectra (171 spectra), and stoichiometric gates.
+      </p>
     </div>
 
-    <!-- Prominent Universal Search Bar -->
-    <div class="relative">
-      <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-      <input type="text" id="kb-search-input" oninput="handleKbSearch(this.value)" placeholder="Search across material families, 48 components, element rules, aliases, and reference spectra (e.g. 100Cr6, Armature, AISI 304, Cr/Ni, Sl2 B1)..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
+    <div class="hero-stat">
+      <span class="hero-date-label">Database</span>
+      <strong>171 Spectra</strong>
+      <small style="font-size: 10px; color: var(--muted);">48 Components</small>
+    </div>
+  </div>
+
+  <!-- =========================================
+       TABS BAR (4 SECTIONS)
+       ========================================= -->
+  <div class="tabs-bar">
+    <button type="button" id="tab-btn-families" onclick="switchKbTab('families')" class="tab-btn active">
+      Material Families ({{ families|length }})
+    </button>
+    <button type="button" id="tab-btn-components" onclick="switchKbTab('components')" class="tab-btn">
+      Components ({{ components|length }})
+    </button>
+    <button type="button" id="tab-btn-spectra" onclick="switchKbTab('spectra')" class="tab-btn">
+      Reference Spectra ({{ reference_spectra|length }})
+    </button>
+    <button type="button" id="tab-btn-gates" onclick="switchKbTab('gates')" class="tab-btn">
+      Element Rules &amp; Gates ({{ all_gates|length }})
+    </button>
+  </div>
+
+  <!-- =========================================
+       UNIVERSAL SEARCH BAR (FILTER-CARD)
+       ========================================= -->
+  <div class="filter-card">
+    <div class="filter-field">
+      <label for="kb-search-input">Search Knowledge Base</label>
+      <input type="text" id="kb-search-input" oninput="handleKbSearch(this.value)" placeholder="Search across material families, 48 components, element rules, aliases, and reference spectra (e.g. 100Cr6, Armature, AISI 304, Cr/Ni, Sl2 B1)...">
     </div>
   </div>
 
   <!-- =========================================================================
        TAB 1: MATERIAL FAMILIES
        ========================================================================= -->
-  <div id="kb-view-families" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- Left Column: Families Navigation List (4 cols) -->
-    <div class="lg:col-span-4 bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-2">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Alloy Taxonomy</span>
-        <span class="text-xs font-mono-code text-slate-500">{{ families|length }} Families</span>
+  <div id="kb-view-families" class="dashboard-grid two-column">
+    
+    <!-- LEFT COLUMN: FAMILIES NAVIGATION LIST -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">ALLOY TAXONOMY</span>
+          <h3>Standard Families</h3>
+        </div>
+        <span class="code-badge">{{ families|length }} Families</span>
       </div>
 
-      <div id="families-list-container" class="space-y-1.5">
+      <div id="families-list-container" style="display: flex; flex-direction: column; gap: 8px;">
         {% for fam in families %}
-          <div data-code="{{ fam.code }}" data-name="{{ fam.name }}" data-desc="{{ fam.description }}" onclick="selectFamily('{{ fam.code }}')" class="family-item p-3 rounded-lg border cursor-pointer transition-all {% if fam.code == active_family.code %}border-[#ED0007] bg-[#FFF1F2] border-l-4 border-l-[#ED0007]{% else %}border-slate-200 hover:border-slate-300 bg-white{% endif %}">
-            <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="text-xs font-mono-code font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
-                {{ fam.code }}
-              </span>
+          <div data-code="{{ fam.code }}" data-name="{{ fam.name }}" data-desc="{{ fam.description }}" onclick="selectFamily('{{ fam.code }}')" class="family-item" style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s ease; {% if fam.code == active_family.code %}background: var(--blue-soft); border-color: #c7dbff; border-left: 4px solid var(--blue);{% else %}background: #fff;{% endif %}">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span class="code-badge">{{ fam.code }}</span>
               {% if fam.status == 'FIRM' %}
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">FIRM</span>
+                <span class="status-badge status-ok">FIRM</span>
               {% else %}
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800">PROV</span>
+                <span class="status-badge" style="background: var(--amber-soft); color: var(--amber);">PROV</span>
               {% endif %}
             </div>
-            <div class="text-sm font-bold text-slate-900 leading-snug">
+            <strong style="display: block; font-size: 13px; color: var(--navy); line-height: 1.3;">
               {{ fam.name }}
-            </div>
-            <div class="text-xs text-slate-500 mt-1 line-clamp-1">
+            </strong>
+            <small style="display: block; font-size: 11px; color: var(--muted); margin-top: 3px;">
               Grade hint: {{ fam.gradeHint }}
-            </div>
+            </small>
           </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
 
-    <!-- Right Column: Family Details (8 cols) -->
-    <div class="lg:col-span-8 space-y-6">
-      <!-- Family Overview Hero Card -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs border-l-4 border-l-[#ED0007]">
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+    <!-- RIGHT COLUMN: FAMILY DETAILS -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Overview Card -->
+      <section class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
           <div>
-            <div class="flex items-center gap-2 mb-1.5">
-              <span id="detail-code-pill" class="text-xs font-mono-code font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                {{ active_family.code }}
-              </span>
-              <span id="detail-status-pill" class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                {{ active_family.status }} SPECIFICATION
-              </span>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span id="detail-code-pill" class="code-badge">{{ active_family.code }}</span>
+              <span id="detail-status-pill" class="status-badge status-ok">{{ active_family.status }} SPECIFICATION</span>
             </div>
-            <h2 id="detail-family-name" class="text-2xl font-black text-slate-900 tracking-tight">
+            <h2 id="detail-family-name" style="margin: 0 0 6px; font-size: 22px; font-weight: 700; color: var(--navy);">
               {{ active_family.name }}
             </h2>
-            <p id="detail-grade-hint" class="text-xs font-semibold text-slate-600 mt-1">
-              Grade hint: {{ active_family.gradeHint }}
-            </p>
-            <p id="detail-description" class="text-xs text-slate-600 mt-3 leading-relaxed">
+            <p id="detail-family-desc" style="margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5;">
               {{ active_family.description }}
             </p>
           </div>
 
-          <a id="btn-edit-profile" href="{% url 'gate_editor' fid=active_family.code %}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs shrink-0">
-            <span class="material-symbols-outlined text-[15px]">edit</span>
-            <span>Edit Ratio Gates</span>
+          <a id="link-gate-editor" href="{% url 'gate_editor' active_family.code %}" class="primary-btn" style="white-space: nowrap; font-size: 11px;">
+            ⚙ Calibrate Ratio Gates
           </a>
         </div>
-      </div>
 
-      <!-- Elemental Concentration Bands Table -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] text-slate-700">tune</span>
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Elemental Concentration Bands (wt%)</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px;">
+          <div>
+            <span style="color: var(--muted);">Grade Hint:</span>
+            <strong id="detail-grade-hint" style="color: var(--navy); margin-left: 4px;">{{ active_family.gradeHint }}</strong>
           </div>
-          <span class="text-xs text-slate-500 font-mono-code">Standard ASTM / ISO Range</span>
+          <div>
+            <span style="color: var(--muted);">Base Matrix:</span>
+            <strong id="detail-base-elements" style="color: var(--navy); margin-left: 4px;">{{ active_family.baseElements|join:", " }}</strong>
+          </div>
+          <div>
+            <span style="color: var(--muted);">Discriminators:</span>
+            <strong id="detail-discriminators" style="color: var(--navy); margin-left: 4px;">{{ active_family.discriminators|join:", " }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Element Bands Table -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">CONCENTRATION BANDS</span>
+            <h3>Standard Elemental Ranges (wt%)</h3>
+          </div>
+          <span class="code-badge">ASTM / ISO Nominal</span>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
+        <div class="table-wrap">
+          <table class="records-table">
             <thead>
-              <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                <th class="py-2.5 px-4">Element</th>
-                <th class="py-2.5 px-4">Role</th>
-                <th class="py-2.5 px-4 text-right">Min wt%</th>
-                <th class="py-2.5 px-4 text-right">Max wt%</th>
-                <th class="py-2.5 px-4 w-44">Specification Range</th>
+              <tr>
+                <th>Element</th>
+                <th style="text-align: right;">Min (wt%)</th>
+                <th style="text-align: right;">Max (wt%)</th>
+                <th style="text-align: center;">Required</th>
+                <th>Role / Characteristic</th>
               </tr>
             </thead>
-            <tbody id="bands-table-body" class="divide-y divide-slate-100 font-mono-code">
+            <tbody id="detail-bands-table-body">
               {% for band in active_family.elementBands %}
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="py-2.5 px-4 font-bold text-slate-900">{{ band.element }}</td>
-                  <td class="py-2.5 px-4 font-sans">
-                    {% if band.role == 'Required' %}
-                      <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Required</span>
-                    {% elif band.role == 'Trace' %}
-                      <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">Trace</span>
+                <tr>
+                  <td><strong>{{ band.element }}</strong></td>
+                  <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ band.min|default:"0.00" }}</td>
+                  <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ band.max|default:"Bal." }}</td>
+                  <td style="text-align: center;">
+                    {% if band.required %}
+                      <span class="status-badge status-ok">Mandatory</span>
                     {% else %}
-                      <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">Allowed</span>
+                      <span class="status-badge" style="background: #f1f3f6; color: var(--muted);">Optional</span>
                     {% endif %}
                   </td>
-                  <td class="py-2.5 px-4 text-right">{{ band.min_wt_pct|floatformat:1 }}%</td>
-                  <td class="py-2.5 px-4 text-right">{{ band.max_wt_pct|floatformat:1 }}%</td>
-                  <td class="py-2.5 px-4">
-                    <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                      <div class="bg-slate-700 h-full" style="width: 75%"></div>
-                    </div>
-                  </td>
+                  <td style="color: var(--muted); font-size: 11px;">{{ band.role|default:"Alloy component" }}</td>
                 </tr>
               {% empty %}
                 <tr>
-                  <td colspan="5" class="py-4 text-center text-slate-500 font-sans">No concentration bands mapped.</td>
+                  <td colspan="5" class="empty-cell">No band definitions available.</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
-      <!-- Ratio Gates for Active Family -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] text-slate-700">calculate</span>
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Stoichiometric Gates for This Family</h3>
+      <!-- Components & Ratio Gates Section -->
+      <div class="dashboard-grid two-column">
+        <!-- Known Components -->
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">APPLICATIONS</span>
+              <h3>Indexed Components</h3>
+            </div>
           </div>
-          <span class="text-xs text-slate-500 font-mono-code">Deterministic Rules</span>
-        </div>
+          <div id="detail-components-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            {% for comp in active_family.components %}
+              <span class="code-badge">{{ comp }}</span>
+            {% empty %}
+              <span style="font-size: 11px; color: var(--muted);">No specific components indexed.</span>
+            {% endfor %}
+          </div>
+        </section>
 
-        <div id="family-ratio-gates-list" class="space-y-3">
-          {% for gate in active_family.ratioGates %}
-            <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div>
-                <div class="font-bold text-slate-900 text-sm">{{ gate.name }}</div>
-                <div class="text-slate-500 font-mono-code mt-0.5">
-                  Formula: <strong>{{ gate.numerator }} / {{ gate.denominator }}</strong> &bull; Allowed Band: <strong>{{ gate.min }} – {{ gate.max }}</strong>
+        <!-- Ratio Gates -->
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">PHYSICAL GATES</span>
+              <h3>Phase Stability Gates</h3>
+            </div>
+          </div>
+          <div id="detail-gates-list" style="display: flex; flex-direction: column; gap: 6px;">
+            {% for g in active_family.ratioGates %}
+              <div style="padding: 8px 10px; background: #fbfcfe; border: 1px solid var(--border); border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-size: 11px; color: var(--navy);">{{ g.ratio_name }}</strong>
+                  <span class="code-badge font-mono-code">{{ g.min|default:"0" }} &ndash; {{ g.max|default:"&infin;" }}</span>
                 </div>
-                <div class="text-slate-600 mt-2">{{ gate.rationale }}</div>
+                <small style="display: block; font-size: 10px; color: var(--muted); margin-top: 2px;">{{ g.rationale }}</small>
               </div>
-              <span class="px-2.5 py-1 rounded text-xs font-bold uppercase bg-emerald-100 text-emerald-800 shrink-0">
-                ACTIVE GATE
-              </span>
-            </div>
-          {% empty %}
-            <div class="p-4 bg-slate-50 rounded-lg text-xs text-slate-500 text-center">
-              No specific stoichiometric ratio gates enforced for this family. Classification relies on elemental concentration bands.
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Associated Components -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] text-slate-700">precision_manufacturing</span>
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Associated Components in Reference Library</h3>
+            {% empty %}
+              <span style="font-size: 11px; color: var(--muted);">No stoichiometric ratio gates configured for this family.</span>
+            {% endfor %}
           </div>
-          <span id="family-components-count" class="text-xs font-mono-code text-slate-500">
-            {{ active_family.components|length }} parts
-          </span>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       TAB 2: COMPONENTS (48 CANONICAL PARTS)
+       ========================================================================= -->
+  <div id="kb-view-components" class="hidden" style="display: none;">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">EMPIRICAL FINGERPRINTS</span>
+          <h3>All Indexed Components ({{ components|length }})</h3>
         </div>
+        <span class="code-badge">EDS Consolidation Calibrated</span>
+      </div>
 
-        <div id="family-components-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          {% for comp in active_family.components %}
-            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between">
-              <span class="font-semibold text-slate-800 truncate">{{ comp }}</span>
-              <span class="text-[10px] font-mono-code text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                {{ active_family.code }}
-              </span>
-            </div>
-          {% empty %}
-            <div class="col-span-2 p-4 text-center text-slate-500">
-              No components explicitly mapped to this family.
-            </div>
-          {% endfor %}
+      <div class="table-wrap">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Component ID</th>
+              <th>Display Name</th>
+              <th>Material Family</th>
+              <th style="text-align: right;">Sample Count</th>
+              <th style="text-align: center;">Quality Rating</th>
+              <th>Expected Elements</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="components-table-body">
+            {% for c in components %}
+              <tr data-cid="{{ c.component_id }}" data-name="{{ c.display_name }}">
+                <td><span class="code-badge">{{ c.component_id }}</span></td>
+                <td><strong>{{ c.display_name }}</strong></td>
+                <td>{{ c.family_ids|join:", "|default:"—" }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600;">{{ c.sample_count }}</td>
+                <td style="text-align: center;">
+                  {% if c.fingerprint_quality == 'HIGH' %}
+                    <span class="status-badge status-ok">HIGH</span>
+                  {% elif c.fingerprint_quality == 'MEDIUM' %}
+                    <span class="status-badge" style="background: var(--blue-soft); color: var(--blue);">MED</span>
+                  {% else %}
+                    <span class="status-badge" style="background: #f1f3f6; color: var(--muted);">LOW</span>
+                  {% endif %}
+                </td>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--navy);">
+                  {{ c.elements|join:", "|default:"—" }}
+                </td>
+                <td>
+                  <button type="button" onclick="inspectComponentDetails('{{ c.component_id }}')" class="table-action" style="border: 0; background: transparent; cursor: pointer;">
+                    View Fingerprint
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- =========================================================================
+       TAB 3: REFERENCE SPECTRA (171 CALIBRATED SPECTRA)
+       ========================================================================= -->
+  <div id="kb-view-spectra" class="hidden" style="display: none;">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">CALIBRATED SPECTRA</span>
+          <h3>Reference Spectra Ingestion (171 Records)</h3>
         </div>
+        <span class="code-badge">EDS Consolidation.xlsx</span>
       </div>
-    </div>
-  </div>
 
-  <!-- =========================================================================
-       TAB 2: COMPONENTS (48 CANONICAL EMPIRICAL FINGERPRINTS)
-       ========================================================================= -->
-  <div id="kb-view-components" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900">Canonical Component Library</h2>
-        <p class="text-xs text-slate-500 mt-0.5">
-          48 components characterized by robust empirical medians, interquartile range (IQR) dispersion bounds, and historical sample counts.
-        </p>
-      </div>
-      <div class="text-xs font-mono-code text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-        Total Components: <strong>{{ components|length }}</strong>
-      </div>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-            <th class="py-2.5 px-4">Component Name</th>
-            <th class="py-2.5 px-4">Quality & Spectra</th>
-            <th class="py-2.5 px-4">Material Body</th>
-            <th class="py-2.5 px-4">Known Aliases</th>
-            <th class="py-2.5 px-4 text-right font-mono-code">Fe Median</th>
-            <th class="py-2.5 px-4 text-right font-mono-code">Cr Median</th>
-            <th class="py-2.5 px-4 text-right font-mono-code">Ni Median</th>
-            <th class="py-2.5 px-4 text-right font-mono-code">Mn Median</th>
-            <th class="py-2.5 px-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="component-library-tbody" class="divide-y divide-slate-100">
-          {% for c in components %}
-            <tr class="component-row hover:bg-slate-50 transition-colors" data-name="{{ c.display_name }}" data-id="{{ c.component_id }}" data-mat="{{ c.material_body }}" data-aliases="{{ c.aliases }}">
-              <td class="py-3 px-4">
-                <div class="font-bold text-slate-900 text-sm">{{ c.display_name }}</div>
-                <div class="text-[11px] font-mono-code text-slate-500">{{ c.component_id }}</div>
-              </td>
-              <td class="py-3 px-4">
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-bold {% if c.fingerprint_quality == 'HIGH' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif c.fingerprint_quality == 'MEDIUM' %}bg-blue-100 text-blue-800 border border-blue-200{% else %}bg-slate-100 text-slate-600 border border-slate-200{% endif %}">
-                  {{ c.fingerprint_quality }} ({{ c.sample_count }}n)
-                </span>
-              </td>
-              <td class="py-3 px-4 text-slate-700 font-medium">
-                {{ c.material_body }}
-              </td>
-              <td class="py-3 px-4 text-slate-500 text-[11px] truncate max-w-[140px]">
-                {{ c.aliases }}
-              </td>
-              <td class="py-3 px-4 text-right font-mono-code text-slate-900 font-semibold">{{ c.fe_median|floatformat:1 }}%</td>
-              <td class="py-3 px-4 text-right font-mono-code text-slate-900">{{ c.cr_median|floatformat:1 }}%</td>
-              <td class="py-3 px-4 text-right font-mono-code text-slate-900">{{ c.ni_median|floatformat:1 }}%</td>
-              <td class="py-3 px-4 text-right font-mono-code text-slate-900">{{ c.mn_median|floatformat:1 }}%</td>
-              <td class="py-3 px-4 text-right">
-                <button type="button" onclick='openComponentDetailModal({ component_id: "{{ c.component_id }}", name: "{{ c.display_name }}" })' class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-xs transition-colors">
-                  Inspect
-                </button>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- =========================================================================
-       TAB 3: REFERENCE SPECTRA (171 EMPIRICAL SPECTRA ARCHIVE)
-       ========================================================================= -->
-  <div id="kb-view-spectra" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900">Historical Reference EDS Spectra</h2>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Calibrated baseline spectra from the primary historical EDS Consolidation repository.
-        </p>
-      </div>
-      <div class="text-xs font-mono-code text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-        Total Spectra: <strong>{{ reference_spectra|length }}</strong>
-      </div>
-    </div>
-
-    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead class="sticky top-0 z-10">
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-            <th class="py-2.5 px-4">Spectrum ID</th>
-            <th class="py-2.5 px-4">Component Reference</th>
-            <th class="py-2.5 px-4">Scan Location / Site</th>
-            <th class="py-2.5 px-4">Primary Element Composition</th>
-            <th class="py-2.5 px-4 text-right font-mono-code">Sum wt%</th>
-          </tr>
-        </thead>
-        <tbody id="spectra-table-tbody" class="divide-y divide-slate-100 font-mono-code">
-          {% for sp in reference_spectra %}
-            <tr class="spectrum-row hover:bg-slate-50 transition-colors" data-id="{{ sp.spectrum_id }}" data-comp="{{ sp.component }}" data-summary="{{ sp.summary }}">
-              <td class="py-2.5 px-4 font-bold text-slate-900">{{ sp.spectrum_id }}</td>
-              <td class="py-2.5 px-4 font-sans font-semibold text-slate-800">{{ sp.component }}</td>
-              <td class="py-2.5 px-4 font-sans text-slate-600">{{ sp.site }}</td>
-              <td class="py-2.5 px-4 text-slate-700">{{ sp.summary }}</td>
-              <td class="py-2.5 px-4 text-right font-bold text-slate-900">{{ sp.total|floatformat:1 }}%</td>
-            </tr>
-          {% empty %}
+      <div class="table-wrap">
+        <table class="records-table">
+          <thead>
             <tr>
-              <td colspan="5" class="py-8 text-center text-slate-500 font-sans">No reference spectra loaded.</td>
+              <th>Spectrum ID</th>
+              <th>Component Label</th>
+              <th>Material Family</th>
+              <th style="text-align: right;">Fe (wt%)</th>
+              <th style="text-align: right;">Cr (wt%)</th>
+              <th style="text-align: right;">Ni (wt%)</th>
+              <th style="text-align: right;">Mn (wt%)</th>
+              <th style="text-align: right;">Si (wt%)</th>
+              <th>Other Elements</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody id="spectra-table-body">
+            {% for s in reference_spectra %}
+              <tr data-sid="{{ s.id }}" data-comp="{{ s.component }}">
+                <td><span class="code-badge">{{ s.id }}</span></td>
+                <td><strong>{{ s.component }}</strong></td>
+                <td>{{ s.material_family }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ s.fe|default:"—" }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ s.cr|default:"—" }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ s.ni|default:"—" }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ s.mn|default:"—" }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ s.si|default:"—" }}</td>
+                <td style="font-size: 10px; color: var(--muted);">{{ s.others|default:"—" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="9" class="empty-cell">Reference spectra loading...</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
   <!-- =========================================================================
-       TAB 4: ELEMENT RULES & RATIO GATES
+       TAB 4: ELEMENT RULES & GATES
        ========================================================================= -->
-  <div id="kb-view-gates" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900">Stoichiometric Ratio Gates & Validation Logic</h2>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Deterministic phase stability and metallurgical element ratio gates across all alloy specifications.
-        </p>
+  <div id="kb-view-gates" class="hidden" style="display: none;">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">PHYSICAL RULES</span>
+          <h3>All Stoichiometric Gates ({{ all_gates|length }})</h3>
+        </div>
+        <span class="code-badge">Phase Invariance</span>
       </div>
-      <div class="text-xs font-mono-code text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-        Total Gates: <strong>{{ all_gates|length }}</strong>
-      </div>
-    </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-            <th class="py-2.5 px-4">Material Family</th>
-            <th class="py-2.5 px-4">Gate Name</th>
-            <th class="py-2.5 px-4">Formula</th>
-            <th class="py-2.5 px-4 text-right">Min Threshold</th>
-            <th class="py-2.5 px-4 text-right">Max Threshold</th>
-            <th class="py-2.5 px-4">Stoichiometric Rationale</th>
-            <th class="py-2.5 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody id="all-gates-tbody" class="divide-y divide-slate-100 font-mono-code">
-          {% for gate in all_gates %}
-            <tr class="gate-row hover:bg-slate-50 transition-colors" data-fam="{{ gate.family_name }}" data-code="{{ gate.family_code }}" data-name="{{ gate.name }}">
-              <td class="py-3 px-4 font-bold text-slate-900 font-sans">
-                <span class="font-mono-code text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 mr-1.5">{{ gate.family_code }}</span>
-                {{ gate.family_name }}
-              </td>
-              <td class="py-3 px-4 font-bold text-slate-900 font-sans">{{ gate.name }}</td>
-              <td class="py-3 px-4 font-bold text-[#ED0007]">{{ gate.numerator }} / {{ gate.denominator }}</td>
-              <td class="py-3 px-4 text-right">{{ gate.min|floatformat:2 }}</td>
-              <td class="py-3 px-4 text-right">{{ gate.max|floatformat:2 }}</td>
-              <td class="py-3 px-4 text-slate-600 font-sans text-xs max-w-sm">{{ gate.rationale }}</td>
-              <td class="py-3 px-4 text-right font-sans">
-                <a href="{% url 'gate_editor' fid=gate.family_code %}" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-xs transition-colors inline-block">
-                  Edit Gate
-                </a>
-              </td>
-            </tr>
-          {% empty %}
+      <div class="table-wrap">
+        <table class="records-table">
+          <thead>
             <tr>
-              <td colspan="7" class="py-4 text-center text-slate-500 font-sans">No ratio gates configured.</td>
+              <th>Family</th>
+              <th>Ratio Name</th>
+              <th style="text-align: right;">Min Bound</th>
+              <th style="text-align: right;">Max Bound</th>
+              <th>Physical / Phase Rationale</th>
+              <th>Actions</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody id="gates-overview-table-body">
+            {% for g in all_gates %}
+              <tr>
+                <td><span class="code-badge">{{ g.family_code }}</span></td>
+                <td><strong>{{ g.ratio_name }}</strong></td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ g.min|default:"0.00" }}</td>
+                <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ g.max|default:"&infin;" }}</td>
+                <td style="font-size: 11px; color: var(--muted);">{{ g.rationale }}</td>
+                <td>
+                  <a href="{% url 'gate_editor' g.family_code %}" class="table-action">
+                    Edit Gate
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
 </div>
 
+<!-- Pass Initial Data for Dynamic JavaScript Inspection -->
 <script>
-  window.KB_FAMILIES = {{ families|safe }};
-  window.ACTIVE_FAMILY = {{ active_family|safe }};
+  window.KB_FAMILIES = {{ families_json|safe|default:"[]" }};
+  window.KB_COMPONENTS = {{ components_json|safe|default:"[]" }};
 </script>
 {% endblock %}
 

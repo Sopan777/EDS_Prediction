@@ -1,367 +1,420 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Settings & Reference Data — DHATU BODH{% endblock %}
+{% block title %}Settings &amp; Reference Data — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="settings-screen-container" class="space-y-6 pb-12">
-  <!-- =========================================================================
-       PAGE HEADER
-       ========================================================================= -->
-  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">System Configuration</span>
-        </div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">System Settings & Reference Data</h1>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Rule engine calibration parameters, standard alloy presets, and laboratory personnel access controls.
-        </p>
-      </div>
+<div class="page-content settings-page">
 
-      <!-- Navigation Tabs -->
-      <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold shrink-0">
-        <button type="button" id="tab-btn-system" onclick="switchSettingsTab('system')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
-          System & Engine
-        </button>
-        <button type="button" id="tab-btn-presets" onclick="switchSettingsTab('presets')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Alloy Presets ({{ presets|length }})
-        </button>
-        <button type="button" id="tab-btn-personnel" onclick="switchSettingsTab('personnel')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Personnel ({{ users|length }})
-        </button>
+  <!-- =========================================
+       PAGE HERO
+       ========================================= -->
+  <div class="page-hero">
+    <div>
+      <div class="eyebrow">
+        SYSTEM CONFIGURATION &amp; GOVERNANCE
+      </div>
+      <h1>
+        System Settings &amp; Reference Presets
+      </h1>
+      <p>
+        Deterministic rule engine parameters, standard alloy presets library, and laboratory personnel access controls.
+      </p>
+    </div>
+
+    <div class="hero-stat">
+      <span class="hero-date-label">Engine</span>
+      <strong>v2.4.0</strong>
+      <small style="font-size: 10px; color: var(--muted);">Deterministic</small>
+    </div>
+  </div>
+
+  <!-- =========================================
+       METRICS CARDS (4-COLUMN UI-INSPIRATION GRID)
+       ========================================= -->
+  <div class="dashboard-cards">
+    <div class="metric-card metric-blue">
+      <div class="metric-icon">⚙</div>
+      <div>
+        <span>Rule Engine</span>
+        <strong style="font-size: 18px;">v2.4.0</strong>
+      </div>
+    </div>
+
+    <div class="metric-card metric-green">
+      <div class="metric-icon">✓</div>
+      <div>
+        <span>Fingerprints</span>
+        <strong>{{ fingerprints_count }}</strong>
+      </div>
+    </div>
+
+    <div class="metric-card metric-purple">
+      <div class="metric-icon">▥</div>
+      <div>
+        <span>Alloy Presets</span>
+        <strong>{{ presets|length }}</strong>
+      </div>
+    </div>
+
+    <div class="metric-card metric-red">
+      <div class="metric-icon">👥</div>
+      <div>
+        <span>Personnel</span>
+        <strong>{{ users|length }}</strong>
       </div>
     </div>
   </div>
 
-  <!-- Key Metrics Row -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Rule Engine Version</div>
-      <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">v2.4.0 Deterministic</div>
-      <div class="text-[11px] text-slate-500 mt-0.5">ASTM E1508 / ISO 22309</div>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs border-l-4 border-l-[#ED0007]">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Component Fingerprints</div>
-      <div class="text-xl font-black text-[#ED0007] mt-1 font-mono-code">{{ fingerprints_count }} Components</div>
-      <div class="text-[11px] text-slate-500 mt-0.5">{{ total_spectra_count }} reference spectra</div>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Alloy Presets Library</div>
-      <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">{{ presets|length }} Standard Presets</div>
-      <div class="text-[11px] text-slate-500 mt-0.5">Quick-load compositions</div>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Laboratory Personnel</div>
-      <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">{{ users|length }} Active Accounts</div>
-      <div class="text-[11px] text-slate-500 mt-0.5">{{ metallurgists }} Metallurgists Authorized</div>
-    </div>
+  <!-- =========================================
+       TABS BAR
+       ========================================= -->
+  <div class="tabs-bar">
+    <button type="button" id="tab-btn-system" onclick="switchSettingsTab('system')" class="tab-btn active">
+      System &amp; Engine
+    </button>
+    <button type="button" id="tab-btn-presets" onclick="switchSettingsTab('presets')" class="tab-btn">
+      Alloy Presets ({{ presets|length }})
+    </button>
+    <button type="button" id="tab-btn-personnel" onclick="switchSettingsTab('personnel')" class="tab-btn">
+      Personnel &amp; Roles ({{ users|length }})
+    </button>
   </div>
 
   <!-- =========================================================================
        TAB 1: SYSTEM & ENGINE PARAMETERS
        ========================================================================= -->
-  <div id="settings-view-system" class="space-y-6">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Engine Architecture -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <span class="material-symbols-outlined text-[20px] text-slate-700">settings_suggest</span>
-          <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider">Prediction Engine Architecture</h2>
-        </div>
-
-        <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
-          <p>
-            <strong>DHATU BODH</strong> utilizes a two-tier hybrid architecture combining deterministic stoichiometric rule gating with non-parametric empirical component fingerprinting.
-          </p>
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
-            <div class="font-bold text-slate-800">Tier 1: Material Family Classification</div>
-            <div>Evaluates elemental concentration bands and stoichiometric ratio gates (e.g. Cr/Ni, Cu/Sn, W/Mo) without stochastic black-box distortion.</div>
-          </div>
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
-            <div class="font-bold text-slate-800">Tier 2: Component Statistical Matching</div>
-            <div>Scores candidate components using standardized robust distance based on empirical medians and interquartile ranges (IQR).</div>
-          </div>
+  <div id="settings-view-system" class="dashboard-grid two-column">
+    <!-- Engine Architecture -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">ARCHITECTURE</span>
+          <h3>Prediction Engine Core</h3>
         </div>
       </div>
 
-      <!-- Normalization & Calibration Rules -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <span class="material-symbols-outlined text-[20px] text-slate-700">tune</span>
-          <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider">Normalization & Calibration Standards</h2>
+      <div style="font-size: 12px; color: var(--muted); line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
+        <p style="margin: 0;">
+          <strong>DHATU BODH</strong> uses a two-tier hybrid architecture combining deterministic stoichiometric rule gating with non-parametric empirical component fingerprinting.
+        </p>
+
+        <div style="background: var(--blue-soft); border: 1px solid #d8e6ff; border-radius: 10px; padding: 12px;">
+          <strong style="display: block; font-size: 12px; color: var(--navy); margin-bottom: 2px;">
+            Tier 1: Material Family Classification
+          </strong>
+          <span style="font-size: 11px; color: #475569;">
+            Evaluates elemental concentration bands and stoichiometric ratio gates (Cr/Ni, Cu/Sn, W/Mo) without stochastic black-box distortion.
+          </span>
         </div>
 
-        <div class="space-y-3 text-xs">
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-600 font-medium">Excluded Non-Alloy Elements</span>
-            <span class="font-mono-code font-bold text-slate-900">C, O, N, F, Ca, K, Na, Cl, Mg</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-600 font-medium">Standardized Distance Metric</span>
-            <span class="font-mono-code font-bold text-slate-900">z = |x - median| / IQR</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-600 font-medium">Foreign Element Penalty Multiplier</span>
-            <span class="font-mono-code font-bold text-[#ED0007]">2.50 &times;</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-600 font-medium">Minimum Acceptance Compatibility</span>
-            <span class="font-mono-code font-bold text-slate-900">60.0%</span>
-          </div>
-          <div class="flex justify-between py-2">
-            <span class="text-slate-600 font-medium">Multi-Spectrum Particle Pooling</span>
-            <span class="font-mono-code font-bold text-emerald-700">Arithmetic Mean Centroid</span>
-          </div>
+        <div style="background: var(--blue-soft); border: 1px solid #d8e6ff; border-radius: 10px; padding: 12px;">
+          <strong style="display: block; font-size: 12px; color: var(--navy); margin-bottom: 2px;">
+            Tier 2: Component Statistical Matching
+          </strong>
+          <span style="font-size: 11px; color: #475569;">
+            Scores candidate components using standardized robust distance based on empirical medians and interquartile ranges (IQR).
+          </span>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Normalization & Calibration Rules -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">STANDARDS</span>
+          <h3>Calibration Parameters</h3>
+        </div>
+        <span class="code-badge">ASTM E1508 / ISO 22309</span>
+      </div>
+
+      <div style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+          <span style="color: var(--muted);">Excluded Non-Alloy Elements</span>
+          <span class="code-badge" style="font-size: 10px;">C, O, N, F, Ca, K, Na, Cl, Mg</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+          <span style="color: var(--muted);">Standardized Distance Metric</span>
+          <span class="code-badge" style="font-size: 10px;">z = |x - median| / IQR</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+          <span style="color: var(--muted);">Foreign Element Penalty Multiplier</span>
+          <span class="status-badge status-nok">2.50 &times;</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+          <span style="color: var(--muted);">Minimum Acceptance Compatibility</span>
+          <strong style="color: var(--navy); font-family: 'JetBrains Mono', monospace;">60.0%</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+          <span style="color: var(--muted);">Multi-Spectrum Pooling</span>
+          <span class="status-badge status-ok">Arithmetic Mean Centroid</span>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <!-- =========================================================================
+  <!-- =========================================
        TAB 2: STANDARD ALLOY PRESETS
-       ========================================================================= -->
-  <div id="settings-view-presets" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900">Standard Metallurgical Alloy Presets</h2>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Pre-calibrated elemental wt% formulations available in the Analyzer screen.
-        </p>
+       ========================================= -->
+  <div id="settings-view-presets" style="display: none;">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">PRESET LIBRARY</span>
+          <h3>Standard Metallurgical Formulations</h3>
+        </div>
+        <button type="button" onclick="openAddPresetModal()" class="primary-btn compact">
+          ＋ New Alloy Preset
+        </button>
       </div>
 
-      <button type="button" onclick="openAddPresetModal()" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[#ED0007] text-white hover:bg-[#c90006] shadow-xs flex items-center gap-1.5 transition-colors">
-        <span class="material-symbols-outlined text-[16px]">add</span>
-        <span>New Alloy Preset</span>
-      </button>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
-            <th class="py-2.5 px-4">Preset Name</th>
-            <th class="py-2.5 px-4">Category</th>
-            <th class="py-2.5 px-4">Nominal Composition (wt%)</th>
-            <th class="py-2.5 px-4">Author</th>
-            <th class="py-2.5 px-4 text-right">Created</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-          {% for p in presets %}
-            <tr class="hover:bg-slate-50 transition-colors font-mono-code">
-              <td class="py-3 px-4 font-sans font-bold text-slate-900">{{ p.name }}</td>
-              <td class="py-3 px-4 font-sans">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
-                  {{ p.category }}
-                </span>
-              </td>
-              <td class="py-3 px-4 text-slate-700 max-w-md">
-                {% for el, val in p.composition.items %}
-                  <span class="mr-2">{{ el }}: <strong>{{ val }}%</strong></span>
-                {% endfor %}
-              </td>
-              <td class="py-3 px-4 font-sans text-slate-600">{{ p.created_by }}</td>
-              <td class="py-3 px-4 text-right text-slate-500">{{ p.created_at }}</td>
-            </tr>
-          {% empty %}
+      <div class="table-wrap">
+        <table class="records-table">
+          <thead>
             <tr>
-              <td colspan="5" class="py-6 text-center text-slate-500 font-sans">No alloy presets configured.</td>
+              <th>Preset Name</th>
+              <th>Category</th>
+              <th>Nominal Composition (wt%)</th>
+              <th>Author</th>
+              <th style="text-align: right;">Created</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {% for p in presets %}
+              <tr>
+                <td><strong>{{ p.name }}</strong></td>
+                <td><span class="code-badge">{{ p.category }}</span></td>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                  {% for el, val in p.composition.items %}
+                    <span style="margin-right: 8px;">{{ el }}: <strong>{{ val }}%</strong></span>
+                  {% endfor %}
+                </td>
+                <td>{{ p.created_by }}</td>
+                <td style="text-align: right; color: var(--muted); font-size: 11px;">{{ p.created_at }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="empty-cell">No alloy presets configured.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
-  <!-- =========================================================================
+  <!-- =========================================
        TAB 3: PERSONNEL & ROLE MANAGEMENT
-       ========================================================================= -->
-  <div id="settings-view-personnel" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-      <div>
-        <h2 class="text-lg font-bold text-slate-900">Laboratory Personnel & Permissions</h2>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Authorized analysts and spectrometer operators for the EDS microanalysis system.
-        </p>
+       ========================================= -->
+  <div id="settings-view-personnel" style="display: none;">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">ACCESS CONTROL</span>
+          <h3>Authorized Laboratory Personnel</h3>
+        </div>
+        <button type="button" onclick="openAddPersonnelModal()" class="primary-btn compact">
+          ＋ Add Personnel
+        </button>
       </div>
 
-      <button type="button" onclick="openAddPersonnelModal()" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white hover:bg-slate-800 shadow-xs flex items-center gap-1.5 transition-colors">
-        <span class="material-symbols-outlined text-[16px]">person_add</span>
-        <span>Add Personnel</span>
-      </button>
+      <div class="table-wrap">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Authorization</th>
+              <th style="text-align: center;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+              <tr>
+                <td>
+                  <strong style="color: var(--navy); display: block;">{{ u.name }}</strong>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);">{{ u.email }}</span>
+                </td>
+                <td>
+                  {% if u.role == 'Chief Metallurgist' or u.role == 'Lead Metallurgist' %}
+                    <span class="status-badge" style="background: var(--blue-soft); color: var(--navy);">{{ u.role }}</span>
+                  {% else %}
+                    <span class="status-badge" style="background: #f1f3f6; color: var(--muted);">{{ u.role }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ u.department }}</td>
+                <td><span class="code-badge">{{ u.permissions }}</span></td>
+                <td style="text-align: center;">
+                  {% if u.isActive %}
+                    <span class="status-badge status-ok">Active</span>
+                  {% else %}
+                    <span class="status-badge" style="background: #f1f3f6; color: var(--muted);">Inactive</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="empty-cell">No laboratory personnel records found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<!-- Modal Dialogs -->
+<div id="add-preset-modal" class="modal-backdrop" style="display: none;">
+  <div class="modal-box" style="max-width: 480px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      <h3 style="margin: 0; font-size: 16px; color: var(--navy); font-weight: 700;">Add Alloy Preset</h3>
+      <button type="button" onclick="closeAddPresetModal()" style="border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 18px;">✕</button>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
-            <th class="py-2.5 px-4">Member</th>
-            <th class="py-2.5 px-4">Role</th>
-            <th class="py-2.5 px-4">Department</th>
-            <th class="py-2.5 px-4">Authorization</th>
-            <th class="py-2.5 px-4 text-center">Status</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-          {% for u in users %}
-            <tr class="hover:bg-slate-50 transition-colors">
-              <td class="py-3 px-4">
-                <div class="font-bold text-slate-900">{{ u.name }}</div>
-                <div class="text-[11px] text-slate-500 font-mono-code">{{ u.email }}</div>
-              </td>
-              <td class="py-3 px-4 font-medium text-slate-800">{{ u.role }}</td>
-              <td class="py-3 px-4 text-slate-600">{{ u.department }}</td>
-              <td class="py-3 px-4">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
-                  {{ u.permissions }}
-                </span>
-              </td>
-              <td class="py-3 px-4 text-center">
-                {% if u.isActive %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Active</span>
-                {% else %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Inactive</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="5" class="py-6 text-center text-slate-500 font-sans">No personnel accounts registered.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <form onsubmit="submitAddPreset(event)" class="record-form" style="display: flex; flex-direction: column; gap: 12px;">
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Preset Name</label>
+        <input type="text" id="preset-name" required placeholder="e.g. 100Cr6 Standard" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;">
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Category</label>
+        <input type="text" id="preset-category" required placeholder="e.g. Bearing Steel" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;">
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Elemental Composition (JSON)</label>
+        <textarea id="preset-composition" rows="3" required placeholder='{"Fe": 97.0, "Cr": 1.5, "Mn": 0.35, "Si": 0.25}' style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; box-sizing: border-box;"></textarea>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Author</label>
+        <input type="text" id="preset-author" value="Metallurgy Lab" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <button type="button" onclick="closeAddPresetModal()" class="reset-btn">Cancel</button>
+        <button type="submit" class="primary-btn">Save Preset</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="add-personnel-modal" class="modal-backdrop" style="display: none;">
+  <div class="modal-box" style="max-width: 440px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      <h3 style="margin: 0; font-size: 16px; color: var(--navy); font-weight: 700;">Add Laboratory Personnel</h3>
+      <button type="button" onclick="closeAddPersonnelModal()" style="border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 18px;">✕</button>
     </div>
+
+    <form onsubmit="submitAddPersonnel(event)" class="record-form" style="display: flex; flex-direction: column; gap: 12px;">
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Full Name</label>
+        <input type="text" id="personnel-name" required placeholder="Dr. S. Nair" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;">
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Email</label>
+        <input type="email" id="personnel-email" required placeholder="analyst@bosch.com" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;">
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Role</label>
+        <select id="personnel-role" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff;">
+          <option value="Lead Metallurgist">Lead Metallurgist</option>
+          <option value="Senior Metallurgist">Senior Metallurgist</option>
+          <option value="SEM Analyst">SEM Analyst</option>
+          <option value="Lab Technician">Lab Technician</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <button type="button" onclick="closeAddPersonnelModal()" class="reset-btn">Cancel</button>
+        <button type="submit" class="primary-btn">Save Personnel</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
   function switchSettingsTab(tab) {
-    document.getElementById('settings-view-system').classList.toggle('hidden', tab !== 'system');
-    document.getElementById('settings-view-presets').classList.toggle('hidden', tab !== 'presets');
-    document.getElementById('settings-view-personnel').classList.toggle('hidden', tab !== 'personnel');
+    document.getElementById('settings-view-system').style.display = tab === 'system' ? 'grid' : 'none';
+    document.getElementById('settings-view-presets').style.display = tab === 'presets' ? 'block' : 'none';
+    document.getElementById('settings-view-personnel').style.display = tab === 'personnel' ? 'block' : 'none';
 
-    const activeClass = 'px-4 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all font-bold';
-    const inactiveClass = 'px-4 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-semibold';
-
-    document.getElementById('tab-btn-system').className = tab === 'system' ? activeClass : inactiveClass;
-    document.getElementById('tab-btn-presets').className = tab === 'presets' ? activeClass : inactiveClass;
-    document.getElementById('tab-btn-personnel').className = tab === 'personnel' ? activeClass : inactiveClass;
+    document.getElementById('tab-btn-system').classList.toggle('active', tab === 'system');
+    document.getElementById('tab-btn-presets').classList.toggle('active', tab === 'presets');
+    document.getElementById('tab-btn-personnel').classList.toggle('active', tab === 'personnel');
   }
 
   function openAddPresetModal() {
-    if (!window.openAppModal) return;
-    const content = `
-      <div class="space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Preset Name</label>
-          <input type="text" id="modal-preset-name" placeholder="e.g. 100Cr6 Standard" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Category</label>
-          <input type="text" id="modal-preset-cat" placeholder="e.g. Bearing Steel" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Elemental Composition JSON</label>
-          <textarea id="modal-preset-comp" rows="3" placeholder='{"Cr": 1.5, "Mn": 0.35, "Si": 0.25, "Fe": 97.9}' class="w-full border border-slate-300 rounded p-2 font-mono-code bg-white text-slate-800"></textarea>
-        </div>
-      </div>
-    `;
-
-    window.openAppModal({
-      title: 'Create Standard Alloy Preset',
-      subtitle: 'Add to reference library',
-      contentHtml: content,
-      actionsHtml: `
-        <button type="button" onclick="submitNewPreset()" class="px-4 py-2 text-xs font-bold rounded bg-[#ED0007] text-white hover:bg-[#c90006]">
-          Save Preset
-        </button>
-        <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">
-          Cancel
-        </button>
-      `,
-    });
+    document.getElementById('add-preset-modal').style.display = 'flex';
   }
-
-  function submitNewPreset() {
-    alert('Preset creation saved.');
-    window.closeAppModal();
+  function closeAddPresetModal() {
+    document.getElementById('add-preset-modal').style.display = 'none';
   }
-
   function openAddPersonnelModal() {
-    if (!window.openAppModal) return;
-    const content = `
-      <div class="space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Full Name</label>
-          <input type="text" id="modal-user-name" placeholder="e.g. Dr. Rajesh Sharma" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Email Address</label>
-          <input type="email" id="modal-user-email" placeholder="e.g. r.sharma@spectral-lab.com" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Role</label>
-          <select id="modal-user-role" class="w-full border border-slate-300 rounded p-2 bg-white text-slate-800">
-            <option value="Chief Metallurgist">Chief Metallurgist</option>
-            <option value="Snr. Metallurgist">Snr. Metallurgist</option>
-            <option value="Lab Tech">Lab Tech</option>
-            <option value="Auditor">Auditor</option>
-          </select>
-        </div>
-      </div>
-    `;
-
-    window.openAppModal({
-      title: 'Register Laboratory Personnel',
-      subtitle: 'Access authorization',
-      contentHtml: content,
-      actionsHtml: `
-        <button type="button" onclick="submitNewPersonnel()" class="px-4 py-2 text-xs font-bold rounded bg-slate-900 text-white hover:bg-slate-800">
-          Register User
-        </button>
-        <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">
-          Cancel
-        </button>
-      `,
-    });
+    document.getElementById('add-personnel-modal').style.display = 'flex';
+  }
+  function closeAddPersonnelModal() {
+    document.getElementById('add-personnel-modal').style.display = 'none';
   }
 
-  async function submitNewPersonnel() {
-    const name = document.getElementById('modal-user-name').value.trim();
-    const email = document.getElementById('modal-user-email').value.trim();
-    const role = document.getElementById('modal-user-role').value;
-
-    if (!name || !email) {
-      alert('Please enter name and email');
+  async function submitAddPreset(e) {
+    e.preventDefault();
+    const name = document.getElementById('preset-name').value.trim();
+    const category = document.getElementById('preset-category').value.trim();
+    const author = document.getElementById('preset-author').value.trim();
+    let comp = {};
+    try {
+      comp = JSON.parse(document.getElementById('preset-composition').value);
+    } catch(err) {
+      alert('Invalid JSON composition. Example: {"Fe": 97.0, "Cr": 1.5}');
       return;
     }
 
     try {
+      const res = await fetch('/api/presets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ name, category, composition: comp, created_by: author })
+      });
+      if (res.ok) window.location.reload();
+      else alert('Failed to create preset.');
+    } catch(err) {
+      alert('Network error adding preset.');
+    }
+  }
+
+  async function submitAddPersonnel(e) {
+    e.preventDefault();
+    const name = document.getElementById('personnel-name').value.trim();
+    const email = document.getElementById('personnel-email').value.trim();
+    const role = document.getElementById('personnel-role').value;
+
+    try {
       const res = await fetch('/api/users', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify({ name, email, role, department: 'Metallurgy Lab', permissions: 'Operator' }),
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ name, email, role, department: 'Metallurgy Lab', permissions: 'Read & Calibrate' })
       });
-
-      if (res.ok) {
-        window.closeAppModal();
-        window.location.reload();
-      } else {
-        alert('Failed to register user.');
-      }
-    } catch (err) {
-      alert('Network error registering personnel.');
+      if (res.ok) window.location.reload();
+      else alert('Failed to add personnel.');
+    } catch(err) {
+      alert('Network error adding personnel.');
     }
   }
 </script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/users.js' %}"></script>
 {% endblock %}

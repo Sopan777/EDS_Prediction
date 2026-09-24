@@ -1,93 +1,139 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Microanalysis Reports & Certificates — DHATU BODH{% endblock %}
+{% block title %}Reports &amp; Export — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="reports-screen-container" class="space-y-6 pb-12">
-  <!-- =========================================================================
-       PAGE HEADER
-       ========================================================================= -->
-  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Official Certification</span>
-        </div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Microanalysis Reports & Certificates</h1>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Formal metallurgical characterization reports compliant with ISO/IEC 17025 and ASTM E1508.
-        </p>
-      </div>
+<div class="page-content reports-page">
 
-      <button onclick="window.print()" class="px-4 py-2 rounded-lg text-xs font-semibold border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 shadow-xs transition-colors shrink-0">
-        <span class="material-symbols-outlined text-[16px]">print</span>
-        <span>Print Summary</span>
-      </button>
+  <!-- =========================================
+       PAGE HERO (MATCHING UI-INSPIRATION)
+       ========================================= -->
+  <div class="page-hero compact-hero">
+    <div>
+      <div class="eyebrow">
+        REPORTING &amp; QUALITY CERTIFICATION
+      </div>
+      <h1>
+        Reports &amp; Export
+      </h1>
+      <p>
+        Formal metallurgical characterization reports compliant with ISO/IEC 17025 and ASTM E1508. Export filtered data for external audit compliance.
+      </p>
+    </div>
+
+    <div class="hero-stat">
+      <span class="hero-date-label">Format</span>
+      <strong>CSV / JSON</strong>
+      <small style="font-size: 10px; color: var(--muted);">ISO/IEC 17025</small>
     </div>
   </div>
 
-  <!-- Reports Table Card -->
-  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h2 class="text-base font-bold text-slate-900">Certificate Records</h2>
-      <span class="text-xs text-slate-500 font-mono-code">{{ reports|length }} Official Reports</span>
+  <!-- =========================================
+       EXPORT OPTIONS (UI-INSPIRATION DOWNLOAD OPTIONS)
+       ========================================= -->
+  <div class="dashboard-grid two-column" style="margin-bottom: 22px;">
+    <!-- OPTION 1: SUMMARY CSV -->
+    <section class="panel download-option">
+      <div class="metric-icon" style="background: var(--blue-soft); color: var(--blue); margin-bottom: 12px;">
+        ▤
+      </div>
+      <h3 style="margin: 0 0 6px; font-size: 16px; color: var(--navy);">
+        Analysis Summary Data
+      </h3>
+      <p style="margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.5;">
+        Export complete run metadata, identified component name, material grade, and match confidence scores for audit reviews.
+      </p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="status-badge status-ok">Summary CSV</span>
+        <button type="button" onclick="window.location.href='/api/history'" class="primary-btn compact" style="font-size: 11px;">
+          ⇩ Download Data
+        </button>
+      </div>
+    </section>
+
+    <!-- OPTION 2: CERTIFIED ISO CERTIFICATES -->
+    <section class="panel download-option">
+      <div class="metric-icon" style="background: var(--green-soft); color: var(--green); margin-bottom: 12px;">
+        ✓
+      </div>
+      <h3 style="margin: 0 0 6px; font-size: 16px; color: var(--navy);">
+        ISO/IEC 17025 Certificates
+      </h3>
+      <p style="margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.5;">
+        Print-ready formal certificates with laboratory analyst authorization, full elemental wt% spectrum tables, and standard boundaries.
+      </p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="status-badge status-ok">Certified Format</span>
+        <button type="button" onclick="window.print()" class="reset-btn compact" style="font-size: 11px;">
+          ⎙ Print Summary
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- =========================================
+       CERTIFICATE RECORDS TABLE
+       ========================================= -->
+  <section class="panel" style="margin-bottom: 22px;">
+    <div class="panel-header">
+      <div>
+        <span class="section-kicker">CERTIFICATES ARCHIVE</span>
+        <h3>Official Microanalysis Certificates</h3>
+      </div>
+      <span class="code-badge">{{ reports|length }} Official Records</span>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
+    <div class="table-wrap">
+      <table class="records-table">
         <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
-            <th class="py-2.5 px-4">Report ID</th>
-            <th class="py-2.5 px-4">Sample ID</th>
-            <th class="py-2.5 px-4">Customer</th>
-            <th class="py-2.5 px-4">Material Classification</th>
-            <th class="py-2.5 px-4 text-center">Decision</th>
-            <th class="py-2.5 px-4 text-right">Confidence</th>
-            <th class="py-2.5 px-4">Analyst</th>
-            <th class="py-2.5 px-4 text-center">Status</th>
-            <th class="py-2.5 px-4 text-right">Actions</th>
+          <tr>
+            <th>Report ID</th>
+            <th>Sample ID</th>
+            <th>Facility / Customer</th>
+            <th>Material Classification</th>
+            <th style="text-align: center;">Decision</th>
+            <th style="text-align: right;">Confidence</th>
+            <th>Analyst</th>
+            <th style="text-align: center;">Status</th>
+            <th style="text-align: right;">Action</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 font-mono-code">
+        <tbody>
           {% for r in reports %}
-            <tr class="hover:bg-slate-50 transition-colors">
-              <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">{{ r.id }}</td>
-              <td class="py-3 px-4 font-sans font-semibold text-slate-800 whitespace-nowrap">{{ r.sample_id }}</td>
-              <td class="py-3 px-4 font-sans text-slate-600 whitespace-nowrap">{{ r.customer }}</td>
-              <td class="py-3 px-4 font-sans">
-                <div class="font-bold text-slate-900">{{ r.family_label|default:"Unclassified" }}</div>
-                <div class="text-[11px] text-slate-500">{{ r.grade_hint|default:"" }}</div>
+            <tr>
+              <td><span class="code-badge">{{ r.id }}</span></td>
+              <td><strong>{{ r.sample_id }}</strong></td>
+              <td>{{ r.customer }}</td>
+              <td>
+                <strong style="color: var(--navy); display: block;">{{ r.family_label|default:"Unclassified" }}</strong>
+                <small style="color: var(--muted); font-size: 10px;">{{ r.grade_hint|default:"" }}</small>
               </td>
-              <td class="py-3 px-4 text-center font-sans">
+              <td style="text-align: center;">
                 {% if r.decision == 'identified' %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Identified</span>
+                  <span class="status-badge status-ok">Identified</span>
                 {% elif r.decision == 'ambiguous' %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">Ambiguous</span>
+                  <span class="status-badge" style="background: var(--amber-soft); color: var(--amber);">Ambiguous</span>
                 {% else %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800">Unknown</span>
+                  <span class="status-badge" style="background: #f1f3f6; color: var(--muted);">Unknown</span>
                 {% endif %}
               </td>
-              <td class="py-3 px-4 text-right font-bold text-slate-900 whitespace-nowrap">
+              <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--navy);">
                 {{ r.compatibility_pct|floatformat:0 }}%
               </td>
-              <td class="py-3 px-4 font-sans text-slate-700 whitespace-nowrap">{{ r.analyst_name }}</td>
-              <td class="py-3 px-4 text-center font-sans">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
-                  {{ r.status }}
-                </span>
+              <td>{{ r.analyst_name }}</td>
+              <td style="text-align: center;">
+                <span class="status-badge status-ok">{{ r.status }}</span>
               </td>
-              <td class="py-3 px-4 text-right font-sans whitespace-nowrap">
-                <button onclick="window.print()" class="text-xs font-semibold text-slate-700 hover:text-[#ED0007] flex items-center justify-end gap-1 ml-auto">
-                  <span class="material-symbols-outlined text-[15px]">print</span>
+              <td style="text-align: right;">
+                <button type="button" onclick="window.print()" class="table-action" style="border: 0; background: transparent; cursor: pointer;">
                   Print
                 </button>
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="9" class="py-8 text-center text-slate-500 font-sans">
+              <td colspan="9" class="empty-cell" style="text-align: center; padding: 24px;">
                 No formal certificates stored. Use the Analyzer screen to evaluate particles and generate reports.
               </td>
             </tr>
@@ -95,6 +141,45 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
+
+  <!-- =========================================
+       REPORTING WORKFLOW (UI-INSPIRATION WORKFLOW-GRID)
+       ========================================= -->
+  <section class="panel info-panel">
+    <div class="panel-header">
+      <div>
+        <span class="section-kicker">WORKFLOW</span>
+        <h3>How Exported Microanalysis Data Is Used</h3>
+      </div>
+    </div>
+
+    <div class="workflow-grid">
+      <div>
+        <span>01</span>
+        <strong>Filter</strong>
+        <p>Select the desired batch, date range, or material family from the archive.</p>
+      </div>
+
+      <div>
+        <span>02</span>
+        <strong>Select Detail</strong>
+        <p>Export high-level summary results or complete elemental breakdown tables.</p>
+      </div>
+
+      <div>
+        <span>03</span>
+        <strong>Export</strong>
+        <p>Generate clean structured CSV or JSON records directly from Dhatu Bodh.</p>
+      </div>
+
+      <div>
+        <span>04</span>
+        <strong>Audit Review</strong>
+        <p>Verify findings against ISO 17025 laboratory quality criteria and engineering archives.</p>
+      </div>
+    </div>
+  </section>
+
 </div>
 {% endblock %}

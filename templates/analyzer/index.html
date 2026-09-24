@@ -4,98 +4,95 @@
 {% block title %}Analyze EDS Report — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="analyzer-container" class="space-y-6 pb-12">
+<div class="page-content analyzer-page">
 
-  <!-- =========================================================================
-       WORKFLOW STEPPER HEADER
-       Upload → Extract → Validate → Identify Material → Predict Component → Review Evidence
-       ========================================================================= -->
-  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
-      <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Analysis Workflow</span>
-        </div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Microanalysis & Component Prediction</h1>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Deterministic ASTM E1508 / ISO 22309 microanalysis pipeline and empirical fingerprint matching.
-        </p>
+  <!-- =========================================
+       PAGE HERO
+       ========================================= -->
+  <div class="page-hero">
+    <div>
+      <div class="eyebrow">
+        AUTOMATED MICROANALYSIS PIPELINE
       </div>
-
-      <div class="flex items-center gap-2.5">
-        <button id="btn-reset-analysis" onclick="clearAnalyzerForm()" class="hidden px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
-          <span class="material-symbols-outlined text-[16px]">restart_alt</span>
-          Reset Form
-        </button>
-        <a href="{% url 'knowledge_page' %}" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
-          <span class="material-symbols-outlined text-[16px]">menu_book</span>
-          Reference Library
-        </a>
-      </div>
+      <h1>
+        Analyze EDS Report
+      </h1>
+      <p>
+        Deterministic ASTM E1508 / ISO 22309 microanalysis pipeline and empirical fingerprint matching for rapid material &amp; component identification.
+      </p>
     </div>
 
-    <!-- Visual 6-Stage Process Ribbon -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-      <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-mono-code text-[10px] flex items-center justify-center shrink-0">1</span>
-        <span>Upload</span>
-      </div>
-      <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-mono-code text-[10px] flex items-center justify-center shrink-0">2</span>
-        <span>Extract</span>
-      </div>
-      <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-mono-code text-[10px] flex items-center justify-center shrink-0">3</span>
-        <span>Validate</span>
-      </div>
-      <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-mono-code text-[10px] flex items-center justify-center shrink-0">4</span>
-        <span>Material Family</span>
-      </div>
-      <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-mono-code text-[10px] flex items-center justify-center shrink-0">5</span>
-        <span>Predict Component</span>
-      </div>
-      <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-1.5">
-        <span class="w-5 h-5 rounded-full bg-[#ED0007] text-white font-mono-code text-[10px] flex items-center justify-center shrink-0">6</span>
-        <span>Review Evidence</span>
-      </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button id="btn-reset-analysis" onclick="clearAnalyzerForm()" class="reset-btn compact" style="display: none;">
+        ↺ Reset Form
+      </button>
+      <a href="{% url 'knowledge_page' %}" class="reset-btn compact">
+        ▥ Reference Library
+      </a>
     </div>
   </div>
 
-  <!-- =========================================================================
-       INPUT STAGE: REPORT INGESTION & COMPOSITION TABLE
-       ========================================================================= -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- =========================================
+       6-STAGE PROGRESSION STEPPER
+       ========================================= -->
+  <div class="stepper-nav">
+    <div class="stepper-nav-item active">
+      <span class="stepper-nav-num">1</span>
+      <span>Upload</span>
+    </div>
+    <div class="stepper-nav-item active">
+      <span class="stepper-nav-num">2</span>
+      <span>Extract</span>
+    </div>
+    <div class="stepper-nav-item active">
+      <span class="stepper-nav-num">3</span>
+      <span>Validate</span>
+    </div>
+    <div class="stepper-nav-item active">
+      <span class="stepper-nav-num">4</span>
+      <span>Material Family</span>
+    </div>
+    <div class="stepper-nav-item active">
+      <span class="stepper-nav-num">5</span>
+      <span>Predict Component</span>
+    </div>
+    <div class="stepper-nav-item active">
+      <span class="stepper-nav-num">6</span>
+      <span>Review Evidence</span>
+    </div>
+  </div>
 
-    <!-- Main Ingestion Panel (8 cols) -->
-    <div class="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-6">
-      <!-- Ingestion Header & Presets -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+  <!-- =========================================
+       INPUT STAGE: REPORT INGESTION & COMPOSITION
+       ========================================= -->
+  <div class="dashboard-grid two-column" style="margin-bottom: 24px;">
+
+    <!-- MAIN INGESTION PANEL (LEFT) -->
+    <section class="panel">
+      <div class="panel-header">
         <div>
-          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] text-slate-700">upload_file</span>
-            Spectral Ingestion & Elemental wt%
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">Enter elemental concentrations or upload spectrometer reports.</p>
+          <span class="section-kicker">SPECTRAL INGESTION</span>
+          <h3>Elemental Weight Concentrations (wt%)</h3>
+          <p style="font-size: 11px; color: var(--muted); margin: 4px 0 0;">
+            Enter measured elemental weight percentages or upload spectrometer PDF/CSV reports.
+          </p>
         </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Preset Selector -->
-          <select id="preset-selector" onchange="applyPreset(this.value)" class="text-xs rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-slate-800 focus:outline-none focus:border-slate-500 font-medium">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Reference Preset Selector -->
+          <select id="preset-selector" onchange="applyPreset(this.value)" style="padding: 6px 10px; font-size: 11px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--navy); font-weight: 600;">
             <option value="">— Reference Preset —</option>
             {% for p in presets %}
               <option value="{{ p.id }}">{{ p.name }} ({{ p.category }})</option>
             {% endfor %}
           </select>
 
-          <!-- Input Mode Tabs -->
-          <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100 text-xs">
-            <button id="tab-btn-manual" onclick="switchIngestTab('manual')" class="px-3 py-1 font-bold rounded-md bg-white text-slate-900 shadow-xs transition-all">
+          <!-- Tab Switcher -->
+          <div style="display: inline-flex; background: #edf2f8; padding: 3px; border-radius: 8px;">
+            <button type="button" id="tab-btn-manual" onclick="switchIngestTab('manual')" style="border: 0; padding: 5px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; background: #fff; color: var(--navy); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
               Manual wt%
             </button>
-            <button id="tab-btn-upload" onclick="switchIngestTab('upload')" class="px-3 py-1 font-medium text-slate-600 hover:text-slate-900 transition-all">
+            <button type="button" id="tab-btn-upload" onclick="switchIngestTab('upload')" style="border: 0; padding: 5px 12px; font-size: 11px; font-weight: 600; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer;">
               File Upload
             </button>
           </div>
@@ -103,16 +100,14 @@
       </div>
 
       <!-- File Upload Zone -->
-      <div id="section-file-upload" class="hidden">
-        <div id="drop-zone" onclick="document.getElementById('eds-file-input').click()" class="border-2 border-dashed border-slate-300 hover:border-slate-500 bg-slate-50/50 hover:bg-slate-50 rounded-xl p-8 text-center cursor-pointer transition-colors">
+      <div id="section-file-upload" class="hidden" style="margin-bottom: 18px;">
+        <div id="drop-zone" onclick="document.getElementById('eds-file-input').click()" class="dropzone">
           <input type="file" id="eds-file-input" accept=".pdf,.csv,.json,.xlsx,.txt" class="hidden" onchange="handleFileSelected(this.files[0])">
-          <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-600 mb-3">
-            <span class="material-symbols-outlined text-[26px]">cloud_upload</span>
-          </div>
-          <p id="upload-status-text" class="text-sm font-bold text-slate-800">
-            Drag & Drop EDS Report or Click to Browse
+          <div style="font-size: 32px; color: var(--blue); margin-bottom: 8px;">☁</div>
+          <p id="upload-status-text" style="margin: 0; font-size: 14px; font-weight: 700; color: var(--navy);">
+            Drag &amp; Drop EDS Report or Click to Browse
           </p>
-          <p class="text-xs text-slate-500 mt-1">
+          <p style="margin: 4px 0 0; font-size: 11px; color: var(--muted);">
             Supports AZtec / Phenom PDF reports, CSV spectra, JSON, TXT, or Excel files.
           </p>
         </div>
@@ -120,87 +115,87 @@
 
       <!-- Multi-Spectrum Pooling Tabs -->
       <div>
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-1.5 overflow-x-auto py-1" id="spectrum-tabs-bar">
-            <!-- Spectrum 1, Spectrum 2, etc. -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 6px; overflow-x: auto;" id="spectrum-tabs-bar">
+            <!-- Dynamic Spectrum Tabs -->
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="addNewSpectrumTab()" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1 transition-colors">
-              <span class="material-symbols-outlined text-[15px]">add</span>
-              Add Spectrum
+
+          <div style="display: flex; gap: 6px;">
+            <button type="button" onclick="addNewSpectrumTab()" class="reset-btn compact" style="font-size: 11px;">
+              ＋ Add Spectrum
             </button>
-            <button type="button" id="btn-delete-spectrum" onclick="removeCurrentSpectrumTab()" class="hidden px-2 py-1 text-xs font-semibold rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors" title="Delete current spectrum">
-              <span class="material-symbols-outlined text-[15px]">delete</span>
+            <button type="button" id="btn-delete-spectrum" onclick="removeCurrentSpectrumTab()" class="reset-btn compact hidden" style="color: var(--red); border-color: #ffd0d6; background: #fff5f6;" title="Delete current spectrum">
+              ✕
             </button>
           </div>
         </div>
 
         <!-- Core Elements Grid -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between text-xs text-slate-500 font-semibold uppercase tracking-wider">
-            <span>Elemental Concentration (wt%)</span>
-            <span id="active-spectrum-badge" class="font-mono-code font-bold text-slate-700">Spectrum 1</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase;">Core Measured Elements</span>
+          <span id="active-spectrum-badge" class="code-badge">Spectrum 1</span>
+        </div>
+
+        <div class="element-grid">
+          <!-- Fe -->
+          <div class="element-card">
+            <label>
+              <span>Fe (Iron)</span>
+              <button type="button" onclick="autoBalanceFe()" style="border: 0; background: transparent; color: var(--blue); font-size: 10px; font-weight: 700; cursor: pointer;" title="Auto-balance remainder to 100%">
+                Balance
+              </button>
+            </label>
+            <input type="text" id="input-fe" value="Bal." placeholder="Bal." onchange="syncCurrentSpectrumFromInputs()">
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-            <!-- Fe -->
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-              <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-bold text-slate-700">Fe</label>
-                <button type="button" onclick="autoBalanceFe()" class="text-[10px] font-semibold text-[#ED0007] hover:underline" title="Auto-balance remainder to 100%">
-                  Balance
-                </button>
-              </div>
-              <input type="text" id="input-fe" value="Bal." placeholder="Bal." onchange="syncCurrentSpectrumFromInputs()" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-semibold text-slate-900 focus:outline-none focus:border-slate-600">
-            </div>
+          <!-- Cr -->
+          <div class="element-card">
+            <label>Cr (Chromium)</label>
+            <input type="number" step="0.01" id="input-cr" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()">
+          </div>
 
-            <!-- Cr -->
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-              <label class="block text-xs font-bold text-slate-700 mb-1">Cr</label>
-              <input type="number" step="0.01" id="input-cr" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-600">
-            </div>
+          <!-- Ni -->
+          <div class="element-card">
+            <label>Ni (Nickel)</label>
+            <input type="number" step="0.01" id="input-ni" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()">
+          </div>
 
-            <!-- Ni -->
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-              <label class="block text-xs font-bold text-slate-700 mb-1">Ni</label>
-              <input type="number" step="0.01" id="input-ni" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-600">
-            </div>
+          <!-- Mn -->
+          <div class="element-card">
+            <label>Mn (Manganese)</label>
+            <input type="number" step="0.01" id="input-mn" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()">
+          </div>
 
-            <!-- Mn -->
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-              <label class="block text-xs font-bold text-slate-700 mb-1">Mn</label>
-              <input type="number" step="0.01" id="input-mn" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-600">
-            </div>
+          <!-- Si -->
+          <div class="element-card">
+            <label>Si (Silicon)</label>
+            <input type="number" step="0.01" id="input-si" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()">
+          </div>
 
-            <!-- Si -->
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-              <label class="block text-xs font-bold text-slate-700 mb-1">Si</label>
-              <input type="number" step="0.01" id="input-si" value="0" placeholder="0.00" onchange="syncCurrentSpectrumFromInputs()" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-600">
-            </div>
-
-            <!-- C (Untracked) -->
-            <div class="bg-slate-100/70 border border-slate-200 rounded-lg p-2.5 opacity-60">
-              <label class="block text-xs font-bold text-slate-500 mb-1">C (Light)</label>
-              <input disabled placeholder="--" class="w-full bg-slate-200/50 border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm text-slate-400 cursor-not-allowed">
-            </div>
+          <!-- C (Excluded from metal-basis) -->
+          <div class="element-card" style="opacity: 0.6; background: #f8fafc;">
+            <label style="color: var(--muted);">C (Light Element)</label>
+            <input disabled placeholder="--" style="background: #edf2f7; color: var(--muted); cursor: not-allowed;">
           </div>
         </div>
 
         <!-- Additional Elements Container -->
-        <div id="extra-elements-container" class="hidden mt-4 pt-3 border-t border-slate-100">
-          <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Additional Measured Elements (wt%)</div>
-          <div id="extra-elements-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3"></div>
+        <div id="extra-elements-container" class="hidden" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);">
+          <div style="font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">
+            Additional Measured Elements (wt%)
+          </div>
+          <div id="extra-elements-grid" class="element-grid"></div>
         </div>
 
-        <!-- Add Element & Balance Controls -->
-        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-          <div id="add-element-wrapper" class="flex items-center gap-2">
-            <button id="btn-show-add-element" type="button" onclick="showAddElementForm(true)" class="text-xs font-semibold text-[#ED0007] hover:underline flex items-center gap-1">
-              <span class="material-symbols-outlined text-[16px]">add_circle</span>
-              Add Element (Mo, Cu, Sn, Al, Zn, W, V...)
+        <!-- Element Controls -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+          <div id="add-element-wrapper" style="display: flex; align-items: center; gap: 8px;">
+            <button id="btn-show-add-element" type="button" onclick="showAddElementForm(true)" style="border: 0; background: transparent; color: var(--blue); font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <span>＋</span>
+              <span>Add Element (Mo, Cu, Sn, Al, Zn, W, V...)</span>
             </button>
-            <div id="add-element-form" class="hidden flex items-center gap-2">
-              <select id="new-element-select" class="text-xs rounded border border-slate-300 px-2 py-1 bg-white text-slate-800">
+            <div id="add-element-form" class="hidden" style="display: none; align-items: center; gap: 6px;">
+              <select id="new-element-select" style="padding: 4px 8px; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; background: #fff;">
                 <option value="Mo">Mo (Molybdenum)</option>
                 <option value="Cu">Cu (Copper)</option>
                 <option value="Sn">Sn (Tin)</option>
@@ -216,264 +211,246 @@
                 <option value="P">P (Phosphorus)</option>
                 <option value="S">S (Sulfur)</option>
               </select>
-              <input type="number" step="0.01" id="new-element-val" placeholder="wt%" class="w-20 text-xs rounded border border-slate-300 px-2 py-1 text-right font-mono-code bg-white text-slate-800">
-              <button type="button" onclick="confirmAddExtraElement()" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-900 text-white hover:bg-slate-800">
+              <input type="number" step="0.01" id="new-element-val" placeholder="wt%" style="width: 70px; padding: 4px 6px; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; font-family: 'JetBrains Mono', monospace; text-align: right;">
+              <button type="button" onclick="confirmAddExtraElement()" class="primary-btn" style="min-height: 28px; padding: 4px 10px; font-size: 10px;">
                 Add
               </button>
-              <button type="button" onclick="showAddElementForm(false)" class="text-xs text-slate-500 hover:text-slate-800 px-1">
+              <button type="button" onclick="showAddElementForm(false)" style="border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; padding: 4px;">
                 Cancel
               </button>
             </div>
           </div>
 
-          <div class="flex items-center gap-3">
-            <button type="button" onclick="autoBalanceFe()" class="text-xs font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px]">balance</span>
-              Auto-balance Fe
+          <div>
+            <button type="button" onclick="autoBalanceFe()" class="reset-btn compact" style="font-size: 11px;">
+              ⚖ Auto-balance Fe
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Metadata & Single-Click Action (4 cols) -->
-    <div class="lg:col-span-4 space-y-6">
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Specimen Metadata</h3>
-        
-        <!-- Declared Material Field -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Declared Material (Optional)
-          </label>
-          <input type="text" id="input-declared-material" placeholder="e.g. 100Cr6, CuSn8, AISI 304, Sl2 B1" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-slate-600">
-          <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
-            Enables automated metallurgical conflict detection against measured EDS chemistry.
-          </p>
-        </div>
-
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 space-y-1.5">
-          <div class="font-semibold text-slate-800 flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px] text-slate-600">verified</span>
-            ASTM E1508 / ISO 22309 Standards
+    <!-- METADATA & PRIMARY ACTION PANEL (RIGHT) -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">METADATA &amp; CROSS-CHECK</span>
+            <h3>Specimen Information</h3>
           </div>
-          <p>
-            Alloy normalization excludes light elements (C, O, N, F, Ca). Fe balance automatically computes remainder.
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 6px;">
+            Declared Component / Material (Optional)
+          </label>
+          <input type="text" id="input-declared-material" placeholder="e.g. 100Cr6, CuSn8, AISI 304, Sl2 B1" style="width: 100%; border: 1px solid #d9e0ea; padding: 10px 11px; border-radius: 9px; font-size: 12px; color: var(--text); outline: none; box-sizing: border-box;">
+          <small style="display: block; margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.4;">
+            Enables automated metallurgical conflict detection against measured EDS chemistry.
+          </small>
+        </div>
+
+        <div style="background: var(--blue-soft); border: 1px solid #d8e6ff; border-radius: 10px; padding: 12px; margin-bottom: 18px;">
+          <strong style="display: block; font-size: 11px; color: var(--navy); margin-bottom: 2px;">
+            ASTM E1508 / ISO 22309 Standards
+          </strong>
+          <p style="margin: 0; font-size: 10px; color: #475569; line-height: 1.4;">
+            Alloy normalization excludes surface contaminants (C, O, N, F, Ca). Fe balance automatically normalizes alloy basis to 100%.
           </p>
         </div>
 
-        <!-- Single-Click Action Button (Bosch Red) -->
-        <button id="btn-predict-family" onclick="triggerPrediction()" class="w-full py-3 px-4 rounded-lg bg-[#ED0007] hover:bg-[#C90006] text-white font-bold text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 group">
-          <span class="material-symbols-outlined text-[18px]">search_check</span>
-          <span id="predict-btn-text">Analyze EDS Spectrum</span>
-          <span id="predict-btn-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        <!-- Single-Click Action Button (Primary Bosch Blue/Gradient) -->
+        <button id="btn-predict-family" onclick="triggerPrediction()" class="primary-btn" style="width: 100%; min-height: 44px; font-size: 13px;">
+          <span id="predict-btn-text">⌖ Analyze EDS Spectrum</span>
+          <span id="predict-btn-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" style="margin-left: 6px;"></span>
         </button>
-      </div>
+      </section>
 
       <!-- Guidelines Card -->
-      <div class="bg-white border border-slate-200 rounded-xl p-5 text-xs text-slate-600 space-y-2">
-        <div class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Analysis Guidelines</div>
-        <ul class="list-disc list-inside space-y-1 text-slate-500">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">BEST PRACTICES</span>
+            <h3>Analysis Guidelines</h3>
+          </div>
+        </div>
+        <ul style="margin: 0; padding-left: 18px; font-size: 11px; color: var(--muted); line-height: 1.6;">
           <li>For multi-point particles, use <strong>Add Spectrum</strong> to pool readings.</li>
           <li>Bearing steels: look for ~1.5% Cr with remainder Fe.</li>
           <li>Stainless steels: look for &ge;17.5% Cr and &ge;8% Ni.</li>
           <li>High-speed tools: look for W, Mo, and V signatures.</li>
         </ul>
-      </div>
+      </section>
     </div>
+
   </div>
 
   <!-- AWAITING ANALYSIS STATE -->
-  <div id="awaiting-analysis-card" class="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-xs">
-    <div class="w-14 h-14 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-3">
-      <span class="material-symbols-outlined text-[28px]">biotech</span>
-    </div>
-    <h3 class="text-base font-bold text-slate-800">No Spectrum Analyzed Yet</h3>
-    <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">
+  <div id="awaiting-analysis-card" class="panel" style="text-align: center; padding: 48px 24px; margin-bottom: 24px;">
+    <div style="font-size: 36px; color: var(--muted); margin-bottom: 8px;">⌖</div>
+    <h3 style="margin: 0 0 6px; font-size: 16px; color: var(--navy);">No Spectrum Analyzed Yet</h3>
+    <p style="margin: 0 auto; max-width: 440px; font-size: 12px; color: var(--muted); line-height: 1.5;">
       Enter elemental composition wt% or upload an EDS report above, then select <strong>Analyze EDS Spectrum</strong>.
     </p>
   </div>
 
-  <!-- =========================================================================
-       RESULTS SECTION (DOMINANT PRIMARY IDENTIFIED COMPONENT MATCHING SECTION 10)
-       ========================================================================= -->
-  <div id="analysis-results-card" class="hidden space-y-6">
+  <!-- =========================================
+       RESULTS SECTION
+       ========================================= -->
+  <div id="analysis-results-card" class="hidden" style="display: none; flex-direction: column; gap: 20px;">
 
-    <!-- 1. DOMINANT HERO IDENTIFIED COMPONENT CARD (Exact Section 10 Specification) -->
-    <div id="top-predicted-component-card" class="bg-white border-2 border-slate-900 rounded-xl p-7 shadow-sm border-l-8 border-l-[#ED0007]">
-      <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
-        <div class="space-y-2">
-          <!-- Primary Uppercase Super-Heading -->
-          <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-            <span class="text-xs font-black uppercase tracking-[0.2em] text-[#ED0007]">
-              IDENTIFIED COMPONENT
+    <!-- 1. DOMINANT HERO IDENTIFIED COMPONENT CARD -->
+    <div id="top-predicted-component-card" class="primary-result-card">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="eyebrow" style="color: var(--blue);">IDENTIFIED COMPONENT</span>
+              <span id="top-comp-quality-badge" class="code-badge">HIGH Quality (25 spectra)</span>
+            </div>
+
+            <h2 id="top-comp-name" style="margin: 0 0 6px; font-size: 32px; font-weight: 700; color: var(--navy); line-height: 1.15;">
+              Armature Bolt
+            </h2>
+
+            <div style="font-size: 13px; color: #374151; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+              <span>Material Family:</span>
+              <strong id="result-material-title" style="color: var(--navy);">Low-Alloy Chromium Bearing Steel (100Cr6)</strong>
+              <span id="result-family-code-badge" class="code-badge">F2</span>
+              <span id="result-grade-hint" style="color: var(--muted); font-size: 11px;">Grade hint: 100Cr6 / Sl2 B1</span>
+            </div>
+
+            <p id="top-comp-notes" style="margin: 8px 0 0; font-size: 12px; color: var(--muted); max-width: 650px; line-height: 1.5;">
+              Closest standardized statistical distance fit against historical reference fingerprints.
+            </p>
+          </div>
+
+          <!-- Score Box -->
+          <div class="hero-stat" style="text-align: right; min-width: 150px;">
+            <span class="hero-date-label">Match Score</span>
+            <strong id="gauge-pct-text" style="font-size: 34px; color: var(--navy); font-family: 'JetBrains Mono', monospace;">87%</strong>
+            <small id="result-duration" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);">0.02s elapsed</small>
+          </div>
+        </div>
+
+        <!-- Evidence Metadata Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border);">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11px;">
+            <span id="top-comp-evidence" class="code-badge">Evidence: 100%</span>
+            <span id="top-comp-matched-elements" class="code-badge">Matched: Fe, Cr, Mn</span>
+            <span id="result-pooled-badge" class="code-badge hidden" style="background: #eaf2ff; color: #0052D4;">
+              <span id="result-pooled-count">2 SPECTRA POOLED</span>
             </span>
-            <span id="top-comp-quality-badge" class="px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-slate-100 text-slate-700 border border-slate-200">
-              HIGH Quality (25 spectra)
-            </span>
+            <span id="result-decision-badge" class="status-badge status-ok">IDENTIFIED</span>
           </div>
 
-          <!-- Component Name -->
-          <h2 id="top-comp-name" class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-            Armature Bolt
-          </h2>
-
-          <!-- Material Family & Subtitle -->
-          <div class="text-sm font-semibold text-slate-700 flex flex-wrap items-center gap-2 pt-1">
-            <span>Material Family:</span>
-            <span id="result-material-title" class="font-bold text-slate-900">Low-Alloy Chromium Bearing Steel (100Cr6)</span>
-            <span id="result-family-code-badge" class="text-xs font-mono-code font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">F2</span>
-            <span id="result-grade-hint" class="text-xs text-slate-500 font-normal">Grade hint: 100Cr6 / Sl2 B1</span>
-          </div>
-
-          <!-- Notes -->
-          <p id="top-comp-notes" class="text-xs text-slate-600 leading-relaxed pt-1 max-w-2xl">
-            Closest standardized statistical distance fit against historical reference fingerprints.
-          </p>
+          <button type="button" onclick="inspectTopComponent()" class="reset-btn compact" style="font-size: 11px;">
+            ▥ View Empirical Medians &amp; IQR
+          </button>
         </div>
-
-        <!-- Confidence / Match Score Box -->
-        <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-xl p-5 shrink-0 self-start">
-          <div class="text-right">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Confidence Score</div>
-            <div id="gauge-pct-text" class="text-4xl font-black text-slate-900 font-mono-code">87%</div>
-            <div id="result-duration" class="text-[10.5px] font-mono-code text-slate-400 mt-0.5">0.02s elapsed</div>
-          </div>
-          <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#ED0007] flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px] text-slate-700">grade</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Supporting Evidence Metadata Row -->
-      <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-3 text-xs font-mono-code text-slate-700">
-          <span id="top-comp-evidence" class="px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">
-            Evidence: 100%
-          </span>
-          <span id="top-comp-matched-elements" class="px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">
-            Matched Elements: Fe, Cr, Mn
-          </span>
-          <span id="result-pooled-badge" class="hidden px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 border border-blue-200">
-            <span id="result-pooled-count">2 SPECTRA POOLED</span>
-          </span>
-          <span id="result-decision-badge" class="px-2.5 py-1 rounded-md font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
-            IDENTIFIED
-          </span>
-        </div>
-
-        <button type="button" onclick="inspectTopComponent()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
-          <span class="material-symbols-outlined text-[15px]">analytics</span>
-          <span>View Empirical Medians & IQR</span>
-        </button>
       </div>
     </div>
 
-    <!-- 2. ELEMENTAL COMPOSITION BREAKDOWN (MEASURED VS EXPECTED BANDS) -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[20px] text-slate-700">tune</span>
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Elemental Composition Breakdown (wt%)</h3>
+    <!-- 2. ELEMENTAL COMPOSITION BREAKDOWN -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">ELEMENTAL ANALYSIS</span>
+          <h3>Measured wt% vs Expected Standard Band</h3>
         </div>
-        <span class="text-xs text-slate-500 font-mono-code">Metal-Basis Renormalized</span>
+        <span class="code-badge">Metal-Basis Renormalized</span>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
+      <div class="table-wrap">
+        <table class="records-table">
           <thead>
-            <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-              <th class="py-2.5 px-4">Element</th>
-              <th class="py-2.5 px-4 text-right">Measured (wt%)</th>
-              <th class="py-2.5 px-4 text-right">Expected Standard Band</th>
-              <th class="py-2.5 px-4">Deviation / Fit</th>
-              <th class="py-2.5 px-4 text-center">Status</th>
+            <tr>
+              <th>Element</th>
+              <th style="text-align: right;">Measured (wt%)</th>
+              <th style="text-align: right;">Expected Standard Band</th>
+              <th>Deviation / Fit</th>
+              <th style="text-align: center;">Status</th>
             </tr>
           </thead>
-          <tbody id="composition-breakdown-body" class="divide-y divide-slate-100">
-            <!-- Rendered dynamically -->
+          <tbody id="composition-breakdown-body">
+            <!-- Dynamically populated by analyzer.js -->
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <!-- 3. STOICHIOMETRIC RATIO GATE VERIFICATION -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[20px] text-slate-700">calculate</span>
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Stoichiometric Ratio Gate Verification</h3>
+    <!-- 3. STOICHIOMETRIC RATIO GATES -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">PHASE STABILITY</span>
+          <h3>Stoichiometric Ratio Gate Verification</h3>
         </div>
-        <span class="text-xs text-slate-500 font-mono-code">Phase Stability Criteria</span>
+        <span class="code-badge">Physical Criteria</span>
       </div>
 
-      <div id="ratio-gates-container" class="space-y-2.5">
-        <!-- Rendered dynamically -->
+      <div id="ratio-gates-container" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Dynamically populated by analyzer.js -->
       </div>
-    </div>
+    </section>
 
-    <!-- 4. ALTERNATIVE CANDIDATES TABLE -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[20px] text-slate-700">format_list_numbered</span>
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Alternative Candidate Components</h3>
+    <!-- 4. ALTERNATIVE CANDIDATES -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">CANDIDATE RANKING</span>
+          <h3>Alternative Candidate Components</h3>
         </div>
-        <span class="text-xs text-slate-500">Ranked by standardized distance</span>
+        <span style="font-size: 11px; color: var(--muted);">Ranked by standardized statistical distance</span>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
+      <div class="table-wrap">
+        <table class="records-table">
           <thead>
-            <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-              <th class="py-2.5 px-4">Rank</th>
-              <th class="py-2.5 px-4">Component Name</th>
-              <th class="py-2.5 px-4">Reference Quality</th>
-              <th class="py-2.5 px-4 text-right">Sample Count</th>
-              <th class="py-2.5 px-4 text-right">Compatibility</th>
-              <th class="py-2.5 px-4">Key Notes</th>
+            <tr>
+              <th>Rank</th>
+              <th>Component Name</th>
+              <th>Reference Quality</th>
+              <th style="text-align: right;">Sample Count</th>
+              <th style="text-align: right;">Compatibility</th>
+              <th>Key Notes</th>
             </tr>
           </thead>
-          <tbody id="candidates-table-body" class="divide-y divide-slate-100">
-            <!-- Rendered dynamically -->
+          <tbody id="candidates-table-body">
+            <!-- Dynamically populated by analyzer.js -->
           </tbody>
         </table>
       </div>
+    </section>
+
+    <!-- 5. WARNINGS & CONFLICTS -->
+    <div id="warnings-conflicts-card" class="alert alert-danger hidden" style="display: none;">
+      <div style="font-weight: 700; margin-bottom: 6px; font-size: 13px;">
+        ⚠ Metallurgical Warnings &amp; Discrepancies
+      </div>
+      <div id="warnings-list" style="font-size: 11px; line-height: 1.5;">
+        <!-- Dynamically populated -->
+      </div>
     </div>
 
-    <!-- 5. WARNINGS & CONFLICTS ALERT -->
-    <div id="warnings-conflicts-card" class="hidden bg-white border border-rose-200 rounded-xl p-6 shadow-xs border-l-4 border-l-rose-500">
-      <div class="flex items-center gap-2 pb-3 mb-3 border-b border-rose-100 text-rose-800">
-        <span class="material-symbols-outlined text-[20px]">warning</span>
-        <h3 class="text-sm font-bold uppercase tracking-wider">Metallurgical Warnings & Discrepancies</h3>
-      </div>
-      <div id="warnings-list" class="space-y-2 text-xs text-slate-700">
-        <!-- Rendered dynamically -->
-      </div>
-    </div>
-
-    <!-- 6. ANALYST CONFIRMATION & FEEDBACK LOOP -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <!-- 6. ANALYST VERIFICATION & FEEDBACK LOOP -->
+    <section class="panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
       <div>
-        <h3 class="text-sm font-bold text-slate-900">Analyst Verification & Feedback Loop</h3>
-        <p class="text-xs text-slate-500 mt-0.5">
+        <h3 style="margin: 0 0 4px; font-size: 15px; color: var(--navy);">Analyst Verification &amp; Feedback Loop</h3>
+        <p style="margin: 0; font-size: 11px; color: var(--muted);">
           Record metallurgical confirmation or log a correction with physical inspection notes.
         </p>
       </div>
 
-      <div class="flex items-center gap-3 shrink-0">
-        <button type="button" onclick="confirmIdentification()" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-xs transition-colors">
-          <span class="material-symbols-outlined text-[16px]">check_circle</span>
-          Confirm Identification
+      <div style="display: flex; gap: 10px;">
+        <button type="button" onclick="confirmIdentification()" class="primary-btn" style="background: linear-gradient(135deg, #17824b, #20a05e);">
+          ✓ Confirm Identification
         </button>
-        <button type="button" onclick="openSuggestCorrectionModal()" class="px-4 py-2 text-xs font-bold rounded-lg bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 flex items-center gap-1.5 shadow-xs transition-colors">
-          <span class="material-symbols-outlined text-[16px]">edit_note</span>
-          Suggest Correction
+        <button type="button" onclick="openSuggestCorrectionModal()" class="reset-btn">
+          ✎ Suggest Correction
         </button>
       </div>
-    </div>
+    </section>
 
   </div>
 

@@ -4,129 +4,134 @@
 {% block title %}Calibrate Ratio Gates ({{ active_family.code }}) — DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="gate-editor-screen" class="space-y-6 pb-12">
-  <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-    <div class="flex items-center gap-3">
-      <a href="{% url 'knowledge_page' %}?family={{ active_family.code }}" class="p-2 rounded border border-slate-300 hover:bg-slate-50 transition-colors" title="Back to Knowledge Base">
-        <span class="material-symbols-outlined text-[18px] text-slate-700">arrow_back</span>
-      </a>
-      <div>
-        <div class="flex items-center gap-2 mb-0.5">
-          <span class="font-mono-code text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-            {{ active_family.code }}
-          </span>
-          <span class="text-xs font-semibold text-slate-600">
-            {{ active_family.name }}
-          </span>
-        </div>
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
-          Stoichiometric Ratio Gate Calibration
-        </h1>
+<div id="gate-editor-screen" class="page-content gate-editor-page">
+
+  <!-- =========================================
+       PAGE HERO
+       ========================================= -->
+  <div class="page-hero">
+    <div>
+      <div class="eyebrow">
+        CALIBRATION &amp; PHASE INVARIANCE
       </div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+        <span class="code-badge" style="font-size: 14px; padding: 4px 10px;">{{ active_family.code }}</span>
+        <h1 style="margin: 0; font-size: 26px;">{{ active_family.name }}</h1>
+      </div>
+      <p>
+        Calibrate stoichiometric elemental ratios and phase stability criteria for boundary discrimination.
+      </p>
     </div>
 
-    <div class="flex items-center gap-3">
-      <button onclick="openAddGateModal()" class="px-3.5 py-2 rounded text-xs font-semibold border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition-colors">
-        <span class="material-symbols-outlined text-[16px]">add</span>
-        Add Gate
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <a href="{% url 'knowledge_page' %}?family={{ active_family.code }}" class="reset-btn compact" title="Return to Knowledge Base">
+        ← Knowledge Base
+      </a>
+      <button type="button" onclick="openAddGateModal()" class="reset-btn compact">
+        ＋ Add Gate
       </button>
-      <button id="btn-save-gates" onclick="saveGatesConfiguration()" class="px-4 py-2 rounded text-xs font-bold bg-[#ED0007] text-white hover:bg-[#c90006] shadow flex items-center gap-1.5 transition-colors">
-        <span class="material-symbols-outlined text-[16px]">save</span>
-        Save Configuration
+      <button type="button" id="btn-save-gates" onclick="saveGatesConfiguration()" class="primary-btn compact" style="min-height: 34px;">
+        ✓ Save Configuration
       </button>
     </div>
   </div>
 
-  <!-- Grid: 7 cols Editor / 5 cols Info -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- Left: Gates Editor -->
-    <div class="lg:col-span-8 bg-white border border-slate-200 rounded-lg p-6 shadow-sm space-y-4">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <span class="material-symbols-outlined text-[20px] text-slate-700">tune</span>
-          Active Stoichiometric Gates
-        </h2>
-        <span id="gates-count-badge" class="text-xs font-mono-code text-slate-500">
+  <!-- =========================================
+       TWO-COLUMN EDITOR GRID
+       ========================================= -->
+  <div class="dashboard-grid two-column">
+    
+    <!-- LEFT: GATES EDITOR -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">ACTIVE GATES</span>
+          <h3>Stoichiometric Boundaries</h3>
+        </div>
+        <span id="gates-count-badge" class="code-badge">
           {{ active_family.ratioGates|length }} configured
         </span>
       </div>
 
-      <div id="gates-editor-container" class="space-y-4">
-        <!-- Rendered dynamically -->
+      <div id="gates-editor-container" style="display: flex; flex-direction: column; gap: 14px;">
+        <!-- Dynamically rendered by gates.js -->
       </div>
-    </div>
+    </section>
 
-    <!-- Right: Calibration Context & Guidelines -->
-    <div class="lg:col-span-4 space-y-6">
-      <div class="bg-white border border-slate-200 rounded-lg p-6 shadow-sm space-y-4">
-        <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <span class="material-symbols-outlined text-[20px] text-[#ED0007]">verified</span>
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Calibration Guidelines</h3>
+    <!-- RIGHT: CALIBRATION CONTEXT & GUIDELINES -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">METHODOLOGY</span>
+            <h3>Calibration Guidelines</h3>
+          </div>
         </div>
 
-        <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
-          <p>
-            Ratio gates enforce strict physical and metallurgical boundaries between adjacent alloy grades where concentration bands overlap.
+        <div style="font-size: 12px; color: var(--muted); line-height: 1.6; display: flex; flex-direction: column; gap: 10px;">
+          <p style="margin: 0;">
+            Ratio gates enforce strict physical and metallurgical boundaries between adjacent alloy grades where individual elemental concentration bands overlap.
           </p>
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded space-y-1.5 font-mono-code text-[11px]">
-            <div class="font-bold text-slate-800">Key Ratios:</div>
-            <div>&bull; Cr/Ni: Austenitic phase stability (1.80 – 2.80)</div>
-            <div>&bull; Cu/Sn: Phosphor bronze matrix (6.0 – 12.0)</div>
+
+          <div style="background: var(--blue-soft); border: 1px solid #d8e6ff; border-radius: 10px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+            <strong style="display: block; color: var(--navy); margin-bottom: 4px; font-family: 'Poppins', sans-serif;">Key Industrial Ratios:</strong>
+            <div>&bull; Cr/Ni: Austenitic phase stability (1.80 &ndash; 2.80)</div>
+            <div>&bull; Cu/Sn: Phosphor bronze matrix (6.0 &ndash; 12.0)</div>
             <div>&bull; W/Mo: Tool steel carbide classification</div>
           </div>
-          <p>
-            Modifications will be immediately logged in the system audit trail with user timestamp and delta.
+
+          <p style="margin: 0; font-size: 11px;">
+            Modifications will be immediately logged in the system audit trail with user timestamp and parameter delta.
           </p>
         </div>
-      </div>
+      </section>
     </div>
+
   </div>
+
 </div>
 
 <!-- Add Gate Modal -->
-<div id="add-gate-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-white border border-slate-200 rounded-lg shadow-xl p-6">
-    <div class="flex justify-between items-center pb-3 mb-4 border-b border-slate-100">
-      <h3 class="text-base font-bold text-slate-900">Add Stoichiometric Ratio Gate</h3>
-      <button onclick="closeAddGateModal()" class="text-slate-400 hover:text-slate-700">
-        <span class="material-symbols-outlined text-[20px]">close</span>
-      </button>
+<div id="add-gate-modal" class="modal-backdrop" style="display: none;">
+  <div class="modal-box" style="max-width: 480px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      <h3 style="margin: 0; font-size: 16px; color: var(--navy); font-weight: 700;">Add Stoichiometric Ratio Gate</h3>
+      <button type="button" onclick="closeAddGateModal()" style="border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 18px;">✕</button>
     </div>
 
-    <form onsubmit="confirmAddGate(event)" class="space-y-4 text-xs">
-      <div class="grid grid-cols-2 gap-3">
+    <form onsubmit="confirmAddGate(event)" class="record-form" style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Numerator Element</label>
-          <input type="text" id="new-gate-num" required value="Cr" class="w-full border border-slate-300 rounded p-2 font-mono-code uppercase text-slate-900 bg-white">
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Numerator Element</label>
+          <input type="text" id="gate-numerator" required placeholder="e.g. Cr" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 600;">
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Denominator Element</label>
-          <input type="text" id="new-gate-den" required value="Ni" class="w-full border border-slate-300 rounded p-2 font-mono-code uppercase text-slate-900 bg-white">
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Denominator Element</label>
+          <input type="text" id="gate-denominator" required placeholder="e.g. Ni" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 600;">
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Min Threshold</label>
-          <input type="number" step="0.01" id="new-gate-min" required value="1.80" class="w-full border border-slate-300 rounded p-2 font-mono-code text-right text-slate-900 bg-white">
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Min Value</label>
+          <input type="number" step="0.001" id="gate-min" placeholder="0.00" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace;">
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Max Threshold</label>
-          <input type="number" step="0.01" id="new-gate-max" required value="2.80" class="w-full border border-slate-300 rounded p-2 font-mono-code text-right text-slate-900 bg-white">
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Max Value</label>
+          <input type="number" step="0.001" id="gate-max" placeholder="Infinity" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace;">
         </div>
       </div>
 
       <div>
-        <label class="block font-bold text-slate-700 mb-1">Stoichiometric & Metallurgical Rationale</label>
-        <input type="text" id="new-gate-rationale" value="Discriminates austenitic matrix vs high-ferrite phases" class="w-full border border-slate-300 rounded p-2 text-slate-900 bg-white">
+        <label style="display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 4px;">Physical / Phase Rationale</label>
+        <textarea id="gate-rationale" rows="3" placeholder="e.g. Austenitic stainless phase stability boundary against ferrite formation." style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; box-sizing: border-box;"></textarea>
       </div>
 
-      <div class="mt-6 flex justify-end gap-2 pt-3 border-t border-slate-100">
-        <button type="button" onclick="closeAddGateModal()" class="px-4 py-2 rounded text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50">
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <button type="button" onclick="closeAddGateModal()" class="reset-btn">
           Cancel
         </button>
-        <button type="submit" class="px-4 py-2 rounded text-xs font-bold bg-[#ED0007] text-white hover:bg-[#c90006]">
+        <button type="submit" class="primary-btn">
           Add Gate
         </button>
       </div>
@@ -135,7 +140,8 @@
 </div>
 
 <script>
-  window.ACTIVE_FAMILY = {{ active_family|safe }};
+  window.ACTIVE_FAMILY_CODE = "{{ active_family.code }}";
+  window.INITIAL_GATES = {{ active_family.ratioGates|safe|default:"[]" }};
 </script>
 {% endblock %}
 
