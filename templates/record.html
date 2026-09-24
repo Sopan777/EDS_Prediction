@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Record Details</h1>
+
+<p>
+    Detailed information for the selected record.
+</p>
+
+<div style="
+    margin-top: 30px;
+    padding: 25px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+">
+
+    <h2>Basic Information</h2>
+
+    <div style="margin-top: 15px; line-height: 1.8;">
+        <p><strong>ID:</strong> {{ record.id }}</p>
+        <p><strong>Name:</strong> {{ record.name }}</p>
+        <p><strong>Category:</strong> {{ record.category }}</p>
+        <p><strong>Date:</strong> {{ record.date }}</p>
+        <p><strong>Description:</strong> {{ record.description }}</p>
+    </div>
+
+</div>
+
+<div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap;">
+    <a href="/records/{{ record.id }}/edit" class="btn btn-primary">Edit</a>
+    <a href="/records/{{ record.id }}/delete" class="btn btn-danger">Delete</a>
+    <a href="/records" class="btn btn-secondary">Back</a>
+</div>
+
+<script src="/static/records.js"></script>
+
+{% endblock %}

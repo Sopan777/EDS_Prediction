@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="home-layout">
+
+    
+
+    <div class="page-content">
+        <h2>{% if record %}Edit Record{% else %}Add Record{% endif %}</h2>
+
+        <form method="post"
+              action="{% if record %}/edit/{{ record.id }}{% else %}/add{% endif %}"
+              class="record-form">
+
+            <div>
+                <label>Date</label>
+                <input type="date" name="date"
+                       value="{% if record %}{{ record.date.strftime('%Y-%m-%d') }}{% endif %}"
+                       required>
+            </div>
+
+            <!-- Auditor -->
+            <div>
+                <label>Auditor Name</label>
+                <select name="auditor_name" required>
+                    <option value="">Select Auditor</option>
+                    <option value="Auditor A"
+                        {% if record and record.auditor_name == "Auditor A" %}selected{% endif %}>
+                        Auditor A
+                    </option>
+                    <option value="Auditor B"
+                        {% if record and record.auditor_name == "Auditor B" %}selected{% endif %}>
+                        Auditor B
+                    </option>
+                    <option value="Auditor C"
+                        {% if record and record.auditor_name == "Auditor C" %}selected{% endif %}>
+                        Auditor C
+                    </option>
+                </select>
+            </div>
+
+            <!-- Shift -->
+            <div>
+                <label>Shift</label>
+                <select name="shift" required>
+                    <option value="">Select Shift</option>
+                    <option value="Morning"
+                        {% if record and record.shift == "Morning" %}selected{% endif %}>
+                        Morning
+                    </option>
+                    <option value="Evening"
+                        {% if record and record.shift == "Evening" %}selected{% endif %}>
+                        Evening
+                    </option>
+                    <option value="Night"
+                        {% if record and record.shift == "Night" %}selected{% endif %}>
+                        Night
+                    </option>
+                </select>
+            </div>
+
+            <!-- Line -->
+            <div>
+                <label>Line</label>
+                <select name="line" required>
+                    <option value="">Select Line</option>
+                    <option value="Line 1"
+                        {% if record and record.line == "Line 1" %}selected{% endif %}>
+                        Line 1
+                    </option>
+                    <option value="Line 2"
+                        {% if record and record.line == "Line 2" %}selected{% endif %}>
+                        Line 2
+                    </option>
+                    <option value="Line 3"
+                        {% if record and record.line == "Line 3" %}selected{% endif %}>
+                        Line 3
+                    </option>
+                </select>
+            </div>
+
+            <!-- Type -->
+            <div>
+                <label>Type</label>
+                <select name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="Type A"
+                        {% if record and record.type == "Type A" %}selected{% endif %}>
+                        Type A
+                    </option>
+                    <option value="Type B"
+                        {% if record and record.type == "Type B" %}selected{% endif %}>
+                        Type B
+                    </option>
+                    <option value="Type C"
+                        {% if record and record.type == "Type C" %}selected{% endif %}>
+                        Type C
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label>Parts Checked</label>
+                <input type="number" name="parts_checked" min="0"
+                       value="{% if record %}{{ record.parts_checked }}{% endif %}"
+                       required>
+            </div>
+
+            <div>
+                <label>NOK</label>
+                <input type="number" name="nok" min="0"
+                       value="{% if record %}{{ record.nok }}{% endif %}"
+                       required>
+            </div>
+
+            <div style="grid-column: 1 / -1; text-align: center;">
+                <button type="submit">
+                    {% if record %}Update Record{% else %}Add Record{% endif %}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

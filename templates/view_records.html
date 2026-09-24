@@ -1,0 +1,821 @@
+{% extends "base.html" %}
+
+{% block title %}
+WSA Records
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+
+
+    <!-- =========================================
+         PAGE HEADER
+         ========================================= -->
+
+    <div class="page-hero compact-hero">
+
+        <div>
+
+            <div class="eyebrow">
+                AUDIT MANAGEMENT
+            </div>
+
+            <h1>
+                Production Audit Records
+            </h1>
+
+            <p>
+                Search, filter and review inspection records
+                captured during production shifts.
+            </p>
+
+        </div>
+
+
+        <a href="/add"
+           class="primary-btn">
+
+            ＋ Add Record
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================
+         SUMMARY CARDS
+         ========================================= -->
+
+    {% set nok_counter = namespace(value=0) %}
+
+    {% for record in records %}
+
+        {% if record.nok > 0 %}
+            {% set nok_counter.value =
+                nok_counter.value + 1 %}
+        {% endif %}
+
+    {% endfor %}
+
+
+    <div class="dashboard-cards records-summary">
+
+
+        <!-- TOTAL RECORDS -->
+
+        <div class="metric-card metric-blue">
+
+            <div class="metric-icon">
+                ▤
+            </div>
+
+            <div>
+
+                <span>
+                    Total Records
+                </span>
+
+                <strong>
+                    {{ records|length }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- OK RECORDS -->
+
+        <div class="metric-card metric-green">
+
+            <div class="metric-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    OK Records
+                </span>
+
+                <strong>
+                    {{ records|length - nok_counter.value }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- NOK RECORDS -->
+
+        <div class="metric-card metric-red">
+
+            <div class="metric-icon">
+                !
+            </div>
+
+            <div>
+
+                <span>
+                    NOK Records
+                </span>
+
+                <strong>
+                    {{ nok_counter.value }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- PARTS -->
+
+        <div class="metric-card metric-purple">
+
+            <div class="metric-icon">
+                #
+            </div>
+
+            <div>
+
+                <span>
+                    Parts Checked
+                </span>
+
+                <strong>
+                    {{ records|sum(attribute='parts_checked') }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         FILTER CARD
+         ========================================= -->
+
+    <div class="filter-card">
+
+        <div class="filter-heading">
+
+            <div>
+
+                <span class="section-kicker">
+                    FILTERS &amp; SEARCH
+                </span>
+
+                <h3>
+                    Find audit records
+                </h3>
+
+            </div>
+
+
+            <a href="/view"
+               class="reset-btn compact">
+
+                Reset
+
+            </a>
+
+        </div>
+
+
+        <form method="get"
+              class="dashboard-filters">
+
+
+            <!-- SEARCH -->
+
+            <div class="filter-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="recordSearch"
+                    placeholder="Search code, auditor, type..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- FROM DATE -->
+
+            <div class="filter-field">
+
+                <label>
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    name="from_date"
+                    value="{{ request.query_params.get('from_date', '') }}"
+                >
+
+            </div>
+
+
+            <!-- TO DATE -->
+
+            <div class="filter-field">
+
+                <label>
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    name="to_date"
+                    value="{{ request.query_params.get('to_date', '') }}"
+                >
+
+            </div>
+
+
+            <!-- SHIFT -->
+
+            <div class="filter-field">
+
+                <label>
+                    Shift
+                </label>
+
+                <select name="shift">
+
+                    <option value="">
+                        All Shifts
+                    </option>
+
+                    <option value="Morning"
+                        {% if request.query_params.get('shift') == 'Morning' %}
+                        selected
+                        {% endif %}>
+                        Morning
+                    </option>
+
+                    <option value="Evening"
+                        {% if request.query_params.get('shift') == 'Evening' %}
+                        selected
+                        {% endif %}>
+                        Evening
+                    </option>
+
+                    <option value="Night"
+                        {% if request.query_params.get('shift') == 'Night' %}
+                        selected
+                        {% endif %}>
+                        Night
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- LINE -->
+
+            <div class="filter-field">
+
+                <label>
+                    Line
+                </label>
+
+                <select name="line">
+
+                    <option value="">
+                        All Lines
+                    </option>
+
+                    <option value="Line 1"
+                        {% if request.query_params.get('line') == 'Line 1' %}
+                        selected
+                        {% endif %}>
+                        Line 1
+                    </option>
+
+                    <option value="Line 2"
+                        {% if request.query_params.get('line') == 'Line 2' %}
+                        selected
+                        {% endif %}>
+                        Line 2
+                    </option>
+
+                    <option value="Line 3"
+                        {% if request.query_params.get('line') == 'Line 3' %}
+                        selected
+                        {% endif %}>
+                        Line 3
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SORT -->
+
+            <div class="filter-field">
+
+                <label>
+                    Sort By
+                </label>
+
+                <select name="sort_by">
+
+                    <option value="">
+                        Default
+                    </option>
+
+                    <option value="parts_checked"
+                        {% if request.query_params.get('sort_by') == 'parts_checked' %}
+                        selected
+                        {% endif %}>
+                        Parts Checked
+                    </option>
+
+                    <option value="nok"
+                        {% if request.query_params.get('sort_by') == 'nok' %}
+                        selected
+                        {% endif %}>
+                        NOK Count
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ORDER -->
+
+            <div class="filter-field">
+
+                <label>
+                    Order
+                </label>
+
+                <select name="order">
+
+                    <option value="asc"
+                        {% if request.query_params.get('order', 'asc') == 'asc' %}
+                        selected
+                        {% endif %}>
+                        Ascending
+                    </option>
+
+                    <option value="desc"
+                        {% if request.query_params.get('order') == 'desc' %}
+                        selected
+                        {% endif %}>
+                        Descending
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="primary-btn">
+
+                    Apply Filters
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================================
+         RESULTS PANEL
+         ========================================= -->
+
+    <section class="panel">
+
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    RESULTS
+                </span>
+
+                <h3>
+
+                    <span id="visibleCount">
+                        {{ records|length }}
+                    </span>
+
+                    record(s) displayed
+
+                </h3>
+
+            </div>
+
+
+            <div>
+
+                <span class="status-badge status-ok">
+                    OK:
+                    {{ records|length - nok_counter.value }}
+                </span>
+
+                <span class="status-badge status-nok">
+                    NOK:
+                    {{ nok_counter.value }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="table-wrap">
+
+            <table class="records-table"
+                   id="recordsTable">
+
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        Record Code
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Auditor
+                    </th>
+
+                    <th>
+                        Shift
+                    </th>
+
+                    <th>
+                        Line
+                    </th>
+
+                    <th>
+                        Type
+                    </th>
+
+                    <th>
+                        Parts Checked
+                    </th>
+
+                    <th>
+                        NOK
+                    </th>
+
+                    <th>
+                        Result
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for record in records %}
+
+                <tr
+                    class="record-row"
+                    data-search="
+                        {{ record.record_code }}
+                        {{ record.auditor_name }}
+                        {{ record.shift }}
+                        {{ record.line }}
+                        {{ record.type }}
+                        {{ record.parts_checked }}
+                        {{ record.nok }}
+                    "
+                >
+
+
+                    <!-- RECORD CODE -->
+
+                    <td>
+
+                        <span class="code-badge">
+
+                            {{ record.record_code }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        {{ record.date.strftime('%d %b %Y') }}
+
+                    </td>
+
+
+                    <!-- AUDITOR -->
+
+                    <td>
+
+                        <strong>
+                            {{ record.auditor_name }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- SHIFT -->
+
+                    <td>
+
+                        <span
+                            class="shift-badge shift-{{ record.shift|lower }}"
+                        >
+
+                            {{ record.shift }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- LINE -->
+
+                    <td>
+
+                        {{ record.line }}
+
+                    </td>
+
+
+                    <!-- TYPE -->
+
+                    <td>
+
+                        <span class="type-label">
+                            {{ record.type }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- PARTS -->
+
+                    <td>
+
+                        <strong>
+                            {{ record.parts_checked }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- NOK -->
+
+                    <td>
+
+                        <strong
+                            class="
+                                nok-value
+                                {% if record.nok > 0 %}
+                                nok-text
+                                {% else %}
+                                ok-text
+                                {% endif %}
+                            "
+                        >
+
+                            {{ record.nok }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- RESULT -->
+
+                    <td>
+
+                        {% if record.nok > 0 %}
+
+                            <span class="status-badge status-nok">
+                                NOK
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge status-ok">
+                                OK
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTIONS -->
+
+                    <td class="action-cell">
+
+
+                        {% if user.role == "admin"
+                              or record.owner_id == user.id %}
+
+                            <a
+                                class="table-action"
+                                href="/edit/{{ record.id }}"
+                            >
+
+                                Edit
+
+                            </a>
+
+                        {% endif %}
+
+
+                        {% if user.role == "admin" %}
+
+                            <a
+                                class="table-action danger"
+                                href="/delete/{{ record.id }}"
+                                onclick="
+                                    return confirm(
+                                        'Are you sure you want to delete this record?'
+                                    );
+                                "
+                            >
+
+                                Delete
+
+                            </a>
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+
+                <tr>
+
+                    <td
+                        colspan="10"
+                        class="empty-cell"
+                    >
+
+                        No records found for the
+                        selected filters.
+
+                    </td>
+
+                </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </section>
+
+</div>
+
+
+<!-- =========================================
+     CLIENT-SIDE SEARCH
+     ========================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const searchInput =
+            document.getElementById(
+                "recordSearch"
+            );
+
+
+        const rows =
+            document.querySelectorAll(
+                ".record-row"
+            );
+
+
+        const visibleCount =
+            document.getElementById(
+                "visibleCount"
+            );
+
+
+        if (!searchInput) {
+
+            return;
+
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                const search =
+                    searchInput.value
+                    .trim()
+                    .toLowerCase();
+
+
+                let visible = 0;
+
+
+                rows.forEach(
+                    function (row) {
+
+                        const text =
+                            (
+                                row.dataset.search
+                                || ""
+                            ).toLowerCase();
+
+
+                        const matches =
+                            text.includes(search);
+
+
+                        row.style.display =
+                            matches
+                                ? ""
+                                : "none";
+
+
+                        if (matches) {
+
+                            visible += 1;
+
+                        }
+
+                    }
+                );
+
+
+                if (visibleCount) {
+
+                    visibleCount.textContent =
+                        visible;
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

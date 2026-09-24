@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-content">
+
+    <h2>Edit Cases — {{ record.record_code }}</h2>
+
+    {% for case in cases %}
+
+    <div class="case-box">
+        <h3>{{ case.case_code }}</h3>
+
+        <form method="post" action="/update-case/{{ case.id }}" 
+            enctype="multipart/form-data" 
+            class="record-form">
+            <div>
+                <label>Rejection Station</label>
+                <select name="rejection_station" required>
+                    <option value="">Select</option>
+                    <option value="Station A" {% if case.rejection_station == "Station A" %}selected{% endif %}>Station A</option>
+                    <option value="Station B" {% if case.rejection_station == "Station B" %}selected{% endif %}>Station B</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Particle Location</label>
+                <select name="particle_location" required>
+                    <option value="">Select</option>
+                    <option value="Top" {% if case.particle_location == "Top" %}selected{% endif %}>Top</option>
+                    <option value="Bottom" {% if case.particle_location == "Bottom" %}selected{% endif %}>Bottom</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Body</label>
+                <select name="body" required>
+                    <option value="">Select</option>
+                    <option value="Yes" {% if case.body == "Yes" %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if case.body == "No" %}selected{% endif %}>No</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Valve</label>
+                <select name="valve" required>
+                    <option value="">Select</option>
+                    <option value="OK" {% if case.valve == "OK" %}selected{% endif %}>OK</option>
+                    <option value="NG" {% if case.valve == "NG" %}selected{% endif %}>NG</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Nozzle</label>
+                <select name="nozzle" required>
+                    <option value="">Select</option>
+                    <option value="Clean" {% if case.nozzle == "Clean" %}selected{% endif %}>Clean</option>
+                    <option value="Dirty" {% if case.nozzle == "Dirty" %}selected{% endif %}>Dirty</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Magnet</label>
+                <select name="magnet" required>
+                    <option value="">Select</option>
+                    <option value="Present" {% if case.magnet == "Present" %}selected{% endif %}>Present</option>
+                    <option value="Absent" {% if case.magnet == "Absent" %}selected{% endif %}>Absent</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Bin Number</label>
+                <input type="text" name="bin_number"
+                       value="{{ case.bin_number or '' }}">
+            </div>
+
+            <div>
+                <label>Remark</label>
+                <input type="text" name="remark"
+                       value="{{ case.remark or '' }}">
+            </div>
+
+            <div>
+                <label>Image 1</label>
+                <input type="file" name="image1">
+                {% if case.image1 %}
+                    <a href="/{{ case.image1 }}" target="_blank">View Image</a>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Image 2</label>
+                <input type="file" name="image2">
+                {% if case.image2 %}
+                    <a href="/{{ case.image2 }}" target="_blank">View Image</a>
+                {% endif %}
+            </div>
+
+            <div>
+                <label>Image 3</label>
+                <input type="file" name="image3">
+                {% if case.image3 %}
+                    <a href="/{{ case.image3 }}" target="_blank">View Image</a>
+                {% endif %}
+            </div>
+
+            <div style="grid-column: span 2; text-align:center;">
+                <button type="submit">Save Case</button>
+            </div>
+
+        </form>
+    </div>
+
+    <hr>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,863 @@
+{% extends "base.html" %}
+
+{% block title %}
+WSA Observations
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+
+    <!-- =========================================
+         PAGE HEADER
+         ========================================= -->
+
+    <div class="page-hero compact-hero">
+
+        <div>
+
+            <div class="eyebrow">
+                DEFECT MANAGEMENT
+            </div>
+
+            <h1>
+                NOK Observations
+            </h1>
+
+            <p>
+                Review rejection cases, defect locations,
+                inspection evidence and remarks.
+            </p>
+
+        </div>
+
+
+        <div class="hero-stat">
+
+            <strong>
+                {{ cases|length }}
+            </strong>
+
+            <span>
+                visible cases
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         SUMMARY
+         ========================================= -->
+
+    {% set image_counter = namespace(value=0) %}
+
+    {% for case in cases %}
+
+        {% if case.image1 %}
+            {% set image_counter.value =
+                image_counter.value + 1 %}
+        {% endif %}
+
+        {% if case.image2 %}
+            {% set image_counter.value =
+                image_counter.value + 1 %}
+        {% endif %}
+
+        {% if case.image3 %}
+            {% set image_counter.value =
+                image_counter.value + 1 %}
+        {% endif %}
+
+    {% endfor %}
+
+
+    <div class="dashboard-cards observations-summary">
+
+
+        <!-- TOTAL NOK CASES -->
+
+        <div class="metric-card metric-red">
+
+            <div class="metric-icon">
+                !
+            </div>
+
+            <div>
+
+                <span>
+                    NOK Cases
+                </span>
+
+                <strong>
+                    {{ cases|length }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- CASES WITH EVIDENCE -->
+
+        <div class="metric-card metric-blue">
+
+            <div class="metric-icon">
+                ▣
+            </div>
+
+            <div>
+
+                <span>
+                    Image Evidence
+                </span>
+
+                <strong>
+                    {{ image_counter.value }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- MORNING -->
+
+        <div class="metric-card metric-green">
+
+            <div class="metric-icon">
+                A
+            </div>
+
+            <div>
+
+                <span>
+                    Morning Cases
+                </span>
+
+                <strong>
+
+                    {{
+                        cases
+                        | selectattr(
+                            "record.shift",
+                            "equalto",
+                            "Morning"
+                        )
+                        | list
+                        | length
+                    }}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- EVENING / NIGHT -->
+
+        <div class="metric-card metric-purple">
+
+            <div class="metric-icon">
+                B
+            </div>
+
+            <div>
+
+                <span>
+                    Evening / Night
+                </span>
+
+                <strong>
+
+                    {{
+                        cases|length
+                        -
+                        (
+                            cases
+                            | selectattr(
+                                "record.shift",
+                                "equalto",
+                                "Morning"
+                            )
+                            | list
+                            | length
+                        )
+                    }}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         FILTERS
+         ========================================= -->
+
+    <div class="filter-card">
+
+        <div class="filter-heading">
+
+            <div>
+
+                <span class="section-kicker">
+                    FILTERS &amp; SEARCH
+                </span>
+
+                <h3>
+                    Find NOK observations
+                </h3>
+
+            </div>
+
+
+            <a
+                href="/observations"
+                class="reset-btn compact"
+            >
+
+                Reset
+
+            </a>
+
+        </div>
+
+
+        <form
+            method="get"
+            class="dashboard-filters"
+        >
+
+
+            <!-- SEARCH -->
+
+            <div class="filter-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="observationSearch"
+                    placeholder="Search case, record, type..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- FROM DATE -->
+
+            <div class="filter-field">
+
+                <label>
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    name="from_date"
+                    value="{{ filters.from_date or '' }}"
+                >
+
+            </div>
+
+
+            <!-- TO DATE -->
+
+            <div class="filter-field">
+
+                <label>
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    name="to_date"
+                    value="{{ filters.to_date or '' }}"
+                >
+
+            </div>
+
+
+            <!-- SHIFT -->
+
+            <div class="filter-field">
+
+                <label>
+                    Shift
+                </label>
+
+                <select name="shift">
+
+                    <option value="">
+                        All Shifts
+                    </option>
+
+                    <option
+                        value="Morning"
+                        {% if filters.shift == "Morning" %}
+                        selected
+                        {% endif %}
+                    >
+                        Morning
+                    </option>
+
+                    <option
+                        value="Evening"
+                        {% if filters.shift == "Evening" %}
+                        selected
+                        {% endif %}
+                    >
+                        Evening
+                    </option>
+
+                    <option
+                        value="Night"
+                        {% if filters.shift == "Night" %}
+                        selected
+                        {% endif %}
+                    >
+                        Night
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- LINE -->
+
+            <div class="filter-field">
+
+                <label>
+                    Line
+                </label>
+
+                <select name="line">
+
+                    <option value="">
+                        All Lines
+                    </option>
+
+                    <option
+                        value="Line 1"
+                        {% if filters.line == "Line 1" %}
+                        selected
+                        {% endif %}
+                    >
+                        Line 1
+                    </option>
+
+                    <option
+                        value="Line 2"
+                        {% if filters.line == "Line 2" %}
+                        selected
+                        {% endif %}
+                    >
+                        Line 2
+                    </option>
+
+                    <option
+                        value="Line 3"
+                        {% if filters.line == "Line 3" %}
+                        selected
+                        {% endif %}
+                    >
+                        Line 3
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+
+                    Apply Filters
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================================
+         CASE REVIEW
+         ========================================= -->
+
+    <section class="panel">
+
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    CASE REVIEW
+                </span>
+
+                <h3>
+
+                    <span id="visibleCaseCount">
+                        {{ cases|length }}
+                    </span>
+
+                    NOK case(s) displayed
+
+                </h3>
+
+            </div>
+
+
+            <div>
+
+                <span class="status-badge status-nok">
+
+                    NOK:
+                    {{ cases|length }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="table-wrap">
+
+            <table
+                class="records-table"
+                id="observationsTable"
+            >
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        Case
+                    </th>
+
+                    <th>
+                        Record
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Shift
+                    </th>
+
+                    <th>
+                        Type
+                    </th>
+
+                    <th>
+                        Line
+                    </th>
+
+                    <th>
+                        Rejection
+                    </th>
+
+                    <th>
+                        Particle Location
+                    </th>
+
+                    <th>
+                        Evidence
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for case in cases %}
+
+                <tr
+                    class="observation-row"
+                    data-search="
+                        {{ case.case_code or '' }}
+                        {{ case.record.record_code or '' }}
+                        {{ case.record.type or '' }}
+                        {{ case.record.shift or '' }}
+                        {{ case.record.line or '' }}
+                        {{ case.rejection_station or '' }}
+                        {{ case.particle_location or '' }}
+                    "
+                >
+
+
+                    <!-- CASE -->
+
+                    <td>
+
+                        <span class="code-badge">
+
+                            {{ case.case_code or "Pending" }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- RECORD -->
+
+                    <td>
+
+                        <span class="code-badge">
+
+                            {{ case.record.record_code }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        {{
+                            case.created_at.strftime(
+                                "%d %b %Y"
+                            )
+                            if case.created_at
+                            else "-"
+                        }}
+
+                    </td>
+
+
+                    <!-- SHIFT -->
+
+                    <td>
+
+                        <span
+                            class="
+                                shift-badge
+                                shift-{{ case.record.shift|lower }}
+                            "
+                        >
+
+                            {{ case.record.shift }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- TYPE -->
+
+                    <td>
+
+                        <span class="type-label">
+                            {{ case.record.type }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- LINE -->
+
+                    <td>
+                        {{ case.record.line }}
+                    </td>
+
+
+                    <!-- REJECTION -->
+
+                    <td>
+
+                        {% if case.rejection_station %}
+
+                            <span class="status-badge status-nok">
+
+                                {{ case.rejection_station }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="muted">
+                                Not entered
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- PARTICLE LOCATION -->
+
+                    <td>
+
+                        {% if case.particle_location %}
+
+                            {{ case.particle_location }}
+
+                        {% else %}
+
+                            <span class="muted">
+                                Not entered
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- IMAGE EVIDENCE -->
+
+                    <td class="evidence-cell">
+
+
+                        {% if case.image1 %}
+
+                            <a
+                                href="/{{ case.image1 }}"
+                                target="_blank"
+                                class="evidence-btn"
+                                title="Open image 1"
+                            >
+                                1
+                            </a>
+
+                        {% endif %}
+
+
+                        {% if case.image2 %}
+
+                            <a
+                                href="/{{ case.image2 }}"
+                                target="_blank"
+                                class="evidence-btn"
+                                title="Open image 2"
+                            >
+                                2
+                            </a>
+
+                        {% endif %}
+
+
+                        {% if case.image3 %}
+
+                            <a
+                                href="/{{ case.image3 }}"
+                                target="_blank"
+                                class="evidence-btn"
+                                title="Open image 3"
+                            >
+                                3
+                            </a>
+
+                        {% endif %}
+
+
+                        {% if not case.image1
+                              and not case.image2
+                              and not case.image3 %}
+
+                            <span class="muted">
+                                None
+                            </span>
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                    <!-- ACTIONS -->
+
+                    <td class="action-cell">
+
+
+                        <a
+                            class="table-action"
+                            href="/edit-case/{{ case.id }}"
+                        >
+
+                            Edit
+
+                        </a>
+
+
+                        {% if user.role == "admin" %}
+
+                            <a
+                                class="table-action danger"
+                                href="/delete-case/{{ case.id }}"
+                                onclick="
+                                    return confirm(
+                                        'Delete this NOK case?'
+                                    );
+                                "
+                            >
+
+                                Delete
+
+                            </a>
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+
+                <tr>
+
+                    <td
+                        colspan="10"
+                        class="empty-cell"
+                    >
+
+                        No NOK cases found for the
+                        selected filters.
+
+                    </td>
+
+                </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </section>
+
+</div>
+
+
+<!-- =========================================
+     CLIENT-SIDE SEARCH
+     ========================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const searchInput =
+            document.getElementById(
+                "observationSearch"
+            );
+
+
+        const rows =
+            document.querySelectorAll(
+                ".observation-row"
+            );
+
+
+        const visibleCount =
+            document.getElementById(
+                "visibleCaseCount"
+            );
+
+
+        if (!searchInput) {
+            return;
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                const search =
+                    searchInput.value
+                    .trim()
+                    .toLowerCase();
+
+
+                let visible = 0;
+
+
+                rows.forEach(
+                    function (row) {
+
+                        const text =
+                            (
+                                row.dataset.search
+                                || ""
+                            ).toLowerCase();
+
+
+                        const matches =
+                            text.includes(search);
+
+
+                        row.style.display =
+                            matches
+                                ? ""
+                                : "none";
+
+
+                        if (matches) {
+                            visible += 1;
+                        }
+
+                    }
+                );
+
+
+                if (visibleCount) {
+
+                    visibleCount.textContent =
+                        visible;
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

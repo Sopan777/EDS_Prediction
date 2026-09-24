@@ -1,0 +1,803 @@
+{% extends "base.html" %}
+
+{% block title %}
+WSA Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-ribbon">
+    <img
+        src="/static/images/bosch-ribbon.png"
+        alt="Bosch ribbon"
+    >
+</div>
+
+<div class="page-content dashboard-page">
+
+    <div class="page-hero">
+
+        <div>
+
+            <div class="eyebrow">
+                QUALITY MONITORING
+            </div>
+
+            <h1>
+                WSA Dashboard
+            </h1>
+
+            <p>
+                Within Shift Analysis overview for production audit and defect monitoring.
+            </p>
+
+        </div>
+
+        <div class="hero-date">
+
+            <span class="hero-date-label">
+                Today
+            </span>
+
+            <strong>
+                {{ current_date }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         CURRENT EXCEL DATA
+         ========================================= -->
+
+    <section class="panel excel-panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    LIVE EXCEL DATA
+                </span>
+
+                <h3>
+                    Particle Summary
+                </h3>
+
+                <p class="excel-description">
+                    Live data loaded from
+               <strong>CRIN Line rejection analysis updated.xlsx</strong>
+                    Save changes in Excel and refresh this page
+                    to see the updated data.
+                </p>
+
+            </div>
+
+            <div>
+
+                <span class="status-badge status-ok">
+
+                    {{ excel_total_rows }} rows
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {% if excel_headers and excel_rows %}
+
+        <div class="excel-table-container">
+
+            <table class="excel-table">
+
+                <thead>
+
+                    <tr>
+
+                        {% for header in excel_headers %}
+
+                        <th>
+                            {{ header }}
+                        </th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for row in excel_rows %}
+
+                    <tr>
+
+                        {% for value in row %}
+
+                        <td>
+                            {{ value }}
+                        </td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="empty-state">
+
+            Excel data could not be loaded.
+
+            <br><br>
+
+            Check that:
+
+            <strong>
+                Data/current.xlsx
+            </strong>
+
+            exists.
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- FILTERS -->
+
+    <div class="filter-card">
+
+        <div class="filter-heading">
+
+            <div>
+                <span class="section-kicker">
+                    FILTERS
+                </span>
+
+                <h3>
+                    Refine the dashboard
+                </h3>
+            </div>
+
+            <a href="/dashboard"
+               class="reset-btn compact">
+                Reset
+            </a>
+
+        </div>
+
+
+        <form method="get"
+              class="dashboard-filters">
+
+
+            <div class="filter-field">
+
+                <label>
+                    From Date
+                </label>
+
+                <input type="date"
+                       name="from_date"
+                       value="{{ filters.from_date or '' }}">
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    To Date
+                </label>
+
+                <input type="date"
+                       name="to_date"
+                       value="{{ filters.to_date or '' }}">
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    Shift
+                </label>
+
+                <select name="shift">
+
+                    <option value="">
+                        All Shifts
+                    </option>
+
+                    {% for item in shifts %}
+
+                    <option value="{{ item }}"
+                        {% if filters.shift == item %}
+                        selected
+                        {% endif %}>
+
+                        {{ item }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    Line
+                </label>
+
+                <select name="line">
+
+                    <option value="">
+                        All Lines
+                    </option>
+
+                    {% for item in lines %}
+
+                    <option value="{{ item }}"
+                        {% if filters.line == item %}
+                        selected
+                        {% endif %}>
+
+                        {{ item }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    Auditor
+                </label>
+
+                <select name="auditor">
+
+                    <option value="">
+                        All Auditors
+                    </option>
+
+                    {% for item in auditors %}
+
+                    <option value="{{ item }}"
+                        {% if filters.auditor == item %}
+                        selected
+                        {% endif %}>
+
+                        {{ item }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    Type
+                </label>
+
+                <select name="type">
+
+                    <option value="">
+                        All Types
+                    </option>
+
+                    {% for item in types %}
+
+                    <option value="{{ item }}"
+                        {% if filters.type == item %}
+                        selected
+                        {% endif %}>
+
+                        {{ item }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button type="submit"
+                        class="primary-btn">
+
+                    Apply Filters
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+
+    <!-- KPI CARDS -->
+
+    <div class="dashboard-cards">
+
+
+        <div class="metric-card metric-blue">
+
+            <div class="metric-icon">
+                ▤
+            </div>
+
+            <div>
+
+                <span>
+                    Total Audits
+                </span>
+
+                <strong class="counter"
+                        data-target="{{ total_records }}">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="metric-card metric-green">
+
+            <div class="metric-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Parts Checked
+                </span>
+
+                <strong class="counter"
+                        data-target="{{ total_parts }}">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="metric-card metric-red">
+
+            <div class="metric-icon">
+                !
+            </div>
+
+            <div>
+
+                <span>
+                    NOK Cases
+                </span>
+
+                <strong class="counter"
+                        data-target="{{ total_nok }}">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="metric-card metric-purple">
+
+            <div class="metric-icon">
+                %
+            </div>
+
+            <div>
+
+                <span>
+                    Rejection Rate
+                </span>
+
+                <strong>
+                    {{ nok_rate }}%
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- CHARTS -->
+
+    <div class="dashboard-grid two-column">
+
+
+        <section class="panel chart-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        TREND
+                    </span>
+
+                    <h3>
+                        Daily Audit vs NOK
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-box">
+
+                <canvas id="dailyTrendChart"></canvas>
+
+            </div>
+
+        </section>
+
+
+
+        <section class="panel chart-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        DISTRIBUTION
+                    </span>
+
+                    <h3>
+                        Shift Performance
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-box small-chart">
+
+                <canvas id="shiftChart"></canvas>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <div class="dashboard-grid two-column">
+
+
+        <section class="panel chart-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        PRODUCTION LINE
+                    </span>
+
+                    <h3>
+                        Line-wise NOK
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-box small-chart">
+
+                <canvas id="lineChart"></canvas>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- RECENT NOK -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        RECENT
+                    </span>
+
+                    <h3>
+                        Recent NOK Cases
+                    </h3>
+
+                </div>
+
+                <a href="/observations"
+                   class="text-link">
+
+                    View all
+
+                </a>
+
+            </div>
+
+
+            {% if recent_cases %}
+
+            <div class="table-wrap">
+
+                <table class="records-table compact-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            Case
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Shift
+                        </th>
+
+                        <th>
+                            Line
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for case in recent_cases %}
+
+                    <tr>
+
+                        <td>
+
+                            <span class="code-badge">
+
+                                {{ case.case_code or 'Pending' }}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            {{ case.created_at.strftime('%d %b %Y')
+                               if case.created_at else '-' }}
+
+                        </td>
+
+                        <td>
+                            {{ case.record.type }}
+                        </td>
+
+                        <td>
+                            {{ case.record.shift }}
+                        </td>
+
+                        <td>
+                            {{ case.record.line }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="empty-state">
+
+                No NOK cases match the current filters.
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+
+    <!-- AUDITOR ACTIVITY -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    AUDITOR ACTIVITY
+                </span>
+
+                <h3>
+                    Auditor Day-wise Record Count
+                </h3>
+
+            </div>
+
+        </div>
+
+
+        {% if auditor_daywise %}
+
+        <div class="auditor-grid">
+
+            {% for auditor, records in auditor_daywise.items() %}
+
+            <div class="mini-card">
+
+                <div class="mini-card-title">
+
+                    {{ auditor }}
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table class="records-table compact-table">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Records
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for row in records %}
+
+                        <tr>
+
+                            <td>
+                                {{ row.date }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ row.count }}
+                                </strong>
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            No audit records match the selected filters.
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<script>
+
+window.WSA_DASHBOARD = {
+
+    dailyLabels:
+        {{ daily_labels | tojson }},
+
+    dailyAudits:
+        {{ daily_audits | tojson }},
+
+    dailyNok:
+        {{ daily_nok | tojson }},
+
+    shiftLabels:
+        {{ shift_labels | tojson }},
+
+    shiftNok:
+        {{ shift_nok | tojson }},
+
+    lineLabels:
+        {{ line_labels | tojson }},
+
+    lineNok:
+        {{ line_nok | tojson }}
+
+};
+
+</script>
+
+
+<script src="/static/dashboard.js"></script>
+
+{% endblock %}

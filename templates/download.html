@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}
+WSA Reports & Export
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+
+
+    <!-- =========================================
+         PAGE HEADER
+         ========================================= -->
+
+    <div class="page-hero compact-hero">
+
+        <div>
+
+            <div class="eyebrow">
+                REPORTING &amp; DOCUMENTATION
+            </div>
+
+            <h1>
+                Reports &amp; Export
+            </h1>
+
+            <p>
+                Export production audit records and optional
+                NOK case details for reporting, documentation
+                and further analysis.
+            </p>
+
+        </div>
+
+
+        <div class="hero-stat">
+
+            <strong>
+                CSV
+            </strong>
+
+            <span>
+                export format
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         EXPORT OPTIONS
+         ========================================= -->
+
+    <div class="dashboard-grid two-column">
+
+
+        <!-- RECORD EXPORT -->
+
+        <section class="panel download-option">
+
+            <div class="metric-icon">
+                ▤
+            </div>
+
+            <h3>
+                Record Data
+            </h3>
+
+            <p>
+                Export production audit information
+                such as date, auditor, type, parts checked,
+                NOK count, shift and line information.
+            </p>
+
+            <span class="status-badge status-ok">
+                Record CSV
+            </span>
+
+        </section>
+
+
+        <!-- COMBINED EXPORT -->
+
+        <section class="panel download-option">
+
+            <div class="metric-icon">
+                ⚠
+            </div>
+
+            <h3>
+                Record + NOK Case Data
+            </h3>
+
+            <p>
+                Include audit information together with
+                the associated NOK case details for
+                defect review and analysis.
+            </p>
+
+            <span class="status-badge status-nok">
+                Combined CSV
+            </span>
+
+        </section>
+
+    </div>
+
+
+    <!-- =========================================
+         DOWNLOAD FORM
+         ========================================= -->
+
+    <section class="panel">
+
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    EXPORT DATA
+                </span>
+
+                <h3>
+                    Configure your download
+                </h3>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            class="record-form"
+        >
+
+
+            <!-- FROM DATE -->
+
+            <div>
+
+                <label>
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    name="from_date"
+                >
+
+            </div>
+
+
+            <!-- TO DATE -->
+
+            <div>
+
+                <label>
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    name="to_date"
+                >
+
+            </div>
+
+
+            <!-- INCLUDE CASE DETAILS -->
+
+            <div class="checkbox-row">
+
+                <input
+                    type="checkbox"
+                    id="include_cases"
+                    name="include_cases"
+                    value="yes"
+                >
+
+                <label
+                    for="include_cases"
+                >
+
+                    Include Case Details
+                    (Record + NOK Case Data)
+
+                </label>
+
+            </div>
+
+
+            <!-- INFORMATION -->
+
+            <div class="download-info">
+
+                <div class="download-info-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        Export information
+                    </strong>
+
+                    <p>
+                        Select a date range to filter the
+                        records included in the CSV export.
+                        Enable case details when NOK-level
+                        information is required.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <button
+                type="submit"
+                class="primary-btn"
+            >
+
+                ⇩ Download CSV
+
+            </button>
+
+
+        </form>
+
+    </section>
+
+
+    <!-- =========================================
+         REPORTING WORKFLOW
+         ========================================= -->
+
+    <section class="panel info-panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    REPORTING WORKFLOW
+                </span>
+
+                <h3>
+                    How exported data can be used
+                </h3>
+
+            </div>
+
+        </div>
+
+
+        <div class="workflow-grid">
+
+
+            <div>
+
+                <span>
+                    01
+                </span>
+
+                <strong>
+                    Filter
+                </strong>
+
+                <p>
+                    Select the required date range
+                    for the audit data.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    02
+                </span>
+
+                <strong>
+                    Select Detail
+                </strong>
+
+                <p>
+                    Export record data only or
+                    include NOK case information.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    03
+                </span>
+
+                <strong>
+                    Download
+                </strong>
+
+                <p>
+                    Generate the CSV file directly
+                    from the WSA application.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    04
+                </span>
+
+                <strong>
+                    Review
+                </strong>
+
+                <p>
+                    Use the exported information for
+                    reporting and external analysis.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+</div>
+
+{% endblock %}

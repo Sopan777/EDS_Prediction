@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}
+WSA Home
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content home-page">
+
+
+    <div class="page-hero home-hero">
+
+        <div>
+
+            <div class="eyebrow">
+                WELCOME TO WSA
+            </div>
+
+            <h1>
+                Production Quality Control
+            </h1>
+
+            <p>
+                Monitor shift-level audits, track NOK cases,
+                review observations, and export quality data
+                from one place.
+            </p>
+
+        </div>
+
+
+        <div class="hero-user-card">
+
+            <span>
+                Signed in as
+            </span>
+
+            <strong>
+                {{ user.username|upper }}
+            </strong>
+
+            <small>
+                {{ user.role|capitalize }} access
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="quick-actions">
+
+
+        <a href="/add"
+           class="quick-action-card">
+
+            <span class="quick-action-icon">
+                ＋
+            </span>
+
+            <strong>
+                Add Audit Record
+            </strong>
+
+            <small>
+                Create a new production inspection record
+            </small>
+
+        </a>
+
+
+        <a href="/dashboard"
+           class="quick-action-card">
+
+            <span class="quick-action-icon">
+                ▥
+            </span>
+
+            <strong>
+                Open Dashboard
+            </strong>
+
+            <small>
+                Review KPIs and quality trends
+            </small>
+
+        </a>
+
+
+        <a href="/observations"
+           class="quick-action-card">
+
+            <span class="quick-action-icon">
+                ⚠
+            </span>
+
+            <strong>
+                Review NOK Cases
+            </strong>
+
+            <small>
+                Inspect defect observations and evidence
+            </small>
+
+        </a>
+
+
+        <a href="/download"
+           class="quick-action-card">
+
+            <span class="quick-action-icon">
+                ⇩
+            </span>
+
+            <strong>
+                Export Report
+            </strong>
+
+            <small>
+                Download filtered production data
+            </small>
+
+        </a>
+
+
+    </div>
+
+
+    <!-- WORKFLOW -->
+
+    <section class="panel info-panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    WORKFLOW
+                </span>
+
+                <h3>
+                    How WSA supports the audit process
+                </h3>
+
+            </div>
+
+        </div>
+
+
+        <div class="workflow-grid">
+
+
+            <div>
+
+                <span>
+                    01
+                </span>
+
+                <strong>
+                    Record
+                </strong>
+
+                <p>
+                    Capture shift, line, auditor,
+                    type and parts checked.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    02
+                </span>
+
+                <strong>
+                    Inspect
+                </strong>
+
+                <p>
+                    Record NOK cases, defect details
+                    and inspection images.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    03
+                </span>
+
+                <strong>
+                    Analyze
+                </strong>
+
+                <p>
+                    Use dashboards and analytics
+                    to identify quality trends.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    04
+                </span>
+
+                <strong>
+                    Report
+                </strong>
+
+                <p>
+                    Export records and case details
+                    for review and reporting.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

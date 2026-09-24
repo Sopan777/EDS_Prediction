@@ -1,0 +1,1321 @@
+{% extends "base.html" %}
+
+{% block title %}
+WSA Analytics
+{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+
+    <div class="page-hero compact-hero">
+
+        <div>
+
+            <div class="eyebrow">
+                QUALITY ANALYTICS
+            </div>
+
+            <h1>
+                Analytics
+            </h1>
+
+            <p>
+                Analyze production volume and NOK trends
+                by shift, line, auditor or product type.
+            </p>
+
+        </div>
+
+        <div class="hero-stat">
+
+            <strong>
+                {% if labels %}
+                    {{ labels|length }}
+                {% else %}
+                    0
+                {% endif %}
+            </strong>
+
+            <span>
+                analysis groups
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         ANALYSIS FILTERS
+         ========================================= -->
+
+    <div class="filter-card">
+
+        <div class="filter-heading">
+
+            <div>
+
+                <span class="section-kicker">
+                    ANALYSIS
+                </span>
+
+                <h3>
+                    Choose a quality view
+                </h3>
+
+            </div>
+
+            <a
+                href="/analytics"
+                class="reset-btn compact"
+            >
+                Reset
+            </a>
+
+        </div>
+
+
+        <form
+            method="get"
+            class="dashboard-filters"
+        >
+
+            <div class="filter-field">
+
+                <label>
+                    Analysis Type
+                </label>
+
+                <select name="analysis_type">
+
+                    <option
+                        value="shift"
+                        {% if request.query_params.get(
+                            'analysis_type',
+                            'shift'
+                        ) == 'shift' %}
+                        selected
+                        {% endif %}
+                    >
+                        Shift Analysis
+                    </option>
+
+                    <option
+                        value="line"
+                        {% if request.query_params.get(
+                            'analysis_type'
+                        ) == 'line' %}
+                        selected
+                        {% endif %}
+                    >
+                        Line Analysis
+                    </option>
+
+                    <option
+                        value="auditor_name"
+                        {% if request.query_params.get(
+                            'analysis_type'
+                        ) == 'auditor_name' %}
+                        selected
+                        {% endif %}
+                    >
+                        Auditor Analysis
+                    </option>
+
+                    <option
+                        value="type"
+                        {% if request.query_params.get(
+                            'analysis_type'
+                        ) == 'type' %}
+                        selected
+                        {% endif %}
+                    >
+                        Type Analysis
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    name="from_date"
+                    value="{{ request.query_params.get(
+                        'from_date',
+                        ''
+                    ) }}"
+                >
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    name="to_date"
+                    value="{{ request.query_params.get(
+                        'to_date',
+                        ''
+                    ) }}"
+                >
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    Shift Filter
+                </label>
+
+                <select name="shift">
+
+                    <option value="">
+                        All Shifts
+                    </option>
+
+                    <option
+                        value="Morning"
+                        {% if request.query_params.get(
+                            'shift'
+                        ) == 'Morning' %}
+                        selected
+                        {% endif %}
+                    >
+                        Morning
+                    </option>
+
+                    <option
+                        value="Evening"
+                        {% if request.query_params.get(
+                            'shift'
+                        ) == 'Evening' %}
+                        selected
+                        {% endif %}
+                    >
+                        Evening
+                    </option>
+
+                    <option
+                        value="Night"
+                        {% if request.query_params.get(
+                            'shift'
+                        ) == 'Night' %}
+                        selected
+                        {% endif %}
+                    >
+                        Night
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label>
+                    Line Filter
+                </label>
+
+                <select name="line">
+
+                    <option value="">
+                        All Lines
+                    </option>
+
+                    <option
+                        value="Line 1"
+                        {% if request.query_params.get(
+                            'line'
+                        ) == 'Line 1' %}
+                        selected
+                        {% endif %}
+                    >
+                        Line 1
+                    </option>
+
+                    <option
+                        value="Line 2"
+                        {% if request.query_params.get(
+                            'line'
+                        ) == 'Line 2' %}
+                        selected
+                        {% endif %}
+                    >
+                        Line 2
+                    </option>
+
+                    <option
+                        value="Line 3"
+                        {% if request.query_params.get(
+                            'line'
+                        ) == 'Line 3' %}
+                        selected
+                        {% endif %}
+                    >
+                        Line 3
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Run Analysis
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================================
+         RESULT SUMMARY
+         ========================================= -->
+
+    {% if labels and parts and nok %}
+
+        {% set total_parts = parts | sum %}
+
+        {% set total_nok = nok | sum %}
+
+        {% set overall_rate =
+            (
+                total_nok / total_parts * 100
+            )
+            if total_parts > 0
+            else 0
+        %}
+
+
+        <div class="dashboard-cards">
+
+
+            <div class="metric-card metric-blue">
+
+                <div class="metric-icon">
+                    #
+                </div>
+
+                <div>
+
+                    <span>
+                        Groups
+                    </span>
+
+                    <strong>
+                        {{ labels|length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="metric-card metric-green">
+
+                <div class="metric-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <span>
+                        Parts Checked
+                    </span>
+
+                    <strong>
+                        {{ total_parts }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="metric-card metric-red">
+
+                <div class="metric-icon">
+                    !
+                </div>
+
+                <div>
+
+                    <span>
+                        NOK
+                    </span>
+
+                    <strong>
+                        {{ total_nok }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="metric-card metric-purple">
+
+                <div class="metric-icon">
+                    %
+                </div>
+
+                <div>
+
+                    <span>
+                        NOK Rate
+                    </span>
+
+                    <strong>
+                        {{ "%.2f"|format(overall_rate) }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             TWO QUALITY CHARTS
+             ========================================= -->
+
+        <div class="dashboard-grid two-column">
+
+
+            <!-- PRODUCTION VOLUME -->
+
+            <section class="panel chart-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            PRODUCTION
+                        </span>
+
+                        <h3>
+                            Parts Checked by Group
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chart-box analytics-chart-box">
+
+                    <canvas id="productionChart"></canvas>
+
+                </div>
+
+            </section>
+
+
+            <!-- NOK RATE -->
+
+            <section class="panel chart-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            QUALITY
+                        </span>
+
+                        <h3>
+                            NOK Rate by Group
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chart-box analytics-chart-box">
+
+                    <canvas id="nokRateChart"></canvas>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- =========================================
+             DATA SUMMARY
+             ========================================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        DATA SUMMARY
+                    </span>
+
+                    <h3>
+                        Analysis Breakdown
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table class="records-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            Group
+                        </th>
+
+                        <th>
+                            Parts Checked
+                        </th>
+
+                        <th>
+                            NOK
+                        </th>
+
+                        <th>
+                            NOK Rate
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for index in range(labels|length) %}
+
+                        {% set group_parts = parts[index] %}
+
+                        {% set group_nok = nok[index] %}
+
+                        {% set group_rate =
+                            (
+                                group_nok /
+                                group_parts *
+                                100
+                            )
+                            if group_parts > 0
+                            else 0
+                        %}
+
+
+                        <tr>
+
+                            <td>
+
+                                <span class="code-badge">
+                                    {{ labels[index] }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ group_parts }}
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong
+                                    class="
+                                    {% if group_nok > 0 %}
+                                        nok-text
+                                    {% else %}
+                                        ok-text
+                                    {% endif %}
+                                    "
+                                >
+                                    {{ group_nok }}
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if group_nok > 0 %}
+
+                                    <span class="status-badge status-nok">
+                                        {{ "%.2f"|format(group_rate) }}%
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-ok">
+                                        0.00%
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    {% else %}
+
+
+        <section class="panel empty-state-panel">
+
+            <div class="empty-state">
+
+                <strong>
+                    No analysis data available.
+                </strong>
+
+                <br><br>
+
+                Select an analysis type and optional
+                date, shift, or line filters and click
+                <strong>Run Analysis</strong>.
+
+            </div>
+
+        </section>
+
+
+    {% endif %}
+
+</div>
+
+
+<!-- =========================================
+     ANALYTICS CHART JAVASCRIPT
+     ========================================= -->
+
+{% if labels and parts and nok %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const labels =
+            {{ labels | tojson }};
+
+        const parts =
+            {{ parts | tojson }};
+
+        const nok =
+            {{ nok | tojson }};
+
+
+        function setupCanvas(canvas) {
+
+            if (!canvas) {
+                return null;
+            }
+
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+
+            const dpr =
+                window.devicePixelRatio || 1;
+
+
+            canvas.width =
+                Math.max(
+                    1,
+                    Math.floor(
+                        rect.width * dpr
+                    )
+                );
+
+
+            canvas.height =
+                Math.max(
+                    1,
+                    Math.floor(
+                        rect.height * dpr
+                    )
+                );
+
+
+            const ctx =
+                canvas.getContext("2d");
+
+
+            ctx.setTransform(
+                dpr,
+                0,
+                0,
+                dpr,
+                0,
+                0
+            );
+
+
+            ctx.clearRect(
+                0,
+                0,
+                rect.width,
+                rect.height
+            );
+
+
+            return {
+                ctx: ctx,
+                width: rect.width,
+                height: rect.height
+            };
+
+        }
+
+
+        function drawText(
+            ctx,
+            text,
+            x,
+            y,
+            size,
+            color,
+            align = "center"
+        ) {
+
+            ctx.font =
+                `${size}px Poppins, Arial, sans-serif`;
+
+            ctx.fillStyle =
+                color;
+
+            ctx.textAlign =
+                align;
+
+            ctx.textBaseline =
+                "middle";
+
+            ctx.fillText(
+                String(text),
+                x,
+                y
+            );
+
+        }
+
+
+        /* =====================================
+           PRODUCTION CHART
+           ===================================== */
+
+        function drawProductionChart() {
+
+            const canvas =
+                document.getElementById(
+                    "productionChart"
+                );
+
+
+            const chart =
+                setupCanvas(canvas);
+
+
+            if (!chart) {
+                return;
+            }
+
+
+            const ctx =
+                chart.ctx;
+
+            const width =
+                chart.width;
+
+            const height =
+                chart.height;
+
+
+            const left = 55;
+            const right = 20;
+            const top = 40;
+            const bottom = 55;
+
+
+            const chartWidth =
+                width -
+                left -
+                right;
+
+
+            const chartHeight =
+                height -
+                top -
+                bottom;
+
+
+            const maxValue =
+                Math.max(
+                    ...parts.map(Number),
+                    1
+                );
+
+
+            const gridLines = 5;
+
+
+            /* GRID */
+
+            ctx.strokeStyle =
+                "#e8edf5";
+
+            ctx.lineWidth = 1;
+
+
+            for (
+                let i = 0;
+                i <= gridLines;
+                i++
+            ) {
+
+                const y =
+                    top +
+                    chartHeight *
+                    (
+                        i /
+                        gridLines
+                    );
+
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    left,
+                    y
+                );
+
+                ctx.lineTo(
+                    width - right,
+                    y
+                );
+
+                ctx.stroke();
+
+
+                const value =
+                    Math.round(
+                        maxValue *
+                        (
+                            1 -
+                            i /
+                            gridLines
+                        )
+                    );
+
+
+                drawText(
+                    ctx,
+                    value,
+                    left - 9,
+                    y,
+                    9,
+                    "#7b8494",
+                    "right"
+                );
+
+            }
+
+
+            /* BARS */
+
+            const slotWidth =
+                chartWidth /
+                Math.max(
+                    labels.length,
+                    1
+                );
+
+
+            const barWidth =
+                Math.min(
+                    70,
+                    slotWidth * 0.55
+                );
+
+
+            labels.forEach(
+                function (
+                    label,
+                    index
+                ) {
+
+                    const value =
+                        Number(
+                            parts[index] || 0
+                        );
+
+
+                    const barHeight =
+                        (
+                            value /
+                            maxValue
+                        ) *
+                        chartHeight;
+
+
+                    const x =
+                        left +
+                        index *
+                        slotWidth +
+                        (
+                            slotWidth -
+                            barWidth
+                        ) / 2;
+
+
+                    const y =
+                        top +
+                        chartHeight -
+                        barHeight;
+
+
+                    ctx.fillStyle =
+                        "#0052D4";
+
+
+                    ctx.beginPath();
+
+
+                    ctx.roundRect(
+                        x,
+                        y,
+                        barWidth,
+                        Math.max(
+                            barHeight,
+                            2
+                        ),
+                        7
+                    );
+
+
+                    ctx.fill();
+
+
+                    drawText(
+                        ctx,
+                        value,
+                        x +
+                        barWidth / 2,
+                        y - 10,
+                        10,
+                        "#0A1F44",
+                        "center"
+                    );
+
+
+                    drawText(
+                        ctx,
+                        label,
+                        x +
+                        barWidth / 2,
+                        height - 22,
+                        10,
+                        "#6b7280",
+                        "center"
+                    );
+
+                }
+            );
+
+
+            /* LEGEND */
+
+            ctx.fillStyle =
+                "#0052D4";
+
+
+            ctx.fillRect(
+                left,
+                12,
+                12,
+                12
+            );
+
+
+            drawText(
+                ctx,
+                "Parts Checked",
+                left + 18,
+                18,
+                10,
+                "#4b5563",
+                "left"
+            );
+
+        }
+
+
+        /* =====================================
+           NOK RATE CHART
+           ===================================== */
+
+        function drawNokRateChart() {
+
+            const canvas =
+                document.getElementById(
+                    "nokRateChart"
+                );
+
+
+            const chart =
+                setupCanvas(canvas);
+
+
+            if (!chart) {
+                return;
+            }
+
+
+            const ctx =
+                chart.ctx;
+
+            const width =
+                chart.width;
+
+            const height =
+                chart.height;
+
+
+            const left = 55;
+            const right = 25;
+            const top = 40;
+            const bottom = 55;
+
+
+            const chartWidth =
+                width -
+                left -
+                right;
+
+
+            const chartHeight =
+                height -
+                top -
+                bottom;
+
+
+            const rates =
+                labels.map(
+                    function (
+                        label,
+                        index
+                    ) {
+
+                        const production =
+                            Number(
+                                parts[index] || 0
+                            );
+
+
+                        const rejected =
+                            Number(
+                                nok[index] || 0
+                            );
+
+
+                        if (
+                            production <= 0
+                        ) {
+                            return 0;
+                        }
+
+
+                        return (
+                            rejected /
+                            production
+                        ) * 100;
+
+                    }
+                );
+
+
+            const maxRate =
+                Math.max(
+                    ...rates,
+                    1
+                );
+
+
+            const gridLines = 5;
+
+
+            /* GRID */
+
+            ctx.strokeStyle =
+                "#e8edf5";
+
+            ctx.lineWidth = 1;
+
+
+            for (
+                let i = 0;
+                i <= gridLines;
+                i++
+            ) {
+
+                const y =
+                    top +
+                    chartHeight *
+                    (
+                        i /
+                        gridLines
+                    );
+
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    left,
+                    y
+                );
+
+                ctx.lineTo(
+                    width - right,
+                    y
+                );
+
+                ctx.stroke();
+
+
+                const value =
+                    maxRate *
+                    (
+                        1 -
+                        i /
+                        gridLines
+                    );
+
+
+                drawText(
+                    ctx,
+                    value.toFixed(1) + "%",
+                    left - 9,
+                    y,
+                    9,
+                    "#7b8494",
+                    "right"
+                );
+
+            }
+
+
+            /* BARS */
+
+            const slotWidth =
+                chartWidth /
+                Math.max(
+                    labels.length,
+                    1
+                );
+
+
+            const barWidth =
+                Math.min(
+                    70,
+                    slotWidth * 0.55
+                );
+
+
+            rates.forEach(
+                function (
+                    rate,
+                    index
+                ) {
+
+                    const barHeight =
+                        (
+                            rate /
+                            maxRate
+                        ) *
+                        chartHeight;
+
+
+                    const x =
+                        left +
+                        index *
+                        slotWidth +
+                        (
+                            slotWidth -
+                            barWidth
+                        ) / 2;
+
+
+                    const y =
+                        top +
+                        chartHeight -
+                        barHeight;
+
+
+                    ctx.fillStyle =
+                        "#DC3545";
+
+
+                    ctx.beginPath();
+
+
+                    ctx.roundRect(
+                        x,
+                        y,
+                        barWidth,
+                        Math.max(
+                            barHeight,
+                            2
+                        ),
+                        7
+                    );
+
+
+                    ctx.fill();
+
+
+                    drawText(
+                        ctx,
+                        rate.toFixed(2) + "%",
+                        x +
+                        barWidth / 2,
+                        y - 10,
+                        10,
+                        "#DC3545",
+                        "center"
+                    );
+
+
+                    drawText(
+                        ctx,
+                        labels[index],
+                        x +
+                        barWidth / 2,
+                        height - 22,
+                        10,
+                        "#6b7280",
+                        "center"
+                    );
+
+                }
+            );
+
+
+            /* LEGEND */
+
+            ctx.fillStyle =
+                "#DC3545";
+
+
+            ctx.fillRect(
+                left,
+                12,
+                12,
+                12
+            );
+
+
+            drawText(
+                ctx,
+                "NOK Rate",
+                left + 18,
+                18,
+                10,
+                "#4b5563",
+                "left"
+            );
+
+        }
+
+
+        drawProductionChart();
+
+        drawNokRateChart();
+
+
+        let resizeTimer;
+
+
+        window.addEventListener(
+            "resize",
+            function () {
+
+                clearTimeout(
+                    resizeTimer
+                );
+
+
+                resizeTimer =
+                    setTimeout(
+                        function () {
+
+                            drawProductionChart();
+
+                            drawNokRateChart();
+
+                        },
+                        200
+                    );
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endif %}
+
+{% endblock %}

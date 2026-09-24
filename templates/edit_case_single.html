@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="home-layout">
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+        <h2>
+            Edit Case 
+            {% if case.case_code %}
+                ({{ case.case_code }})
+            {% else %}
+                (Pending Code)
+            {% endif %}
+        </h2>
+
+        <form method="post"
+              action="/update-case/{{ case.id }}"
+              enctype="multipart/form-data"
+              class="record-form">
+
+            <!-- Rejection Station -->
+            <div>
+                <label>Rejection Station</label>
+                <select name="rejection_station" required>
+                    <option value="">Select</option>
+                    <option value="Station A" {% if case.rejection_station == "Station A" %}selected{% endif %}>Station A</option>
+                    <option value="Station B" {% if case.rejection_station == "Station B" %}selected{% endif %}>Station B</option>
+                    <option value="Station C" {% if case.rejection_station == "Station C" %}selected{% endif %}>Station C</option>
+                </select>
+            </div>
+
+            <!-- Particle Location -->
+            <div>
+                <label>Particle Location</label>
+                <select name="particle_location" required>
+                    <option value="">Select</option>
+                    <option value="Top" {% if case.particle_location == "Top" %}selected{% endif %}>Top</option>
+                    <option value="Middle" {% if case.particle_location == "Middle" %}selected{% endif %}>Middle</option>
+                    <option value="Bottom" {% if case.particle_location == "Bottom" %}selected{% endif %}>Bottom</option>
+                </select>
+            </div>
+
+            <!-- Body -->
+            <div>
+                <label>Body</label>
+                <select name="body" required>
+                    <option value="">Select</option>
+                    <option value="Yes" {% if case.body == "Yes" %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if case.body == "No" %}selected{% endif %}>No</option>
+                </select>
+            </div>
+
+            <!-- Valve -->
+            <div>
+                <label>Valve</label>
+                <select name="valve" required>
+                    <option value="">Select</option>
+                    <option value="OK" {% if case.valve == "OK" %}selected{% endif %}>OK</option>
+                    <option value="Not OK" {% if case.valve == "Not OK" %}selected{% endif %}>Not OK</option>
+                </select>
+            </div>
+
+            <!-- Nozzle -->
+            <div>
+                <label>Nozzle</label>
+                <select name="nozzle" required>
+                    <option value="">Select</option>
+                    <option value="Clean" {% if case.nozzle == "Clean" %}selected{% endif %}>Clean</option>
+                    <option value="Dirty" {% if case.nozzle == "Dirty" %}selected{% endif %}>Dirty</option>
+                </select>
+            </div>
+
+            <!-- Magnet -->
+            <div>
+                <label>Magnet</label>
+                <select name="magnet" required>
+                    <option value="">Select</option>
+                    <option value="Present" {% if case.magnet == "Present" %}selected{% endif %}>Present</option>
+                    <option value="Absent" {% if case.magnet == "Absent" %}selected{% endif %}>Absent</option>
+                </select>
+            </div>
+
+            <!-- Bin Number -->
+            <div>
+                <label>Bin Number</label>
+                <input type="text" name="bin_number"
+                       value="{{ case.bin_number if case.bin_number else '' }}">
+            </div>
+
+            <!-- Remark -->
+            <div>
+                <label>Remark</label>
+                <input type="text" name="remark"
+                       value="{{ case.remark if case.remark else '' }}">
+            </div>
+
+            <!-- Image 1 -->
+            <div>
+                <label>Image 1</label>
+                <input type="file" name="image1">
+                {% if case.image1 %}
+                    <a href="/{{ case.image1 }}" target="_blank">View Image</a>
+                {% endif %}
+            </div>
+
+            <!-- Image 2 -->
+            <div>
+                <label>Image 2</label>
+                <input type="file" name="image2">
+                {% if case.image2 %}
+                    <a href="/{{ case.image2 }}" target="_blank">View Image</a>
+                {% endif %}
+            </div>
+
+            <!-- Image 3 -->
+            <div>
+                <label>Image 3</label>
+                <input type="file" name="image3">
+                {% if case.image3 %}
+                    <a href="/{{ case.image3 }}" target="_blank">View Image</a>
+                {% endif %}
+            </div>
+
+            <!-- Submit -->
+            <div style="grid-column: 1 / -1; text-align:center;">
+                <button type="submit">
+                    Save Case
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
