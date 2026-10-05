@@ -1,0 +1,461 @@
+/**
+ * Apple-Style Smooth Motion & Dark Mode System for DHATU BODH
+ * Designed with physical believability, restraint, and industrial precision.
+ */
+
+:root {
+  /* Motion & Easing Constants */
+  --ease-apple-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-apple-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-apple-press: cubic-bezier(0.32, 0.72, 0, 1);
+  
+  --dur-fast: 140ms;
+  --dur-normal: 240ms;
+  --dur-enter: 380ms;
+  --dur-hero: 550ms;
+
+  /* Theme Tokens - Light Mode */
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --border-app: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --text-main: #0F172A;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --shadow-apple-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-apple-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --shadow-apple-hover: 0 12px 28px -6px rgba(0, 0, 0, 0.09), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================================================
+   DARK MODE COLOR SYSTEM (OLED Charcoal & Deep Industrial Navy)
+   ========================================================================== */
+html.dark {
+  --bg-app: #090D16;
+  --bg-surface: #121927;
+  --bg-subtle: #182236;
+  --bg-card: #131A2A;
+  --border-app: #223048;
+  --border-subtle: #1A2538;
+  --text-main: #F8FAFC;
+  --text-body: #CBD5E1;
+  --text-muted: #8191A6;
+  --shadow-apple-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-apple-md: 0 4px 14px -2px rgba(0, 0, 0, 0.45);
+  --shadow-apple-hover: 0 14px 30px -6px rgba(0, 0, 0, 0.65), 0 6px 14px -2px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+/* Base Body Transition for Smooth Theme Switching */
+body {
+  transition: background-color var(--dur-normal) var(--ease-apple-smooth),
+              color var(--dur-normal) var(--ease-apple-smooth);
+}
+
+/* Dark Mode Overrides for Core App Elements */
+html.dark body {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main) !important;
+}
+
+html.dark .bg-white {
+  background-color: var(--bg-card) !important;
+}
+
+html.dark .bg-\[\#F8FAFC\] {
+  background-color: var(--bg-app) !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #0E1524 !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #182236 !important;
+}
+
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+  border-color: var(--border-app) !important;
+}
+
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-app) !important;
+}
+
+html.dark .text-slate-900 {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-slate-800 {
+  color: #F1F5F9 !important;
+}
+
+html.dark .text-slate-700 {
+  color: #CBD5E1 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #94A3B8 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #718096 !important;
+}
+
+html.dark .text-slate-400 {
+  color: #4A5568 !important;
+}
+
+/* Header Translucent Frosted Glass Material */
+header {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+html.dark header {
+  background-color: rgba(18, 25, 39, 0.88) !important;
+  border-bottom-color: var(--border-app) !important;
+}
+
+html.dark aside {
+  background-color: #101726 !important;
+  border-right-color: var(--border-app) !important;
+}
+
+html.dark footer {
+  background-color: #090D16 !important;
+  border-top-color: var(--border-app) !important;
+}
+
+html.dark footer .bg-gradient-to-r {
+  background: linear-gradient(90deg, #0E1524 0%, #121927 50%, transparent 100%) !important;
+}
+
+/* Inputs, Selects, and Textareas */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #0E1524 !important;
+  color: #F8FAFC !important;
+  border-color: #273752 !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #ED0007 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(237, 0, 7, 0.2) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #4B5E78 !important;
+}
+
+/* Table Hover States */
+html.dark tr:hover td {
+  background-color: #162033 !important;
+}
+
+/* Navigation items in dark mode */
+html.dark .nav-item-active {
+  background-color: rgba(237, 0, 7, 0.14) !important;
+  color: #FF5E62 !important;
+  border-left-color: #ED0007 !important;
+}
+
+html.dark .nav-item-inactive {
+  color: #94A3B8 !important;
+}
+
+html.dark .nav-item-inactive:hover {
+  background-color: #182236 !important;
+  color: #F8FAFC !important;
+}
+
+/* Secondary Buttons */
+html.dark .btn-bosch-secondary {
+  background-color: #182236 !important;
+  color: #F8FAFC !important;
+  border-color: #273752 !important;
+}
+
+html.dark .btn-bosch-secondary:hover {
+  background-color: #202D47 !important;
+  border-color: #384C6E !important;
+}
+
+/* Dialog and Modal Overrides */
+html.dark #app-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+html.dark #app-modal-backdrop > div {
+  background-color: #131A2A !important;
+  border-color: #273752 !important;
+}
+
+/* Status Badges & Chips in Dark Mode */
+html.dark .bg-emerald-100 {
+  background-color: rgba(6, 78, 59, 0.5) !important;
+  color: #6EE7B7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .bg-amber-100 {
+  background-color: rgba(120, 53, 15, 0.5) !important;
+  color: #FCD34D !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+html.dark .bg-rose-100 {
+  background-color: rgba(136, 19, 55, 0.5) !important;
+  color: #FDA4AF !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+}
+
+html.dark .bg-orange-100 {
+  background-color: rgba(124, 45, 18, 0.5) !important;
+  color: #FDBA74 !important;
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
+}
+
+html.dark .border-slate-900 {
+  border-color: #94A3B8 !important;
+}
+
+html.dark svg.text-slate-900 {
+  color: #F8FAFC !important;
+}
+
+/* ==========================================================================
+   1. PAGE TRANSITIONS (Fluid entrance with gentle vertical movement)
+   ========================================================================== */
+.page-transition {
+  animation: applePageEnter var(--dur-enter) var(--ease-apple-spring) both;
+  will-change: opacity, transform;
+}
+
+@keyframes applePageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   2. HERO SECTION SEQUENTIAL STAGGER ENTRANCE
+   ========================================================================== */
+.hero-animate-container {
+  animation: appleHeroFade 500ms var(--ease-apple-smooth) both;
+}
+
+.hero-animate-badge {
+  animation: appleHeroItem 450ms var(--ease-apple-spring) 80ms both;
+}
+
+.hero-animate-title {
+  animation: appleHeroItem 550ms var(--ease-apple-spring) 160ms both;
+}
+
+.hero-animate-desc {
+  animation: appleHeroItem 550ms var(--ease-apple-spring) 240ms both;
+}
+
+.hero-animate-cta {
+  animation: appleHeroItem 550ms var(--ease-apple-spring) 320ms both;
+}
+
+.hero-animate-motif {
+  animation: appleHeroFade 650ms var(--ease-apple-spring) 400ms both;
+}
+
+@keyframes appleHeroFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes appleHeroItem {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   3. SCROLL-BASED REVEAL ANIMATIONS (IntersectionObserver)
+   ========================================================================== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s var(--ease-apple-spring),
+              transform 0.45s var(--ease-apple-spring);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   4. APPLE-STYLE CARDS (Elevation, Hover, Parallax Response)
+   ========================================================================== */
+.apple-card,
+.interactive-card {
+  transition: transform var(--dur-normal) var(--ease-apple-smooth),
+              box-shadow var(--dur-normal) var(--ease-apple-smooth),
+              border-color var(--dur-fast) ease;
+  will-change: transform, box-shadow;
+}
+
+.apple-card:hover,
+.interactive-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-apple-hover);
+}
+
+/* ==========================================================================
+   5. BUTTON INTERACTIONS (Physical Tactile Spring Press-Down)
+   ========================================================================== */
+.btn-apple,
+.btn-bosch-primary,
+.btn-bosch-secondary,
+button:not([disabled]),
+a[class*="btn-"] {
+  transition: transform var(--dur-fast) var(--ease-apple-press),
+              box-shadow var(--dur-normal) var(--ease-apple-smooth),
+              background-color var(--dur-fast) ease,
+              border-color var(--dur-fast) ease;
+}
+
+.btn-apple:hover,
+.btn-bosch-primary:hover,
+.btn-bosch-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-apple:active,
+.btn-bosch-primary:active,
+.btn-bosch-secondary:active,
+button:not([disabled]):active {
+  transform: scale(0.97) !important;
+}
+
+/* Primary Bosch Red Button Fluid Glow */
+.btn-bosch-primary {
+  box-shadow: 0 2px 6px rgba(237, 0, 7, 0.25);
+}
+
+.btn-bosch-primary:hover {
+  box-shadow: 0 4px 14px rgba(237, 0, 7, 0.35);
+}
+
+/* ==========================================================================
+   6. NAVIGATION INTERACTIONS
+   ========================================================================== */
+.nav-item-active,
+.nav-item-inactive {
+  transition: all var(--dur-normal) var(--ease-apple-smooth);
+}
+
+.nav-item-inactive:hover {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   7. MODAL / DIALOG ANIMATIONS
+   ========================================================================== */
+#app-modal-backdrop {
+  transition: opacity var(--dur-normal) var(--ease-apple-smooth),
+              backdrop-filter var(--dur-normal) ease;
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+#app-modal-backdrop > div {
+  transition: transform var(--dur-enter) var(--ease-apple-spring),
+              opacity var(--dur-enter) var(--ease-apple-spring);
+  will-change: transform, opacity;
+}
+
+#app-modal-backdrop.modal-entering > div {
+  transform: scale(0.96) translateY(8px);
+  opacity: 0;
+}
+
+#app-modal-backdrop.modal-entered > div {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* ==========================================================================
+   8. SKELETON / LOADING SHIMMER
+   ========================================================================== */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #E2E8F0;
+}
+
+html.dark .skeleton-shimmer {
+  background-color: #1E293B;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: appleShimmer 1.6s infinite;
+}
+
+html.dark .skeleton-shimmer::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+@keyframes appleShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================================
+   9. REDUCED MOTION (Accessibility First-Class)
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+    transform: none !important;
+  }
+  
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
