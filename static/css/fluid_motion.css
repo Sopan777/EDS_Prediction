@@ -1,13 +1,13 @@
 /**
- * Apple-Style Smooth Motion & Dark Mode System for DHATU BODH
- * Designed with physical believability, restraint, and industrial precision.
+ * Fluid Smooth Motion & Dark Mode System for DHATU BODH
+ * Engineered with physical believability, restraint, and industrial precision.
  */
 
 :root {
   /* Motion & Easing Constants */
-  --ease-apple-spring: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-apple-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-apple-press: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-press: cubic-bezier(0.32, 0.72, 0, 1);
   
   --dur-fast: 140ms;
   --dur-normal: 240ms;
@@ -24,9 +24,9 @@
   --text-main: #0F172A;
   --text-body: #334155;
   --text-muted: #64748B;
-  --shadow-apple-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-apple-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
-  --shadow-apple-hover: 0 12px 28px -6px rgba(0, 0, 0, 0.09), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  --shadow-card-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-card-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 12px 28px -6px rgba(0, 0, 0, 0.09), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
 }
 
 /* ==========================================================================
@@ -42,16 +42,16 @@ html.dark {
   --text-main: #F8FAFC;
   --text-body: #CBD5E1;
   --text-muted: #8191A6;
-  --shadow-apple-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
-  --shadow-apple-md: 0 4px 14px -2px rgba(0, 0, 0, 0.45);
-  --shadow-apple-hover: 0 14px 30px -6px rgba(0, 0, 0, 0.65), 0 6px 14px -2px rgba(0, 0, 0, 0.45);
+  --shadow-card-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-card-md: 0 4px 14px -2px rgba(0, 0, 0, 0.45);
+  --shadow-card-hover: 0 14px 30px -6px rgba(0, 0, 0, 0.65), 0 6px 14px -2px rgba(0, 0, 0, 0.45);
   color-scheme: dark;
 }
 
 /* Base Body Transition for Smooth Theme Switching */
 body {
-  transition: background-color var(--dur-normal) var(--ease-apple-smooth),
-              color var(--dur-normal) var(--ease-apple-smooth);
+  transition: background-color var(--dur-normal) var(--ease-smooth),
+              color var(--dur-normal) var(--ease-smooth);
 }
 
 /* Dark Mode Overrides for Core App Elements */
@@ -239,11 +239,11 @@ html.dark svg.text-slate-900 {
    1. PAGE TRANSITIONS (Fluid entrance with gentle vertical movement)
    ========================================================================== */
 .page-transition {
-  animation: applePageEnter var(--dur-enter) var(--ease-apple-spring) both;
+  animation: fluidPageEnter var(--dur-enter) var(--ease-spring) both;
   will-change: opacity, transform;
 }
 
-@keyframes applePageEnter {
+@keyframes fluidPageEnter {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -258,30 +258,30 @@ html.dark svg.text-slate-900 {
    2. HERO SECTION SEQUENTIAL STAGGER ENTRANCE
    ========================================================================== */
 .hero-animate-container {
-  animation: appleHeroFade 500ms var(--ease-apple-smooth) both;
+  animation: fluidHeroFade 500ms var(--ease-smooth) both;
 }
 
 .hero-animate-badge {
-  animation: appleHeroItem 450ms var(--ease-apple-spring) 80ms both;
+  animation: fluidHeroItem 450ms var(--ease-spring) 80ms both;
 }
 
 .hero-animate-title {
-  animation: appleHeroItem 550ms var(--ease-apple-spring) 160ms both;
+  animation: fluidHeroItem 550ms var(--ease-spring) 160ms both;
 }
 
 .hero-animate-desc {
-  animation: appleHeroItem 550ms var(--ease-apple-spring) 240ms both;
+  animation: fluidHeroItem 550ms var(--ease-spring) 240ms both;
 }
 
 .hero-animate-cta {
-  animation: appleHeroItem 550ms var(--ease-apple-spring) 320ms both;
+  animation: fluidHeroItem 550ms var(--ease-spring) 320ms both;
 }
 
 .hero-animate-motif {
-  animation: appleHeroFade 650ms var(--ease-apple-spring) 400ms both;
+  animation: fluidHeroFade 650ms var(--ease-spring) 400ms both;
 }
 
-@keyframes appleHeroFade {
+@keyframes fluidHeroFade {
   from {
     opacity: 0;
   }
@@ -290,7 +290,7 @@ html.dark svg.text-slate-900 {
   }
 }
 
-@keyframes appleHeroItem {
+@keyframes fluidHeroItem {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -307,8 +307,8 @@ html.dark svg.text-slate-900 {
 .scroll-reveal {
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 0.45s var(--ease-apple-spring),
-              transform 0.45s var(--ease-apple-spring);
+  transition: opacity 0.45s var(--ease-spring),
+              transform 0.45s var(--ease-spring);
   will-change: opacity, transform;
 }
 
@@ -318,43 +318,43 @@ html.dark svg.text-slate-900 {
 }
 
 /* ==========================================================================
-   4. APPLE-STYLE CARDS (Elevation, Hover, Parallax Response)
+   4. FLUID CARDS (Elevation, Hover, Depth Response)
    ========================================================================== */
-.apple-card,
+.fluid-card,
 .interactive-card {
-  transition: transform var(--dur-normal) var(--ease-apple-smooth),
-              box-shadow var(--dur-normal) var(--ease-apple-smooth),
+  transition: transform var(--dur-normal) var(--ease-smooth),
+              box-shadow var(--dur-normal) var(--ease-smooth),
               border-color var(--dur-fast) ease;
   will-change: transform, box-shadow;
 }
 
-.apple-card:hover,
+.fluid-card:hover,
 .interactive-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-apple-hover);
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* ==========================================================================
    5. BUTTON INTERACTIONS (Physical Tactile Spring Press-Down)
    ========================================================================== */
-.btn-apple,
+.btn-fluid,
 .btn-bosch-primary,
 .btn-bosch-secondary,
 button:not([disabled]),
 a[class*="btn-"] {
-  transition: transform var(--dur-fast) var(--ease-apple-press),
-              box-shadow var(--dur-normal) var(--ease-apple-smooth),
+  transition: transform var(--dur-fast) var(--ease-press),
+              box-shadow var(--dur-normal) var(--ease-smooth),
               background-color var(--dur-fast) ease,
               border-color var(--dur-fast) ease;
 }
 
-.btn-apple:hover,
+.btn-fluid:hover,
 .btn-bosch-primary:hover,
 .btn-bosch-secondary:hover {
   transform: translateY(-1px);
 }
 
-.btn-apple:active,
+.btn-fluid:active,
 .btn-bosch-primary:active,
 .btn-bosch-secondary:active,
 button:not([disabled]):active {
@@ -375,7 +375,7 @@ button:not([disabled]):active {
    ========================================================================== */
 .nav-item-active,
 .nav-item-inactive {
-  transition: all var(--dur-normal) var(--ease-apple-smooth);
+  transition: all var(--dur-normal) var(--ease-smooth);
 }
 
 .nav-item-inactive:hover {
@@ -386,15 +386,15 @@ button:not([disabled]):active {
    7. MODAL / DIALOG ANIMATIONS
    ========================================================================== */
 #app-modal-backdrop {
-  transition: opacity var(--dur-normal) var(--ease-apple-smooth),
+  transition: opacity var(--dur-normal) var(--ease-smooth),
               backdrop-filter var(--dur-normal) ease;
   backdrop-filter: blur(8px) saturate(140%);
   -webkit-backdrop-filter: blur(8px) saturate(140%);
 }
 
 #app-modal-backdrop > div {
-  transition: transform var(--dur-enter) var(--ease-apple-spring),
-              opacity var(--dur-enter) var(--ease-apple-spring);
+  transition: transform var(--dur-enter) var(--ease-spring),
+              opacity var(--dur-enter) var(--ease-spring);
   will-change: transform, opacity;
 }
 
@@ -427,14 +427,14 @@ html.dark .skeleton-shimmer {
   inset: 0;
   transform: translateX(-100%);
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: appleShimmer 1.6s infinite;
+  animation: fluidShimmer 1.6s infinite;
 }
 
 html.dark .skeleton-shimmer::after {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
 }
 
-@keyframes appleShimmer {
+@keyframes fluidShimmer {
   100% {
     transform: translateX(100%);
   }

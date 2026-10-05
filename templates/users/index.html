@@ -38,25 +38,25 @@
 
   <!-- Key Metrics Row -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 scroll-reveal">
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs apple-card">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs fluid-card">
       <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Rule Engine Version</div>
       <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">v2.4.0 Deterministic</div>
       <div class="text-[11px] text-slate-500 mt-0.5">ASTM E1508 / ISO 22309</div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs border-l-4 border-l-[#ED0007] apple-card">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs border-l-4 border-l-[#ED0007] fluid-card">
       <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Component Fingerprints</div>
       <div class="text-xl font-black text-[#ED0007] mt-1 font-mono-code">{{ fingerprints_count }} Components</div>
       <div class="text-[11px] text-slate-500 mt-0.5">{{ total_spectra_count }} reference spectra</div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs apple-card">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs fluid-card">
       <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Alloy Presets Library</div>
       <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">{{ presets|length }} Standard Presets</div>
       <div class="text-[11px] text-slate-500 mt-0.5">Quick-load compositions</div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs apple-card">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs fluid-card">
       <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Laboratory Personnel</div>
       <div class="text-xl font-black text-slate-900 mt-1 font-mono-code">{{ users|length }} Active Accounts</div>
       <div class="text-[11px] text-slate-500 mt-0.5">{{ metallurgists }} Metallurgists Authorized</div>
@@ -67,8 +67,8 @@
        TAB 1: SYSTEM & ENGINE PARAMETERS
        ========================================================================= -->
   <div id="settings-view-system" class="space-y-6">
-    <!-- Appearance & Interface Theme Card (Apple-style responsive switch & cards) -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5 scroll-reveal apple-card">
+    <!-- Appearance & Interface Theme Card (Fluid responsive switch & cards) -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5 scroll-reveal fluid-card">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div class="flex items-center gap-2.5">
           <span class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-800 dark:text-slate-200">
@@ -88,7 +88,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Light Theme Option Card -->
-        <button type="button" onclick="setTheme('light')" id="theme-card-light" class="text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3.5 group cursor-pointer border-[#ED0007] bg-rose-50/20 apple-card">
+        <button type="button" onclick="setTheme('light')" id="theme-card-light" class="text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3.5 group cursor-pointer border-[#ED0007] bg-rose-50/20 fluid-card">
           <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <span class="material-symbols-outlined text-[22px]">light_mode</span>
           </div>
@@ -104,7 +104,7 @@
         </button>
 
         <!-- Dark Theme Option Card -->
-        <button type="button" onclick="setTheme('dark')" id="theme-card-dark" class="text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3.5 group cursor-pointer border-slate-200 hover:border-slate-300 bg-white apple-card">
+        <button type="button" onclick="setTheme('dark')" id="theme-card-dark" class="text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3.5 group cursor-pointer border-slate-200 hover:border-slate-300 bg-white fluid-card">
           <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <span class="material-symbols-outlined text-[22px]">dark_mode</span>
           </div>
@@ -136,7 +136,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 scroll-reveal">
       <!-- Engine Architecture -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4 apple-card">
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4 fluid-card">
         <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
           <span class="material-symbols-outlined text-[20px] text-slate-700">settings_suggest</span>
           <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider">Prediction Engine Architecture</h2>
