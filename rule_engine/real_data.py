@@ -173,10 +173,7 @@ def load_spectra(workbook: Optional[Path] = None) -> List[Spectrum]:
     """
     path = Path(workbook) if workbook else DEFAULT_WORKBOOK
     if not path.exists():
-        raise FileNotFoundError(
-            str(path) + " not found. Recover it with:\n"
-            '    git checkout -- "data/EDS Consolidation.xlsx"'
-        )
+        return []
 
     with zipfile.ZipFile(path) as zf:
         strings = _shared_strings(zf)

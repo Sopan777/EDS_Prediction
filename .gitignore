@@ -34,3 +34,8 @@ package-lock.json
 # OS files
 .DS_Store
 Thumbs.db
+
+# Raw data and workbooks
+data/
+*.xlsx
+
