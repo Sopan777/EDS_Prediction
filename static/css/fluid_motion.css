@@ -111,16 +111,18 @@ html.dark .text-slate-400 {
   color: #4A5568 !important;
 }
 
-/* Header Translucent Frosted Glass Material */
+/* Header Clean Industrial Precision Styling - Zero Blur */
 header {
-  background-color: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 html.dark header {
-  background-color: rgba(18, 25, 39, 0.88) !important;
+  background-color: #121927 !important;
   border-bottom-color: var(--border-app) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 html.dark aside {
@@ -236,49 +238,48 @@ html.dark svg.text-slate-900 {
 }
 
 /* ==========================================================================
-   1. PAGE TRANSITIONS (Fluid entrance with gentle vertical movement)
+   1. PAGE TRANSITIONS (Fluid entrance with clean opacity fade - Zero Blur)
    ========================================================================== */
 .page-transition {
-  animation: fluidPageEnter var(--dur-enter) var(--ease-spring) both;
-  will-change: opacity, transform;
+  animation: fluidPageEnter 160ms var(--ease-smooth) both;
+  transform: none !important;
+  will-change: auto !important;
 }
 
 @keyframes fluidPageEnter {
   from {
-    opacity: 0;
-    transform: translateY(8px);
+    opacity: 0.94;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 /* ==========================================================================
-   2. HERO SECTION SEQUENTIAL STAGGER ENTRANCE
+   2. HERO SECTION SEQUENTIAL STAGGER ENTRANCE (Pure Opacity - Crisp Fonts)
    ========================================================================== */
 .hero-animate-container {
-  animation: fluidHeroFade 500ms var(--ease-smooth) both;
+  animation: fluidHeroFade 400ms var(--ease-smooth) both;
 }
 
 .hero-animate-badge {
-  animation: fluidHeroItem 450ms var(--ease-spring) 80ms both;
+  animation: fluidHeroItem 350ms var(--ease-smooth) 40ms both;
 }
 
 .hero-animate-title {
-  animation: fluidHeroItem 550ms var(--ease-spring) 160ms both;
+  animation: fluidHeroItem 400ms var(--ease-smooth) 80ms both;
 }
 
 .hero-animate-desc {
-  animation: fluidHeroItem 550ms var(--ease-spring) 240ms both;
+  animation: fluidHeroItem 400ms var(--ease-smooth) 120ms both;
 }
 
 .hero-animate-cta {
-  animation: fluidHeroItem 550ms var(--ease-spring) 320ms both;
+  animation: fluidHeroItem 400ms var(--ease-smooth) 160ms both;
 }
 
 .hero-animate-motif {
-  animation: fluidHeroFade 650ms var(--ease-spring) 400ms both;
+  animation: fluidHeroFade 450ms var(--ease-smooth) 200ms both;
 }
 
 @keyframes fluidHeroFade {
@@ -293,72 +294,77 @@ html.dark svg.text-slate-900 {
 @keyframes fluidHeroItem {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 /* ==========================================================================
-   3. SCROLL-BASED REVEAL ANIMATIONS (IntersectionObserver)
+   3. SCROLL-BASED REVEAL (Immediate Full Visibility - No Transform / Blur)
    ========================================================================== */
 .scroll-reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.45s var(--ease-spring),
-              transform 0.45s var(--ease-spring);
-  will-change: opacity, transform;
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto !important;
 }
 
 .scroll-reveal.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto !important;
 }
 
 /* ==========================================================================
-   4. FLUID CARDS (Elevation, Hover, Depth Response)
+   4. FLUID CARDS (Zero Blur, Pixel-Crisp Font Rendering on Hover & Rest)
    ========================================================================== */
 .fluid-card,
 .interactive-card {
-  transition: transform var(--dur-normal) var(--ease-smooth),
-              box-shadow var(--dur-normal) var(--ease-smooth),
+  transition: box-shadow var(--dur-normal) var(--ease-smooth),
               border-color var(--dur-fast) ease;
-  will-change: transform, box-shadow;
+  transform: none !important;
+  will-change: auto !important;
 }
 
 .fluid-card:hover,
 .interactive-card:hover {
-  transform: translateY(-2px);
+  transform: none !important;
+  box-shadow: var(--shadow-card-hover);
+  border-color: #94A3B8;
+}
+
+html.dark .fluid-card:hover,
+html.dark .interactive-card:hover {
+  border-color: #384C6E;
   box-shadow: var(--shadow-card-hover);
 }
 
 /* ==========================================================================
-   5. BUTTON INTERACTIONS (Physical Tactile Spring Press-Down)
+   5. BUTTON INTERACTIONS (Tactile Shadow & Background - No Text Blur)
    ========================================================================== */
 .btn-fluid,
 .btn-bosch-primary,
 .btn-bosch-secondary,
 button:not([disabled]),
 a[class*="btn-"] {
-  transition: transform var(--dur-fast) var(--ease-press),
-              box-shadow var(--dur-normal) var(--ease-smooth),
+  transition: box-shadow var(--dur-normal) var(--ease-smooth),
               background-color var(--dur-fast) ease,
               border-color var(--dur-fast) ease;
+  transform: none !important;
+  will-change: auto !important;
 }
 
 .btn-fluid:hover,
 .btn-bosch-primary:hover,
 .btn-bosch-secondary:hover {
-  transform: translateY(-1px);
+  transform: none !important;
 }
 
 .btn-fluid:active,
 .btn-bosch-primary:active,
 .btn-bosch-secondary:active,
 button:not([disabled]):active {
-  transform: scale(0.97) !important;
+  transform: none !important;
 }
 
 /* Primary Bosch Red Button Fluid Glow */
@@ -371,40 +377,41 @@ button:not([disabled]):active {
 }
 
 /* ==========================================================================
-   6. NAVIGATION INTERACTIONS
+   6. NAVIGATION INTERACTIONS (Zero Transform)
    ========================================================================== */
 .nav-item-active,
 .nav-item-inactive {
-  transition: all var(--dur-normal) var(--ease-smooth);
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  transform: none !important;
 }
 
 .nav-item-inactive:hover {
-  transform: translateX(3px);
+  transform: none !important;
 }
 
 /* ==========================================================================
-   7. MODAL / DIALOG ANIMATIONS
+   7. MODAL / DIALOG ANIMATIONS (Zero Blur Backdrop)
    ========================================================================== */
 #app-modal-backdrop {
-  transition: opacity var(--dur-normal) var(--ease-smooth),
-              backdrop-filter var(--dur-normal) ease;
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  transition: opacity var(--dur-normal) var(--ease-smooth);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: rgba(0, 0, 0, 0.65) !important;
 }
 
 #app-modal-backdrop > div {
-  transition: transform var(--dur-enter) var(--ease-spring),
-              opacity var(--dur-enter) var(--ease-spring);
-  will-change: transform, opacity;
+  transition: opacity var(--dur-enter) var(--ease-spring);
+  transform: none !important;
+  will-change: auto !important;
 }
 
 #app-modal-backdrop.modal-entering > div {
-  transform: scale(0.96) translateY(8px);
+  transform: none !important;
   opacity: 0;
 }
 
 #app-modal-backdrop.modal-entered > div {
-  transform: scale(1) translateY(0);
+  transform: none !important;
   opacity: 1;
 }
 
@@ -458,4 +465,26 @@ html.dark .skeleton-shimmer::after {
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* ==========================================================================
+   10. DATA READABILITY & SHARPNESS GUARANTEE (Subpixel Antialiasing, No Blur)
+   ========================================================================== */
+html, body, div, p, span, h1, h2, h3, h4, h5, h6, table, tr, th, td, input, select, textarea, button {
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeLegibility;
+}
+
+/* Hard guard against any blur filter or backdrop blur on content */
+.fluid-card,
+.interactive-card,
+table,
+tr,
+td,
+th,
+main,
+section,
+div {
+  filter: none !important;
 }

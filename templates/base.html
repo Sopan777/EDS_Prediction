@@ -345,8 +345,8 @@
     </div>
   </div>
 
-  <!-- Reusable App Modal Dialog with Smooth Modal Transitions -->
-  <div id="app-modal-backdrop" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+  <!-- Reusable App Modal Dialog with Clean Dim Backdrop -->
+  <div id="app-modal-backdrop" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
     <div id="app-modal-dialog" class="w-full max-w-xl bg-white rounded-xl border border-slate-300 shadow-2xl p-6 text-slate-900 space-y-4">
       <div class="flex items-start justify-between border-b border-slate-100 pb-3">
         <div>
@@ -497,29 +497,10 @@
     document.addEventListener('DOMContentLoaded', () => {
       updateThemeUI();
 
-      // Intersection Observer for Fluid Scroll Reveal
-      if ('IntersectionObserver' in window) {
-        const revealObserver = new IntersectionObserver((entries, observer) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-revealed');
-              observer.unobserve(entry.target);
-            }
-          });
-        }, {
-          root: null,
-          rootMargin: '0px 0px -40px 0px',
-          threshold: 0.08
-        });
-
-        document.querySelectorAll('.scroll-reveal').forEach(el => {
-          revealObserver.observe(el);
-        });
-      } else {
-        document.querySelectorAll('.scroll-reveal').forEach(el => {
-          el.classList.add('is-revealed');
-        });
-      }
+      // Reveal all cards immediately for instant data legibility
+      document.querySelectorAll('.scroll-reveal').forEach(el => {
+        el.classList.add('is-revealed');
+      });
     });
   </script>
 
