@@ -28,6 +28,7 @@ def test_django_views_render(client):
     views = [
         '/',
         '/analyzer/',
+        '/analyzer/results/',
         '/knowledge/',
         '/gates/F4/',
         '/history/',
@@ -83,15 +84,19 @@ def test_manual_analyze_api(client):
     assert data['familyCode'] == 'F4'
     assert data['compatibilityPct'] >= 70
     assert len(data['candidateComponents']) > 0
+    assert len(data['perSpectrum']) == 1
+    assert data['perSpectrum'][0]['familyCode'] == 'F4'
 
 
 def test_pdf_upload_analyze_api(client):
-    """Verify PDF report upload and microanalysis extraction."""
+    """Verify PDF report upload, non-extraction of Mean/Std/Min/Max, and per-spectrum prediction."""
     repo_root = Path(__file__).resolve().parent.parent
-    sample_pdf = repo_root / "data" / "reports" / "Field  CRI.I. 26-146 Particle In Z Hole Sr.No-2702 (M&M) ……22.pdf"
-    if not sample_pdf.exists():
+    reports_dir = repo_root / "data" / "reports"
+    matches_146 = list(reports_dir.glob("*26-146*.pdf"))
+    if not matches_146:
         pytest.skip("Sample PDF not found")
 
+    sample_pdf = matches_146[0]
     with open(sample_pdf, 'rb') as fp:
         res = client.post('/api/analyze', {'file': fp})
 
@@ -105,10 +110,80 @@ def test_pdf_upload_analyze_api(client):
     assert data['topCandidate'] is not None
     assert data['topCandidate']['name'] == 'CRI Sealing ring'
     assert len(data['perSpectrum']) == 2
+    for sp in data['perSpectrum']:
+        lbl_lower = (sp.get('label') or '').lower()
+        assert 'mean' not in lbl_lower
+        assert 'std' not in lbl_lower
+        assert 'min' not in lbl_lower
+        assert 'max' not in lbl_lower
+        assert sp['familyCode'] == 'F6a'
+        assert sp['topCandidate']['name'] == 'CRI Sealing ring'
+        assert 'Cu' in sp['values']
+        assert 'Sn' in sp['values']
+
+    # Also verify multi-site report 26-130 (9 spectra across 3 sites, 0 statistics rows)
+    matches_130 = list(reports_dir.glob("*26-130*.pdf"))
+    if matches_130:
+        with open(matches_130[0], 'rb') as fp:
+            res_130 = client.post('/api/analyze', {'file': fp})
+        assert res_130.status_code == 200
+        d130 = res_130.json()
+        assert d130['spectraCount'] == 9
+        assert len(d130['perSpectrum']) == 9
+        # First 7 spectra (Site 1: 4 spectra, Site 2: 3 spectra) are F1 steel; last 2 spectra (Site 4 Ball Damage) are unknown
+        for idx, sp in enumerate(d130['perSpectrum']):
+            lbl_lower = (sp.get('label') or '').lower()
+            assert not any(stat in lbl_lower for stat in ('mean', 'std', 'min', 'max'))
+            if idx < 7:
+                assert sp['familyCode'].startswith('F1')
+                assert sp['topCandidate'] is not None
+            else:
+                assert sp['decision'] == 'unknown'
+
+    # Also verify multi-site report 26-108 (5 spectra across 2 sites, 0 statistics rows)
+    matches_108 = list(reports_dir.glob("*26-108*.pdf"))
+    if matches_108:
+        with open(matches_108[0], 'rb') as fp:
+            res_108 = client.post('/api/analyze', {'file': fp})
+        assert res_108.status_code == 200
+        d108 = res_108.json()
+        assert d108['spectraCount'] == 5
+        assert len(d108['perSpectrum']) == 5
+        assert d108['perSpectrum'][0]['familyCode'] == 'F1a'
+        assert d108['perSpectrum'][1]['familyCode'] == 'F1a'
+        assert d108['perSpectrum'][2]['familyCode'] == 'F1a'
+        assert d108['perSpectrum'][3]['familyCode'] == 'F1b'
+        assert d108['perSpectrum'][4]['familyCode'] == 'F1b'
+
+
+def test_predict_single_spectrum_edit_api(client):
+    """Verify /api/predict-spectrum live re-prediction when user edits spectrum values."""
+    payload = {
+        'index': 1,
+        'label': 'Site of Interest 1 — Spectrum 1 (Edited)',
+        'siteName': 'Site of Interest 1',
+        'page': 2,
+        'composition': {
+            'Cr': 1.48,
+            'Mn': 0.35,
+            'Si': 0.25,
+            'Fe': 97.92,
+        },
+        'analysed_elements': ['Cr', 'Mn', 'Si', 'Fe'],
+    }
+    res = client.post('/api/predict-spectrum', data=json.dumps(payload), content_type='application/json')
+    assert res.status_code == 200
+    sp = res.json()
+    assert sp['index'] == 1
+    assert sp['familyCode'] == 'F2'
+    assert sp['decision'] in ('identified', 'ambiguous')
+    assert sp['topCandidate'] is not None
+    assert len(sp['candidateComponents']) > 0
+    assert len(sp['compositionBreakdown']) > 0
 
 
 def test_multi_spectrum_manual_analyze_api(client):
-    """Verify multi-spectrum manual payload pools and predicts component."""
+    """Verify multi-spectrum manual payload pools and predicts component for every spectrum."""
     payload = {
         'spectra': [
             {'Cr': 18.5, 'Ni': 8.2, 'Mn': 1.5, 'Si': 0.6, 'Fe': 'Bal.'},
@@ -124,6 +199,10 @@ def test_multi_spectrum_manual_analyze_api(client):
     assert data['spectraCount'] == 2
     assert data['topCandidate'] is not None
     assert len(data['candidateComponents']) > 0
+    assert len(data['perSpectrum']) == 2
+    for sp in data['perSpectrum']:
+        assert sp['familyCode'] == 'F4'
+        assert sp['topCandidate'] is not None
 
 
 def test_gates_api_and_validation(client):

@@ -74,6 +74,27 @@ def analyzer_view(request: HttpRequest) -> HttpResponse:
     return render(request, 'analyzer/index.html', context)
 
 
+from services.prediction.engine import run_prediction, predict_single_spectrum_full
+
+
+def prediction_results_view(request: HttpRequest) -> HttpResponse:
+    """Dedicated multi-spectrum prediction & interactive spectrum editing page."""
+    dataset_elements = get_dataset_supported_elements()
+    latest_pred = None
+    try:
+        latest_pred = request.session.get('latest_prediction')
+    except Exception:
+        latest_pred = None
+
+    context = {
+        'dataset_elements': dataset_elements,
+        'dataset_elements_json': json.dumps(dataset_elements),
+        'initial_prediction_json': json.dumps(latest_pred) if latest_pred else 'null',
+        'current_section': 'analyzer',
+    }
+    return render(request, 'analyzer/results.html', context)
+
+
 def download_excel_template_api(request: HttpRequest) -> HttpResponse:
     """Serve the standard Excel (.xlsx) template with columns for the dataset's supported elements."""
     xlsx_bytes = generate_excel_template_bytes()
@@ -87,14 +108,14 @@ def download_excel_template_api(request: HttpRequest) -> HttpResponse:
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ExtractEDSFileAPIView(View):
-    """Extract elemental composition from an uploaded Excel/EDS file without running full prediction yet."""
+    """Extract elemental composition from an uploaded Excel/EDS/PDF/DOCX file without running full prediction yet."""
 
     def post(self, request: HttpRequest) -> JsonResponse:
         if 'file' not in request.FILES:
             return JsonResponse({'error': 'No file provided'}, status=400)
         uploaded_file = request.FILES['file']
-        if uploaded_file.size > 10 * 1024 * 1024:
-            return JsonResponse({'error': 'File exceeds maximum size of 10 MB.'}, status=400)
+        if uploaded_file.size > 15 * 1024 * 1024:
+            return JsonResponse({'error': 'File exceeds maximum size of 15 MB.'}, status=400)
         try:
             file_bytes = uploaded_file.read()
             spectra_list, analysed_elements, meta = extract_all_spectra_from_file(
@@ -151,8 +172,9 @@ class AnalyzeAPIView(View):
             except Exception:
                 body = {}
 
+            source_filename = body.get('source_filename') if isinstance(body, dict) else None
             if 'spectra' in body and isinstance(body['spectra'], list) and len(body['spectra']) > 0:
-                source_type = 'multi_manual_entry'
+                source_type = body.get('source_type') or 'multi_manual_entry'
                 elem_set = set()
                 for s in body['spectra']:
                     clean_s, el = clean_numeric_composition(s)
@@ -167,7 +189,8 @@ class AnalyzeAPIView(View):
                         k: v for k, v in raw_comp.items()
                         if k not in (
                             'declared_material', 'chemistry', 'surface_coating', 'location',
-                            'source_type', 'source_filename', 'sample_id', 'customer', 'timestamp'
+                            'source_type', 'source_filename', 'sample_id', 'customer', 'timestamp',
+                            'spectra_details', 'report_metadata'
                         )
                     }
                 source_type = 'manual_entry'
@@ -199,6 +222,14 @@ class AnalyzeAPIView(View):
             or (body.get('location') if isinstance(body, dict) else None)
             or file_meta.get('location')
         )
+        spectra_details = (
+            file_meta.get('spectra_details')
+            or (body.get('spectra_details') if isinstance(body, dict) else None)
+        )
+        report_metadata = (
+            file_meta.get('report_metadata')
+            or (body.get('report_metadata') if isinstance(body, dict) else None)
+        )
 
         if not spectra_list:
             return JsonResponse({'error': 'No valid elemental spectra could be extracted.'}, status=400)
@@ -213,12 +244,79 @@ class AnalyzeAPIView(View):
                 chemistry=chemistry,
                 surface_coating=surface_coating,
                 location=location,
+                spectra_details=spectra_details,
+                report_metadata=report_metadata,
             )
             result['extracted_spectra'] = spectra_list
             result['extracted_elements'] = analysed_elements
+            try:
+                request.session['latest_prediction'] = result
+            except Exception:
+                pass
             return JsonResponse(result)
         except Exception as err:
             return JsonResponse({'error': f'Prediction execution failed: {str(err)}'}, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PredictSingleSpectrumAPIView(View):
+    """Re-predict a single edited spectrum from the interactive Spectrum Results page."""
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        try:
+            body = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
+
+        raw_spec = body.get('spectrum') or body.get('composition') or {}
+        spec_index = int(body.get('spectrum_index') or body.get('index') or 1)
+        spec_meta = body.get('spectrum_meta') or {
+            k: body.get(k)
+            for k in ('label', 'siteName', 'site_name', 'page', 'chemistry', 'surface_coating', 'location', 'analysed_elements')
+            if body.get(k) is not None
+        }
+        declared_material = body.get('declared_material')
+
+        clean_spec, analysed_els = clean_numeric_composition(raw_spec, auto_balance_fe=False)
+        if not clean_spec:
+            return JsonResponse({'error': 'Spectrum must contain at least one positive element wt%.'}, status=400)
+
+        kb = get_kb()
+        if not kb:
+            return JsonResponse({'error': 'Knowledge base not loaded'}, status=500)
+
+        try:
+            spec_result = predict_single_spectrum_full(
+                spec=clean_spec,
+                spec_index=spec_index,
+                spec_meta=spec_meta,
+                fallback_elements=analysed_els,
+                kb=kb,
+                declared_material=declared_material,
+                chemistry=spec_meta.get('chemistry'),
+                surface_coating=spec_meta.get('surface_coating'),
+                location=spec_meta.get('location'),
+            )
+            # Also update session if latest_prediction exists
+            try:
+                latest = request.session.get('latest_prediction')
+                if isinstance(latest, dict) and isinstance(latest.get('perSpectrum'), list):
+                    idx_0 = spec_index - 1
+                    if 0 <= idx_0 < len(latest['perSpectrum']):
+                        latest['perSpectrum'][idx_0] = spec_result
+                        if isinstance(latest.get('allSpectra'), list) and idx_0 < len(latest['allSpectra']):
+                            latest['allSpectra'][idx_0] = clean_spec
+                        request.session['latest_prediction'] = latest
+            except Exception:
+                pass
+
+            return JsonResponse({
+                'status': 'ok',
+                'spectrumResult': spec_result,
+                **spec_result,
+            })
+        except Exception as err:
+            return JsonResponse({'error': f'Failed to predict edited spectrum: {str(err)}'}, status=500)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

@@ -65,6 +65,180 @@ def format_candidate_component(
     }
 
 
+def predict_single_spectrum_full(
+    spec: Dict[str, float],
+    spec_index: int,
+    spec_meta: Optional[Dict[str, Any]],
+    fallback_elements: List[str],
+    kb: Any,
+    declared_material: Optional[str] = None,
+    chemistry: Optional[str] = None,
+    surface_coating: Optional[str] = None,
+    location: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Run full Material Family + Component + ISP v2 prediction for a single spectrum."""
+    meta = spec_meta or {}
+    spec_elements = meta.get("analysed_elements") or list(spec.keys()) or fallback_elements
+    for k in spec.keys():
+        if k not in spec_elements:
+            spec_elements = list(spec_elements) + [k]
+
+    single_pred: Prediction = predict_spectrum(
+        spec,
+        analysed_elements=spec_elements,
+        knowledge=kb,
+    )
+    norm_spec = normalize_spectrum(spec, analysed_elements=spec_elements)
+    top_fam = single_pred.top
+    dec_val = single_pred.decision.value
+
+    if top_fam and dec_val == Decision.IDENTIFIED.value:
+        cand_fam_ids = [top_fam.family_id]
+    elif dec_val == Decision.AMBIGUOUS.value and single_pred.families:
+        cand_fam_ids = [f.family_id for f in single_pred.families]
+    else:
+        cand_fam_ids = list(kb.families.keys())
+
+    raw_ranked = [
+        c for c in rank_components(
+            spectrum=norm_spec,
+            candidate_family_ids=cand_fam_ids,
+            top_n=10,
+        )
+        if "hpp" not in c.display_name.lower()
+    ]
+    comp_dec_str, _ = decide_component(raw_ranked)
+
+    spec_chem = meta.get("chemistry") or chemistry or declared_material
+    spec_coat = meta.get("surface_coating") or surface_coating
+
+    spec_isp = None
+    try:
+        from isp.runtime import predict_internal_source_dict
+        spec_isp = predict_internal_source_dict(
+            spectra_inputs=[spec],
+            chemistry_raw=spec_chem,
+            surface_coating_raw=spec_coat,
+            location_raw=location,
+            site_uid=f"spec_{spec_index}",
+        )
+        if spec_isp and isinstance(spec_isp.get("candidates"), list):
+            spec_isp["candidates"] = [
+                c for c in spec_isp["candidates"]
+                if "hpp" not in str(c.get("component_name", "")).lower()
+            ]
+    except Exception:
+        pass
+
+    spec_candidates: List[Dict[str, Any]] = []
+    seen_names = set()
+
+    # For F6a (Cu-Sn bronze), keep CRI Sealing ring first; for steel families, prioritize validated ISP v2 internal sources
+    fam_code = top_fam.family_id if top_fam else "NONE"
+    if spec_isp and spec_isp.get("candidates") and fam_code not in ("F6a", "F6b"):
+        for isp_c in spec_isp["candidates"][:6]:
+            cname = str(isp_c.get("component_name", ""))
+            if not cname or cname.lower() in seen_names:
+                continue
+            seen_names.add(cname.lower())
+            compat = float(isp_c.get("compatibility_score", 0.0))
+            compat_pct = round(compat * 100)
+            hist_sites = int(isp_c.get("historical_sites", 0))
+            t_lvl = int(isp_c.get("trust_level", 1))
+            q_label = "HIGH" if hist_sites >= 15 else ("MEDIUM" if hist_sites >= 5 else "LOW")
+            reasons = isp_c.get("rule_reasons") or []
+            note_str = (
+                "; ".join(reasons[:2])
+                if reasons
+                else f"Validated ISP v2 internal source (Level {t_lvl}, {hist_sites} reference sites)."
+            )
+            spec_candidates.append({
+                "id": f"cand-{ str(isp_c.get('component_id', cname)).lower().replace('_', '-') }",
+                "name": cname,
+                "component_id": str(isp_c.get("component_id", cname)),
+                "partNumber": str(isp_c.get("component_id", cname)),
+                "category": f"{q_label} Quality Reference ({hist_sites} sites)",
+                "nominalAlloy": (top_fam.grade_hint if top_fam else "") or "Empirical Reference",
+                "confidence": compat_pct,
+                "compatibility": round(compat, 4),
+                "sampleCount": hist_sites,
+                "fingerprintQuality": q_label,
+                "decision": "identified" if spec_isp.get("prediction_status") == "HIGH_CONFIDENCE" else "ambiguous",
+                "matchedElements": isp_c.get("supporting_elements") or list(spec.keys()),
+                "missingElements": isp_c.get("contradicting_elements") or [],
+                "evidenceSufficiency": 1.0,
+                "elementDistances": {},
+                "notes": note_str,
+                "isTopMatch": (len(spec_candidates) == 0),
+            })
+
+    for c_idx, cand in enumerate(raw_ranked):
+        if cand.display_name.lower() in seen_names:
+            continue
+        seen_names.add(cand.display_name.lower())
+        spec_candidates.append(
+            format_candidate_component(
+                cand=cand,
+                family_id=top_fam.family_id if top_fam else "REF",
+                grade_hint=top_fam.grade_hint if top_fam else "",
+                is_top=(len(spec_candidates) == 0),
+            )
+        )
+    spec_top_cand = spec_candidates[0] if spec_candidates else None
+
+    spec_conflict = detect_conflict(
+        declared_material=declared_material or spec_chem,
+        prediction_family_id=top_fam.family_id if top_fam else None,
+        prediction_family_label=top_fam.label if top_fam else None,
+    )
+
+    checks_list = [chk.to_dict() for chk in top_fam.checks] if top_fam else []
+    fam_label = top_fam.label if top_fam else "Unclassified / Needs Review"
+
+    return {
+        "index": spec_index,
+        "spectrumIndex": spec_index,
+        "spectrumId": str(meta.get("spectrum_id", spec_index)),
+        "label": meta.get("label") or f"Spectrum {spec_index}",
+        "siteName": meta.get("site_name") or meta.get("siteName") or "Site 1",
+        "tableName": meta.get("table_name") or "EDS Spectrum Table",
+        "page": meta.get("page", 1),
+        "analysedElements": spec_elements,
+        "values": spec,
+        "composition": spec,
+        "rawTableValues": meta.get("raw_table_values") or spec,
+        "metalBasisComposition": {
+            k: round(r.metal_wt, 2)
+            for k, r in norm_spec.readings.items()
+            if r.metal_wt is not None
+        },
+        "alloyTotalPct": round(norm_spec.alloy_total, 2),
+        "chemistryMeta": spec_chem,
+        "surfaceCoatingMeta": spec_coat,
+        "decision": dec_val,
+        "family": fam_label,
+        "familyName": fam_label,
+        "familyCode": top_fam.family_id if top_fam else "NONE",
+        "gradeHint": top_fam.grade_hint if top_fam else "",
+        "compatibility": round(top_fam.compatibility, 4) if top_fam else 0.0,
+        "compatibilityPct": round((top_fam.compatibility if top_fam else 0.0) * 100),
+        "margin": round(single_pred.margin, 3),
+        "reason": single_pred.reason,
+        "caveats": list(single_pred.caveats),
+        "checks": checks_list,
+        "compositionBreakdown": checks_list,
+        "topCandidate": spec_top_cand,
+        "candidateComponents": spec_candidates,
+        "componentDecision": comp_dec_str,
+        "internalSourcePrediction": spec_isp,
+        "conflict": {
+            "has_conflict": spec_conflict.has_conflict,
+            "severity": spec_conflict.severity,
+            "message": spec_conflict.message,
+        },
+    }
+
+
 def run_prediction(
     spectra: Optional[List[Dict[str, float]]] = None,
     composition: Optional[Dict[str, float]] = None,
@@ -75,11 +249,13 @@ def run_prediction(
     chemistry: Optional[str] = None,
     surface_coating: Optional[str] = None,
     location: Optional[str] = None,
+    spectra_details: Optional[List[Dict[str, Any]]] = None,
+    report_metadata: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
-    Execute prediction for single spectrum or multiple spectra (pooled particle).
-    Calculates pooled average, predicts material family, checks declared material conflict,
-    and statistically matches and ranks candidate components.
+    Execute prediction for ALL individual spectra as well as pooled particle summary.
+    Calculates per-spectrum Material Family, Component ranking, and ISP v2 Internal Source
+    prediction for every spectrum, plus pooled statistics.
     """
     start_time = time.perf_counter()
     kb = get_kb()
@@ -105,46 +281,49 @@ def run_prediction(
 
     is_pooled = len(spectra_list) > 1
 
-    # Execute deterministic rule engine for family
+    # 1. Execute FULL prediction for EVERY individual spectrum
+    per_spectrum_results: List[Dict[str, Any]] = []
+    for idx, spec in enumerate(spectra_list):
+        spec_meta = (
+            spectra_details[idx]
+            if spectra_details and idx < len(spectra_details)
+            else None
+        )
+        full_spec_pred = predict_single_spectrum_full(
+            spec=spec,
+            spec_index=idx + 1,
+            spec_meta=spec_meta,
+            fallback_elements=analysed_elements,
+            kb=kb,
+            declared_material=declared_material,
+            chemistry=chemistry,
+            surface_coating=surface_coating,
+            location=location,
+        )
+        per_spectrum_results.append(full_spec_pred)
+
+    # 2. Execute pooled prediction for the primary site/particle
     if is_pooled:
+        # If multiple sites with different column sets exist, pool spectra of the primary site
+        primary_site = per_spectrum_results[0].get("siteName")
+        same_site_Indices = [
+            i for i, r in enumerate(per_spectrum_results)
+            if r.get("siteName") == primary_site
+        ]
+        primary_spectra = [spectra_list[i] for i in same_site_Indices]
+        primary_elements = per_spectrum_results[0].get("analysedElements") or analysed_elements
+
         prediction: Prediction = predict_particle(
-            spectra_list,
-            analysed_elements=analysed_elements,
+            primary_spectra,
+            analysed_elements=primary_elements,
             knowledge=kb,
         )
-        # Compute individual predictions for inspection
-        per_spectrum_results = []
-        for idx, spec in enumerate(spectra_list):
-            try:
-                single_pred = predict_spectrum(
-                    spec,
-                    analysed_elements=analysed_elements,
-                    knowledge=kb,
-                )
-                per_spectrum_results.append({
-                    "spectrumIndex": idx + 1,
-                    "label": f"Spectrum {idx + 1}",
-                    "composition": spec,
-                    "decision": single_pred.decision.value,
-                    "family": single_pred.top.label if single_pred.top else "Unknown",
-                    "compatibilityPct": round((single_pred.top.compatibility if single_pred.top else 0.0) * 100),
-                })
-            except Exception:
-                pass
     else:
         prediction = predict_spectrum(
             spectra_list[0],
             analysed_elements=analysed_elements,
             knowledge=kb,
         )
-        per_spectrum_results = [{
-            "spectrumIndex": 1,
-            "label": "Spectrum 1",
-            "composition": spectra_list[0],
-            "decision": prediction.decision.value,
-            "family": prediction.top.label if prediction.top else "Unknown",
-            "compatibilityPct": round((prediction.top.compatibility if prediction.top else 0.0) * 100),
-        }]
 
     elapsed_s = round(time.perf_counter() - start_time, 4)
     decision_val = prediction.decision.value
@@ -184,12 +363,15 @@ def run_prediction(
         # Fallback or unknown: consider all families
         candidate_family_ids = list(kb.families.keys())
 
-    # Component-level matching against statistical fingerprints
-    raw_ranked_components = rank_components(
-        spectrum=norm_pooled,
-        candidate_family_ids=candidate_family_ids,
-        top_n=10,
-    )
+    # Component-level matching against statistical fingerprints (internal injector sources only)
+    raw_ranked_components = [
+        c for c in rank_components(
+            spectrum=norm_pooled,
+            candidate_family_ids=candidate_family_ids,
+            top_n=10,
+        )
+        if "hpp" not in c.display_name.lower()
+    ]
     comp_decision_str, top_comp_score = decide_component(raw_ranked_components)
 
     candidates_list: List[Dict[str, Any]] = []
@@ -216,7 +398,7 @@ def run_prediction(
     if is_pooled:
         caveats_list.insert(
             0,
-            f"Multi-spectrum corroborated: {len(spectra_list)} spectra pooled across particle.",
+            f"Multi-spectrum corroborated: {len(spectra_list)} spectra analyzed across report.",
         )
 
     # Conflict Detection: check declared material metadata against predicted family
@@ -361,4 +543,6 @@ def run_prediction(
         },
         "warnings": warnings_list,
         "internal_source_prediction": isp_result,
+        "sourceFilename": source_filename or "Manual Spectrum Input",
+        "reportMetadata": report_metadata or {},
     }

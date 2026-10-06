@@ -213,7 +213,7 @@ def _try_header(row: Sequence[_Word]) -> Optional[_Header]:
 
 def _assign(row: Sequence[_Word], header: _Header) -> Dict[str, Optional[float]]:
     """Assign numeric tokens in a data row to their nearest column anchor."""
-    values: Dict[str, Optional[float]] = {s: None for _, s in header.anchors}
+    values: Dict[str, Optional[float]] = {s: None for _, s in header.anchors if s != "Total"}
     best: Dict[str, Tuple[float, float]] = {}  # symbol -> (distance, value)
 
     for x0, x1, centre, text in row:
@@ -228,7 +228,7 @@ def _assign(row: Sequence[_Word], header: _Header) -> Dict[str, Optional[float]]
             d = abs(centre - anchor_x)
             if distance is None or d < distance:
                 symbol, distance = sym, d
-        if symbol is None or distance is None or distance > MAX_ANCHOR_DIST_PT:
+        if symbol is None or symbol == "Total" or distance is None or distance > MAX_ANCHOR_DIST_PT:
             continue
         # Keep the closest claimant if two tokens compete for one column.
         prior = best.get(symbol)
@@ -236,7 +236,8 @@ def _assign(row: Sequence[_Word], header: _Header) -> Dict[str, Optional[float]]
             best[symbol] = (distance, value)
 
     for symbol, (_, value) in best.items():
-        values[symbol] = value
+        if symbol != "Total":
+            values[symbol] = value
     return values
 
 
@@ -245,32 +246,116 @@ def _row_label(row: Sequence[_Word], header: _Header) -> str:
     return " ".join(parts).strip()
 
 
-def _table_name(rows: Sequence[List[_Word]], header_idx: int, page_num: int) -> str:
-    """Best-effort descriptive title from the lines above the header."""
-    for i in range(header_idx - 1, max(-1, header_idx - 12), -1):
-        text = " ".join(t for _, _, _, t in rows[i]).strip()
-        low = text.lower()
-        if low.startswith("project:"):
-            return text.split(":", 1)[1].strip()
-        if low.startswith("site:"):
-            return text.split(":", 1)[1].strip()
-    return "EDS Table - Page " + str(page_num)
+def _extract_page_context(rows: Sequence[List[_Word]], header_idx: int, page_num: int) -> Dict[str, Optional[str]]:
+    """Extract Project, Site, Chemistry, and Surface Coating metadata from the page rows above the table."""
+    project_name: Optional[str] = None
+    site_name: Optional[str] = None
+    chemistry: Optional[str] = None
+    surface_coating: Optional[str] = None
+
+    for i in range(min(header_idx, len(rows))):
+        row = rows[i]
+        left_words = [t for x0, _, _, t in row if x0 < 330.0]
+        left_text = " ".join(left_words).strip()
+        left_low = left_text.lower()
+
+        if left_low.startswith("project:"):
+            proj_val = left_text.split(":", 1)[1].strip()
+            # Check next row for wrapped project title continuation
+            if i + 1 < header_idx:
+                next_left = " ".join(t for x0, _, _, t in rows[i + 1] if x0 < 330.0).strip()
+                if next_left and ":" not in next_left and not next_left.lower().startswith(("owner", "site", "sample", "comment")):
+                    proj_val = f"{proj_val} {next_left}".strip()
+            project_name = proj_val
+        elif left_low.startswith("site:"):
+            site_name = left_text.split(":", 1)[1].strip()
+
+        # Check right-side Particle Details table (x0 >= 340)
+        right_words = [(x0, t) for x0, _, _, t in row if x0 >= 340.0]
+        if right_words:
+            right_label = " ".join(t for x0, t in right_words if x0 < 440.0).strip().lower()
+            right_val = " ".join(t for x0, t in right_words if x0 >= 440.0).strip()
+            if right_label == "chemistry" and right_val:
+                if i + 1 < header_idx:
+                    cont_val = " ".join(t for x0, _, _, t in rows[i + 1] if x0 >= 440.0).strip()
+                    cont_lbl = " ".join(t for x0, _, _, t in rows[i + 1] if 340.0 <= x0 < 440.0).strip()
+                    if cont_val and not cont_lbl:
+                        right_val = f"{right_val} {cont_val}".strip()
+                if right_val not in ("??", "---", "'---", "-"):
+                    chemistry = right_val
+            elif "coating" in right_label and right_val:
+                if right_val not in ("??", "---", "'---", "-"):
+                    surface_coating = right_val
+
+    if project_name and site_name:
+        table_name = f"{project_name} - {site_name}"
+    elif site_name:
+        table_name = f"{site_name} (Page {page_num})"
+    elif project_name:
+        table_name = project_name
+    else:
+        table_name = f"EDS Table - Page {page_num}"
+
+    return {
+        "table_name": table_name,
+        "site_name": site_name or f"Page {page_num}",
+        "project_name": project_name,
+        "chemistry": chemistry,
+        "surface_coating": surface_coating,
+    }
+
+
+def _extract_cover_metadata(rows: Sequence[List[_Word]]) -> Dict[str, str]:
+    """Extract cover-page sample details (Report No, Date, Complaint No, Customer, Injector No, Location)."""
+    meta: Dict[str, str] = {}
+    for row in rows:
+        full_line = " ".join(t for _, _, _, t in row).strip()
+        m_rep = re.search(r"Report\s+No\.?\s*:\s*(\S+)", full_line, re.IGNORECASE)
+        if m_rep:
+            meta["report_no"] = m_rep.group(1).strip()
+        m_date = re.search(r"Report\s+Date\s*:\s*(\S+)", full_line, re.IGNORECASE)
+        if m_date:
+            meta["report_date"] = m_date.group(1).strip()
+
+        low = full_line.lower()
+        if "complaint no" in low:
+            val = " ".join(t for x0, _, _, t in row if x0 >= 230.0).strip()
+            if val:
+                meta["complaint_no"] = val
+        elif low.startswith("external customer"):
+            val = " ".join(t for x0, _, _, t in row if x0 >= 230.0).strip()
+            if val:
+                meta["customer"] = val
+        elif low.startswith("injector no"):
+            val = " ".join(t for x0, _, _, t in row if x0 >= 230.0).strip()
+            if val:
+                meta["injector_no"] = val
+        elif low.startswith("location of particle"):
+            val = " ".join(t for x0, _, _, t in row if x0 >= 230.0).strip()
+            if val:
+                meta["location"] = val
+    return meta
 
 
 def extract_tables(pdf_path: str) -> Optional[dict]:
-    """Extract every composition table in ``pdf_path``.
+    """Extract every composition table in ``pdf_path`` (spectra only; statistics rows are skipped).
 
-    Returns the same shape as ``eds_extractor.extract_eds_tables``, or ``None``
+    Returns ``{"eds_tables": [...], "report_metadata": {...}}``, or ``None``
     if PyMuPDF is unavailable so the caller can fall back.
     """
     if not _HAVE_FITZ:
         return None
 
     tables: List[dict] = []
+    report_meta: Dict[str, str] = {}
+
     with fitz.open(pdf_path) as doc:
         for page_index in range(len(doc)):
             rows = _rows_from_words(doc[page_index].get_text("words"))
             page_num = page_index + 1
+
+            if page_num == 1:
+                report_meta.update(_extract_cover_metadata(rows))
 
             i = 0
             while i < len(rows):
@@ -280,7 +365,6 @@ def extract_tables(pdf_path: str) -> Optional[dict]:
                     continue
 
                 spectra: List[dict] = []
-                statistics: Dict[str, dict] = {}
                 j = i + 1
                 while j < len(rows):
                     row = rows[j]
@@ -293,8 +377,10 @@ def extract_tables(pdf_path: str) -> Optional[dict]:
                     stat_key = STAT_LABEL_ALIASES.get(
                         re.sub(r"\.$", "", label.strip().lower())
                     )
-                    if stat_key and has_value:
-                        statistics[stat_key] = values
+                    if stat_key:
+                        # Explicitly skip Mean, Std. deviation, Max, Min rows
+                        j += 1
+                        continue
                     elif SPECTRUM_ID_RE.match(label) and has_value:
                         in_stats = None
                         if header.in_stats_x is not None:
@@ -323,19 +409,23 @@ def extract_tables(pdf_path: str) -> Optional[dict]:
                             break
                     j += 1
 
-                if spectra or statistics:
+                if spectra:
+                    ctx = _extract_page_context(rows, i, page_num)
                     tables.append(
                         {
-                            "table_name": _table_name(rows, i, page_num),
+                            "table_name": ctx["table_name"],
+                            "site_name": ctx["site_name"],
+                            "project_name": ctx["project_name"],
                             "page": page_num,
+                            "chemistry": ctx["chemistry"],
+                            "surface_coating": ctx["surface_coating"],
                             "elements": header.elements,
                             "spectra": spectra,
-                            "statistics": statistics,
                         }
                     )
                 i = max(j, i + 1)
 
-    return {"eds_tables": tables}
+    return {"eds_tables": tables, "report_metadata": report_meta}
 
 
 if __name__ == "__main__":  # pragma: no cover - manual inspection aid

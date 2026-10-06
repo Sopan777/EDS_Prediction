@@ -539,10 +539,10 @@ async function handleFileSelected(file) {
     statusText.innerHTML = `Selected: <span class="text-blue-700">${file.name}</span>`;
   }
   if (subStatusText) {
-    subStatusText.textContent = `File size: ${(file.size / 1024).toFixed(1)} KB — Extracting elemental composition...`;
+    subStatusText.textContent = `File size: ${(file.size / 1024).toFixed(1)} KB — Extracting all spectra (ignoring Mean / Std. deviation / Min / Max)...`;
   }
 
-  // Extract elemental composition from the uploaded Excel/EDS file
+  // Extract elemental composition from the uploaded Report/Excel/EDS file
   try {
     const fd = new FormData();
     fd.append('file', file);
@@ -561,15 +561,26 @@ async function handleFileSelected(file) {
 
     // Populate spectraListState with the extracted spectra
     if (Array.isArray(data.spectra) && data.spectra.length > 0) {
+      const detailsList = (data.metadata && Array.isArray(data.metadata.spectra_details))
+        ? data.metadata.spectra_details
+        : [];
+
       currentConcentrationUnit = 'wt%';
       setConcentrationUnit('wt%');
-      spectraListState = data.spectra.map(specObj => {
+      spectraListState = data.spectra.map((specObj, idx) => {
         const order = Object.keys(specObj);
         const vals = {};
         order.forEach(sym => {
-          vals[sym] = Math.round( parseFloat(specObj[sym]) * 100 ) / 100;
+          vals[sym] = Math.round(parseFloat(specObj[sym]) * 100) / 100;
         });
-        return { selectedOrder: order, values: vals };
+        const det = detailsList[idx] || {};
+        return {
+          selectedOrder: order,
+          values: vals,
+          label: det.label || det.spectrum_id || `Spectrum ${idx + 1}`,
+          siteName: det.site_name || '',
+          page: det.page || null,
+        };
       });
       activeSpectrumIdx = 0;
       renderManualElementsUI();
@@ -582,22 +593,36 @@ async function handleFileSelected(file) {
         }
       }
 
-      // Show extracted preview banner inside Drag & Drop card
+      // Show extracted preview banner inside Drag & Drop card with ALL extracted spectra
       const previewBox = document.getElementById('file-extracted-preview');
       const previewTitle = document.getElementById('extracted-file-title');
       const badgesContainer = document.getElementById('extracted-elements-badges');
       if (previewBox && badgesContainer) {
         previewBox.classList.remove('hidden');
         if (previewTitle) {
-          previewTitle.textContent = `Extracted ${data.spectra.length} spectrum${data.spectra.length > 1 ? 's' : ''} from ${file.name} — Ready to Analyze`;
+          previewTitle.textContent = `Extracted ${data.spectra.length} Individual Spectrum${data.spectra.length > 1 ? 's' : ''} from ${file.name} (Mean/Std/Min/Max Skipped)`;
         }
-        const firstSpec = data.spectra[0];
-        badgesContainer.innerHTML = Object.entries(firstSpec)
-          .map(([sym, wt]) => `<span class="px-2 py-0.5 rounded bg-white border border-emerald-300 text-[11px] font-mono-code font-bold text-slate-800">${sym}: ${Number(wt).toFixed(2)}%</span>`)
-          .join('');
+
+        badgesContainer.innerHTML = data.spectra.map((specObj, idx) => {
+          const det = detailsList[idx] || {};
+          const specLabel = det.label || det.spectrum_id || `Spectrum ${idx + 1}`;
+          const pageBadge = det.page ? `<span class="text-[10px] font-mono-code text-slate-400 ml-1">(Page ${det.page})</span>` : '';
+          const pills = Object.entries(specObj)
+            .map(([sym, wt]) => `<span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-[10.5px] font-mono-code font-bold text-slate-800">${sym}: ${Number(wt).toFixed(2)}%</span>`)
+            .join('');
+          return `
+            <div class="p-2 rounded-md bg-white border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="text-[11px] font-bold text-slate-800 shrink-0">
+                <span class="inline-block w-4 h-4 rounded-full bg-slate-900 text-white text-[10px] font-mono-code text-center leading-4 mr-1">${idx + 1}</span>
+                ${specLabel}${pageBadge}
+              </div>
+              <div class="flex flex-wrap gap-1">${pills}</div>
+            </div>
+          `;
+        }).join('');
       }
       if (subStatusText) {
-        subStatusText.textContent = `Composition extracted (${data.analysed_elements.join(', ')}). Click "Analyze EDS Spectrum" to run prediction.`;
+        subStatusText.textContent = `Extracted ${data.spectra.length} spectrum${data.spectra.length > 1 ? 's' : ''} (${data.analysed_elements.join(', ')}). Click "Start Prediction (All Spectra)" or "Analyze EDS Spectrum" to open the Multi-Spectrum Prediction & Editor page.`;
       }
     }
   } catch (err) {
@@ -664,7 +689,7 @@ function clearAnalyzerForm() {
   const statusText = document.getElementById('upload-status-text');
   if (statusText) statusText.textContent = 'Drag and drop EDS file here';
   const subStatusText = document.getElementById('upload-substatus-text');
-  if (subStatusText) subStatusText.textContent = 'Supports Excel files (.xlsx, .xls). Max size 10 MB.';
+  if (subStatusText) subStatusText.textContent = 'Supports Material Analysis Reports (.pdf, .docx, .doc) and Excel files (.xlsx, .xls). Max size 10 MB.';
   const previewBox = document.getElementById('file-extracted-preview');
   if (previewBox) previewBox.classList.add('hidden');
   const declaredInput = document.getElementById('input-declared-material');
@@ -684,15 +709,15 @@ window.clearAnalyzerForm = clearAnalyzerForm;
    Execution & Prediction
    ========================================================================= */
 
-async function triggerPrediction() {
+async function triggerPrediction(openDedicatedPage = true) {
   const btn = document.getElementById('btn-predict-family');
   const btnText = document.getElementById('predict-btn-text');
   const spinner = document.getElementById('predict-btn-spinner');
   const declaredMaterial = document.getElementById('input-declared-material') ? document.getElementById('input-declared-material').value.trim() : '';
 
-  btn.disabled = true;
-  btnText.textContent = 'Processing EDS Spectrum...';
-  spinner.classList.remove('hidden');
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.textContent = 'Predicting All Spectra...';
+  if (spinner) spinner.classList.remove('hidden');
 
   const start = performance.now();
 
@@ -736,7 +761,7 @@ async function triggerPrediction() {
       });
 
       if (!hasData) {
-        alert('Please select elements and enter their concentrations (or upload an EDS Excel file) before running analysis.');
+        alert('Please select elements and enter their concentrations (or upload an EDS report file) before running analysis.');
         return;
       }
 
@@ -760,20 +785,16 @@ async function triggerPrediction() {
     }
 
     currentPredictionData = data;
+    try {
+      sessionStorage.setItem('DHATU_LATEST_PREDICTION', JSON.stringify(data));
+    } catch (e) {
+      // Ignore storage quota errors
+    }
 
-    // Sync extracted spectra into Manual Elements state when analyzed from file
-    const extractedList = data.extracted_spectra || data.allSpectra;
-    if (Array.isArray(extractedList) && extractedList.length > 0 && currentIngestMode === 'upload') {
-      spectraListState = extractedList.map(specObj => {
-        const order = Object.keys(specObj);
-        const vals = {};
-        order.forEach(sym => {
-          vals[sym] = Math.round(parseFloat(specObj[sym]) * 100) / 100;
-        });
-        return { selectedOrder: order, values: vals };
-      });
-      activeSpectrumIdx = 0;
-      renderManualElementsUI();
+    // Open the dedicated Multi-Spectrum Prediction & Interactive Editing page
+    if (openDedicatedPage !== false) {
+      window.location.href = '/analyzer/results/';
+      return;
     }
 
     renderPredictionResults(data, ((performance.now() - start) / 1000).toFixed(2));
@@ -781,11 +802,12 @@ async function triggerPrediction() {
     console.error('Analysis execution error:', err);
     alert('Failed to communicate with the DHATU BODH analysis service.');
   } finally {
-    btn.disabled = false;
-    btnText.textContent = 'Analyze EDS Spectrum';
-    spinner.classList.add('hidden');
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Analyze EDS Spectrum';
+    if (spinner) spinner.classList.add('hidden');
   }
 }
+window.triggerPrediction = triggerPrediction;
 
 /* =========================================================================
    Results Rendering (Strict Priority Order 1 to 7)

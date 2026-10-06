@@ -319,6 +319,8 @@ def _label_region(line: str, layout: _HeaderLayout) -> str:
 def _read_element_values(line: str, layout: _HeaderLayout) -> dict:
     values = {}
     for col_idx, sym in layout.element_cols:
+        if sym == "Total":
+            continue
         bounds = layout.col_bounds[col_idx]
         values[sym] = _parse_cell(_read_column(line, bounds))
     return values
@@ -341,10 +343,9 @@ def _extract_tables_from_page(page_text: str, page_num: int) -> List[dict]:
             i += 1
             continue
 
-        elements = [sym for _, sym in layout.element_cols]
+        elements = [sym for _, sym in layout.element_cols if sym != "Total"]
 
         spectra = []
-        statistics = {}
         j = i + 1
 
         while j < n:
@@ -373,8 +374,7 @@ def _extract_tables_from_page(page_text: str, page_num: int) -> List[dict]:
 
             stat_key = STAT_LABEL_ALIASES.get(_normalise_header_token(label))
             if stat_key is not None:
-                values = _read_element_values(line, layout)
-                statistics[stat_key] = values
+                # Explicitly skip Mean, Std. deviation, Max, Min rows
                 j += 1
                 continue
 
@@ -383,14 +383,13 @@ def _extract_tables_from_page(page_text: str, page_num: int) -> List[dict]:
             # option:", or the next table's own header line).
             break
 
-        if spectra or statistics:
+        if spectra:
             table_name = _guess_table_name(lines, i, page_num)
             tables.append({
                 "table_name": table_name,
                 "page": page_num,
                 "elements": elements,
                 "spectra": spectra,
-                "statistics": statistics,
             })
 
         i = j if j > i else i + 1

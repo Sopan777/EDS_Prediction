@@ -12,8 +12,10 @@ from django.urls import include, path
 from apps.analyzer.views import (
     dashboard_view,
     analyzer_view,
+    prediction_results_view,
     health_api,
     AnalyzeAPIView,
+    PredictSingleSpectrumAPIView,
     ExtractEDSFileAPIView,
     download_excel_template_api,
     PresetsAPIView,
@@ -46,6 +48,7 @@ urlpatterns = [
     path('', dashboard_view, name='home'),
     path('dashboard/', dashboard_view, name='dashboard_page'),
     path('analyzer/', analyzer_view, name='analyzer_page'),
+    path('analyzer/results/', prediction_results_view, name='analyzer_results_page'),
     path('knowledge/', knowledge_view, name='knowledge_page'),
     path('gates/<str:fid>/', gate_editor_view, name='gate_editor'),
     path('gates/<str:fid>/', gate_editor_view, name='gate_editor_page'),
@@ -57,6 +60,7 @@ urlpatterns = [
     # REST / JSON APIs (Backwards compatible with React and Python clients)
     path('api/health', health_api, name='api_health'),
     path('api/analyze', AnalyzeAPIView.as_view(), name='api_analyze'),
+    path('api/predict-spectrum', PredictSingleSpectrumAPIView.as_view(), name='api_predict_spectrum'),
     path('api/extract', ExtractEDSFileAPIView.as_view(), name='api_extract'),
     path('api/template/excel', download_excel_template_api, name='api_template_excel'),
     path('api/presets', PresetsAPIView.as_view(), name='api_presets'),

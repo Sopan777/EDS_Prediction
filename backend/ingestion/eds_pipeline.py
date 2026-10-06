@@ -72,14 +72,15 @@ except ImportError:
 PDF_EXTENSION = ".pdf"
 
 
-def resolve_to_pdf(input_path: Path) -> Path:
+def resolve_to_pdf(input_path: Path, out_dir: Optional[Path] = None) -> Path:
     """Convert DOCX/DOC to PDF first if necessary; pass PDFs through as-is."""
     suffix = input_path.suffix.lower()
     if suffix == PDF_EXTENSION:
         return input_path
     if suffix in DOC_EXTENSIONS:
         method = _pick_method("auto")
-        return convert_file(input_path, input_path.parent, method)
+        target_dir = out_dir if out_dir is not None else input_path.parent
+        return convert_file(input_path, target_dir, method)
     raise ValueError(
         "Unsupported file type '" + suffix + "'. Please provide a .pdf, .docx, or .doc file."
     )
@@ -128,13 +129,13 @@ def _prediction_to_json(prediction: Prediction) -> dict:
     return prediction.to_dict()
 
 
-def run_pipeline(input_path: str, per_spectrum: bool = False) -> dict:
+def run_pipeline(input_path: str, per_spectrum: bool = True) -> dict:
     """Run extraction + identification end-to-end.
 
     Returns a JSON-serialisable dict: the extractor's own table structure,
     with a "pooled_prediction" added to every table (all its spectra treated
-    as repeat measurements of one particle) and, if requested, a
-    "prediction" added to every individual spectrum.
+    as repeat measurements of one particle) and a "prediction" added to every
+    individual spectrum.
     """
     path = Path(input_path)
     if not path.exists():

@@ -251,8 +251,20 @@ def _extract_spectra_from_excel_bytes(
 
         # Case B: Standard Element Columns (Template, EDS_Spectra, EDS Consolidation)
         if len(direct_el_cols) >= 1:
+            from backend.ingestion.eds_extractor import STAT_LABEL_ALIASES
             extracted_meta["tables_count"] += 1
             for _, row in df.iterrows():
+                # Skip Mean, Std. deviation, Max, Min summary rows if present
+                is_stat_row = False
+                for col in df.columns:
+                    if col not in direct_el_cols and pd.notna(row.get(col)):
+                        lbl = str(row.get(col)).strip().rstrip(".").lower()
+                        if lbl in STAT_LABEL_ALIASES:
+                            is_stat_row = True
+                            break
+                if is_stat_row:
+                    continue
+
                 row_cells: Dict[str, float] = {}
                 has_fe_bal = False
                 for orig_col, sym in direct_el_cols.items():
@@ -299,8 +311,7 @@ def _extract_spectra_from_excel_bytes(
                     elif c_low in ("location", "particle location") and pd.notna(row.get(col)):
                         extracted_meta.setdefault("location", str(row.get(col)).strip())
 
-                # Limit to 10 spectra per uploaded file so multi-row workbooks don't pool 100 unrelated parts
-                if len(raw_spectra) >= 10:
+                if len(raw_spectra) >= 50:
                     break
             if raw_spectra:
                 break
@@ -309,6 +320,24 @@ def _extract_spectra_from_excel_bytes(
     for el in sorted(elements_set):
         if el not in analysed_elements and el not in PARSER_HEADER_ARTIFACTS:
             analysed_elements.append(el)
+
+    spectra_details = []
+    for idx, spec_vals in enumerate(raw_spectra, start=1):
+        spectra_details.append({
+            "index": idx,
+            "spectrum_id": str(idx),
+            "label": f"Spectrum {idx}",
+            "site_name": "Excel Sheet",
+            "table_name": filename,
+            "page": 1,
+            "in_stats": "Yes",
+            "analysed_elements": analysed_elements,
+            "values": spec_vals,
+            "raw_table_values": {el: spec_vals.get(el) for el in analysed_elements},
+            "chemistry": extracted_meta.get("declared_material") or extracted_meta.get("chemistry"),
+            "surface_coating": extracted_meta.get("surface_coating"),
+        })
+    extracted_meta["spectra_details"] = spectra_details
 
     return raw_spectra, analysed_elements, extracted_meta
 
@@ -375,61 +404,133 @@ def extract_all_spectra_from_file(
     filename: str,
 ) -> Tuple[List[Dict[str, float]], List[str], Dict[str, Any]]:
     """
-    Parse uploaded file and extract ALL spectra and combined analysed elements.
+    Parse uploaded file and extract ALL spectra (excluding Mean, Std. deviation, Min, Max).
+    Supports: PDF (.pdf), Word (.docx, .doc), Excel (.xlsx, .xls), CSV (.csv), JSON (.json).
     Returns: (spectra_list, analysed_elements, metadata)
     """
     fname_lower = filename.lower()
     raw_spectra: List[Dict[str, Any]] = []
     analysed_elements: List[str] = []
-    metadata: Dict[str, Any] = {"filename": filename, "tables_count": 0}
+    metadata: Dict[str, Any] = {
+        "filename": filename,
+        "tables_count": 0,
+        "spectra_details": [],
+        "report_metadata": {},
+    }
 
     if fname_lower.endswith((".xlsx", ".xls")):
         raw_spectra, analysed_elements, metadata = _extract_spectra_from_excel_bytes(
             file_bytes, filename
         )
+        metadata["spectra_count"] = len(raw_spectra)
+        return raw_spectra, analysed_elements, metadata
 
-    elif fname_lower.endswith(".pdf"):
-        if not HAVE_PDF or extract_tables is None:
-            raise RuntimeError("PyMuPDF / eds_geometry is not available for PDF processing")
+    elif fname_lower.endswith((".pdf", ".docx", ".doc")):
+        from backend.ingestion.eds_pipeline import resolve_to_pdf, extract_tables as pipeline_extract_tables
+        from backend.ingestion.eds_extractor import STAT_LABEL_ALIASES
 
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-            tmp.write(file_bytes)
-            tmp_path = Path(tmp.name)
+        with tempfile.TemporaryDirectory() as tmp_dir_str:
+            tmp_dir = Path(tmp_dir_str)
+            safe_name = Path(filename).name
+            input_path = tmp_dir / safe_name
+            input_path.write_bytes(file_bytes)
 
-        try:
-            tables_data = extract_tables(tmp_path)
-        finally:
-            if tmp_path.exists():
-                try:
-                    os.remove(tmp_path)
-                except Exception:
-                    pass
+            pdf_path = resolve_to_pdf(input_path, out_dir=tmp_dir)
+            tables_data = pipeline_extract_tables(str(pdf_path))
 
         eds_tables = tables_data.get("eds_tables", []) if tables_data else []
         if not eds_tables:
-            raise ValueError("No EDS tables could be extracted from PDF report")
+            raise ValueError("No EDS tables could be extracted from report")
 
+        report_meta = tables_data.get("report_metadata", {}) if tables_data else {}
         metadata["tables_count"] = len(eds_tables)
+        metadata["eds_tables"] = eds_tables
+        metadata["report_metadata"] = report_meta
 
-        primary_table = eds_tables[0]
-        elements_set = set(e for e in primary_table.get("elements", []) if e != "Total")
+        if report_meta.get("location"):
+            metadata.setdefault("location", report_meta["location"])
+        if report_meta.get("customer"):
+            metadata.setdefault("customer", report_meta["customer"])
+        if report_meta.get("report_no"):
+            metadata.setdefault("report_no", report_meta["report_no"])
+        if report_meta.get("complaint_no"):
+            metadata.setdefault("complaint_no", report_meta["complaint_no"])
 
-        for table in eds_tables:
-            for el in table.get("elements", []):
-                if el != "Total":
-                    elements_set.add(el)
+        elements_set = set()
+        spectra_details: List[Dict[str, Any]] = []
+        multi_table = len(eds_tables) > 1
 
-            spectra = table.get("spectra", [])
-            for s in spectra:
+        for t_idx, table in enumerate(eds_tables, start=1):
+            table_elements = [
+                el for el in table.get("elements", [])
+                if el != "Total" and el not in PARSER_HEADER_ARTIFACTS
+            ]
+            for el in table_elements:
+                elements_set.add(el)
+
+            site_name = table.get("site_name") or f"Site {t_idx}"
+            table_name = table.get("table_name") or site_name
+            page_num = table.get("page", 1)
+            table_chem = table.get("chemistry")
+            table_coat = table.get("surface_coating")
+
+            if table_chem and "chemistry" not in metadata:
+                metadata["chemistry"] = table_chem
+                metadata.setdefault("declared_material", table_chem)
+            if table_coat and "surface_coating" not in metadata:
+                metadata["surface_coating"] = table_coat
+
+            for s in table.get("spectra", []):
+                spec_id = str(s.get("spectrum", "")).strip()
+                # Never extract Mean, Std. deviation, Min, Max
+                norm_id = spec_id.rstrip(".").lower()
+                if norm_id in STAT_LABEL_ALIASES:
+                    continue
+
                 vals = s.get("values", {})
-                cleaned_vals = {
-                    k: v for k, v in vals.items()
-                    if v is not None and k != "Total"
-                }
+                cleaned_vals: Dict[str, float] = {}
+                for k, v in vals.items():
+                    if k == "Total" or k in PARSER_HEADER_ARTIFACTS or v is None:
+                        continue
+                    try:
+                        cleaned_vals[k] = float(v)
+                    except (ValueError, TypeError):
+                        pass
+
                 if cleaned_vals:
                     raw_spectra.append(cleaned_vals)
+                    global_idx = len(raw_spectra)
+                    label_str = (
+                        f"{site_name} (Page {page_num}) — Spectrum {spec_id}"
+                        if multi_table
+                        else f"{site_name} — Spectrum {spec_id}"
+                    )
+                    spectra_details.append({
+                        "index": global_idx,
+                        "spectrum_id": spec_id or str(global_idx),
+                        "label": label_str,
+                        "site_name": site_name,
+                        "table_name": table_name,
+                        "page": page_num,
+                        "in_stats": s.get("in_stats"),
+                        "analysed_elements": table_elements,
+                        "values": cleaned_vals,
+                        "raw_table_values": {el: vals.get(el) for el in table_elements},
+                        "chemistry": table_chem,
+                        "surface_coating": table_coat,
+                    })
 
-        analysed_elements = sorted(list(elements_set))
+        analysed_elements = [
+            el["symbol"] for el in get_dataset_supported_elements()
+            if el["symbol"] in elements_set
+        ]
+        for el in sorted(elements_set):
+            if el not in analysed_elements and el not in PARSER_HEADER_ARTIFACTS:
+                analysed_elements.append(el)
+
+        metadata["spectra_details"] = spectra_details
+        metadata["spectra_count"] = len(raw_spectra)
+        return raw_spectra, analysed_elements, metadata
 
     elif fname_lower.endswith(".json"):
         data = json.loads(file_bytes.decode("utf-8"))
@@ -437,7 +538,11 @@ def extract_all_spectra_from_file(
             for item in data:
                 raw_spectra.append(item.get("values", item.get("composition", item)))
         elif isinstance(data, dict):
-            if "spectra" in data and isinstance(data["spectra"], list):
+            if "eds_tables" in data and isinstance(data["eds_tables"], list):
+                for table in data["eds_tables"]:
+                    for s in table.get("spectra", []):
+                        raw_spectra.append(s.get("values", {}))
+            elif "spectra" in data and isinstance(data["spectra"], list):
                 for item in data["spectra"]:
                     raw_spectra.append(item.get("values", item.get("composition", item)))
             elif "composition" in data and isinstance(data["composition"], list):
@@ -447,20 +552,23 @@ def extract_all_spectra_from_file(
 
         elements_set = set()
         for s in raw_spectra:
-            elements_set.update(s.keys())
+            elements_set.update(k for k in s.keys() if k != "Total")
         analysed_elements = sorted(list(elements_set))
 
     elif fname_lower.endswith(".csv"):
+        from backend.ingestion.eds_extractor import STAT_LABEL_ALIASES
         content_str = file_bytes.decode("utf-8", errors="replace")
         lines = [l.strip() for l in content_str.splitlines() if l.strip()]
         if lines:
             headers = [h.strip() for h in lines[0].split(",")]
-            elements_set = set(h for h in headers if h not in ("Sr No.", "Spectrum", "Total"))
+            elements_set = set(h for h in headers if h not in ("Sr No.", "Spectrum", "Total", "In stats."))
             for line in lines[1:]:
                 vals = [v.strip() for v in line.split(",")]
+                if vals and vals[0].rstrip(".").lower() in STAT_LABEL_ALIASES:
+                    continue
                 row_comp = {}
                 for h, val in zip(headers, vals):
-                    if h in ("Sr No.", "Spectrum", "Total"):
+                    if h in ("Sr No.", "Spectrum", "Total", "In stats."):
                         continue
                     try:
                         row_comp[h] = float(val)
@@ -471,17 +579,35 @@ def extract_all_spectra_from_file(
             analysed_elements = sorted(list(elements_set))
 
     else:
-        raise ValueError(f"Unsupported file type '{filename}'. Supported: Excel (.xlsx, .xls), PDF, CSV, JSON.")
+        raise ValueError(
+            f"Unsupported file type '{filename}'. Supported: PDF (.pdf), Word (.docx, .doc), Excel (.xlsx, .xls), CSV, JSON."
+        )
 
     if not raw_spectra:
         raise ValueError("No valid spectral compositions found in file")
 
     cleaned_spectra: List[Dict[str, float]] = []
-    for s in raw_spectra:
-        clean_comp, _ = clean_numeric_composition(s, analysed_elements)
+    spectra_details = []
+    for idx, s in enumerate(raw_spectra, start=1):
+        clean_comp, _ = clean_numeric_composition(s, analysed_elements, auto_balance_fe=False)
         if clean_comp:
             cleaned_spectra.append(clean_comp)
+            spectra_details.append({
+                "index": len(cleaned_spectra),
+                "spectrum_id": str(len(cleaned_spectra)),
+                "label": f"Spectrum {len(cleaned_spectra)}",
+                "site_name": "Site 1",
+                "table_name": filename,
+                "page": 1,
+                "in_stats": "Yes",
+                "analysed_elements": analysed_elements,
+                "values": clean_comp,
+                "raw_table_values": {el: clean_comp.get(el) for el in analysed_elements},
+                "chemistry": None,
+                "surface_coating": None,
+            })
 
+    metadata["spectra_details"] = spectra_details
     metadata["spectra_count"] = len(cleaned_spectra)
     return cleaned_spectra, analysed_elements, metadata
 
@@ -498,19 +624,24 @@ def extract_composition_from_file(
 def clean_numeric_composition(
     raw_composition: Dict[str, Any],
     analysed_elements: Optional[List[str]] = None,
+    auto_balance_fe: bool = True,
 ) -> Tuple[Dict[str, float], List[str]]:
     """Clean and standardize elemental composition dictionary."""
     numeric_composition: Dict[str, float] = {}
     sum_non_fe = 0.0
     has_fe_explicit = False
+    has_fe_balance_request = False
 
     for k, v in raw_composition.items():
         if k in ("Total", "In stats.", "in_stats", "Spectrum", "spectrum"):
             continue
         elem = k.strip().capitalize() if len(k) <= 2 else k.strip()
-        if str(v).lower() in ("bal.", "bal", "balance", "--", "null", "none"):
+        s_val = str(v).strip().lower()
+        if s_val in ("bal.", "bal", "balance"):
             if elem == "Fe":
-                has_fe_explicit = False
+                has_fe_balance_request = True
+            continue
+        if s_val in ("--", "-", "null", "none", ""):
             continue
         try:
             val_float = float(v)
@@ -522,9 +653,12 @@ def clean_numeric_composition(
         except (ValueError, TypeError):
             continue
 
-    # Automatic Fe balance if not explicitly specified and likely steel
+    # Balance Fe when explicitly requested ("Bal.") or when auto_balance_fe is enabled on manual steel inputs
     if not has_fe_explicit:
-        if sum_non_fe < 98.0:
+        if has_fe_balance_request:
+            balance_fe = round(max(0.0, 100.0 - sum_non_fe), 2)
+            numeric_composition["Fe"] = balance_fe
+        elif auto_balance_fe and sum_non_fe < 95.0 and not any(m in numeric_composition for m in ("Cu", "Au", "Ag")):
             balance_fe = round(max(0.0, 100.0 - sum_non_fe), 2)
             numeric_composition["Fe"] = balance_fe
 
