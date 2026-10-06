@@ -244,3 +244,44 @@ class TestPhase8RuntimeAndDjangoEndpoints:
         v1_body = resp_v1.json()
         assert "internal_source_prediction" in v1_body
         assert v1_body["internal_source_prediction"]["prediction_status"] == "AMBIGUOUS"
+
+    def test_analyzer_single_card_ui_and_excel_template_workflow(self):
+        """Verify single 'Spectral Ingestion & Elemental wt%' section, dataset-driven element list, and Excel template round-trip."""
+        import io
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        client = Client()
+        resp = client.get("/analyzer/")
+        assert resp.status_code == 200
+        html = resp.content.decode("utf-8")
+
+        # 1. Must appear ONLY ONCE (not duplicated)
+        assert html.count("Spectral Ingestion & Elemental wt%") == 1
+        assert 'id="tab-btn-upload"' in html
+        assert 'id="tab-btn-manual"' in html
+        assert "Drag and drop EDS file here" in html
+        assert "Download Template" in html
+        assert "window.DATASET_ELEMENTS =" in html
+        # Verify unrelated periodic-table elements are NOT in DATASET_ELEMENTS
+        assert '"symbol": "Xe"' not in html
+        assert '"symbol": "U"' not in html
+
+        # 2. Download Excel template and round-trip through /api/extract and /api/analyze
+        tpl_resp = client.get("/api/template/excel")
+        assert tpl_resp.status_code == 200
+        xlsx_bytes = tpl_resp.content
+        assert len(xlsx_bytes) > 1000
+
+        upload_file = SimpleUploadedFile(
+            "Dhatu_Bodh_EDS_Template.xlsx",
+            xlsx_bytes,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        ext_resp = client.post("/api/extract", {"file": upload_file})
+        assert ext_resp.status_code == 200
+        ext_data = ext_resp.json()
+        assert ext_data["status"] == "extracted"
+        assert len(ext_data["spectra"]) == 1
+        assert ext_data["spectra"][0]["Fe"] == pytest.approx(97.6)
+        assert ext_data["spectra"][0]["Cr"] == pytest.approx(1.5)
+

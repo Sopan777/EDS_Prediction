@@ -2,16 +2,61 @@
  * static/js/analyzer.js
  * =====================
  * Controller for DHATU BODH EDS Analyzer screen.
- * Handles single/multi-spectrum input, drag-and-drop file ingestion,
- * Fe auto-balancing, declared material conflict detection, and prioritized
- * 7-step metallurgical results display.
+ * Handles single-card switchable Drag & Drop File (default) and Manual Elements
+ * (dataset-driven element list) modes, wt%/at% conversion, Fe auto-balancing,
+ * multi-spectrum pooling, and prioritized metallurgical results display.
  */
 
+// Dataset-supported elements injected from Excel dataset headers (never the full periodic table)
+const DEFAULT_DATASET_ELEMENTS = [
+  { symbol: 'Fe', name: 'Iron', atomic_weight: 55.845 },
+  { symbol: 'Cr', name: 'Chromium', atomic_weight: 51.996 },
+  { symbol: 'Ni', name: 'Nickel', atomic_weight: 58.693 },
+  { symbol: 'Mn', name: 'Manganese', atomic_weight: 54.938 },
+  { symbol: 'Si', name: 'Silicon', atomic_weight: 28.085 },
+  { symbol: 'C', name: 'Carbon', atomic_weight: 12.011 },
+  { symbol: 'Mo', name: 'Molybdenum', atomic_weight: 95.95 },
+  { symbol: 'Cu', name: 'Copper', atomic_weight: 63.546 },
+  { symbol: 'Sn', name: 'Tin', atomic_weight: 118.71 },
+  { symbol: 'Al', name: 'Aluminium', atomic_weight: 26.982 },
+  { symbol: 'Zn', name: 'Zinc', atomic_weight: 65.38 },
+  { symbol: 'W', name: 'Tungsten', atomic_weight: 183.84 },
+  { symbol: 'V', name: 'Vanadium', atomic_weight: 50.942 },
+  { symbol: 'Ti', name: 'Titanium', atomic_weight: 47.867 },
+  { symbol: 'Nb', name: 'Niobium', atomic_weight: 92.906 },
+  { symbol: 'Co', name: 'Cobalt', atomic_weight: 58.933 },
+  { symbol: 'N', name: 'Nitrogen', atomic_weight: 14.007 },
+  { symbol: 'O', name: 'Oxygen', atomic_weight: 15.999 },
+  { symbol: 'P', name: 'Phosphorus', atomic_weight: 30.974 },
+  { symbol: 'S', name: 'Sulfur', atomic_weight: 32.06 },
+  { symbol: 'Pb', name: 'Lead', atomic_weight: 207.2 },
+  { symbol: 'Au', name: 'Gold', atomic_weight: 196.967 },
+];
+
+function getDatasetElements() {
+  if (Array.isArray(window.DATASET_ELEMENTS) && window.DATASET_ELEMENTS.length > 0) {
+    return window.DATASET_ELEMENTS;
+  }
+  return DEFAULT_DATASET_ELEMENTS;
+}
+
+function getAtomicWeight(sym) {
+  const found = getDatasetElements().find(e => e.symbol === sym);
+  return found && found.atomic_weight ? found.atomic_weight : 55.845;
+}
+
+// State: each spectrum stores an ordered list of selected elements and their values
+let currentIngestMode = 'upload'; // 'upload' (default) | 'manual'
+let currentConcentrationUnit = 'wt%'; // 'wt%' | 'at%'
+let elementSearchQuery = '';
+
 let spectraListState = [
-  { Cr: 0, Ni: 0, Mn: 0, Si: 0, Fe: 'Bal.', extras: {} }
+  {
+    selectedOrder: ['Fe', 'Ni', 'V'],
+    values: { Fe: 'Bal.', Ni: 0, V: 0 },
+  }
 ];
 let activeSpectrumIdx = 0;
-let extraElementsState = {};
 let uploadedFileState = null;
 let currentPredictionData = null;
 let currentTopCandidate = null;
@@ -32,39 +77,155 @@ const FAMILY_NAME_MAP = {
   'F8b': 'Zinc-Phosphate Conversion Coated Steel',
 };
 
+/* =========================================================================
+   Mode Switching: [ Drag & Drop File ] vs [ Manual Elements ] in Single Card
+   ========================================================================= */
+
 function switchIngestTab(tab) {
+  currentIngestMode = tab === 'manual' ? 'manual' : 'upload';
   const btnUpload = document.getElementById('tab-btn-upload');
   const btnManual = document.getElementById('tab-btn-manual');
   const uploadSection = document.getElementById('section-file-upload');
+  const manualSection = document.getElementById('section-manual-elements');
 
-  if (tab === 'upload') {
-    uploadSection.classList.remove('hidden');
-    btnUpload.className = 'px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm transition-all';
-    btnManual.className = 'px-3 py-1 font-medium text-slate-600 hover:text-slate-900 transition-all';
+  const activeTabClass = 'py-2.5 px-4 font-bold bg-[#0F2537] text-white flex items-center justify-center gap-2 transition-all';
+  const inactiveTabClass = 'py-2.5 px-4 font-semibold bg-slate-50 text-slate-700 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all';
+
+  if (currentIngestMode === 'upload') {
+    if (uploadSection) uploadSection.classList.remove('hidden');
+    if (manualSection) manualSection.classList.add('hidden');
+    if (btnUpload) btnUpload.className = activeTabClass;
+    if (btnManual) btnManual.className = inactiveTabClass + ' border-l border-slate-200';
   } else {
-    uploadSection.classList.add('hidden');
-    btnManual.className = 'px-3 py-1 font-semibold rounded bg-white text-slate-900 shadow-sm transition-all';
-    btnUpload.className = 'px-3 py-1 font-medium text-slate-600 hover:text-slate-900 transition-all';
+    if (uploadSection) uploadSection.classList.add('hidden');
+    if (manualSection) manualSection.classList.remove('hidden');
+    if (btnUpload) btnUpload.className = inactiveTabClass;
+    if (btnManual) btnManual.className = activeTabClass + ' border-l border-slate-200';
+    renderManualElementsUI();
   }
 }
+window.switchIngestTab = switchIngestTab;
 
-// Drag & Drop Setup
+/* =========================================================================
+   wt% / at% Unit Toggle & Stoichiometric Conversion
+   ========================================================================= */
+
+function setConcentrationUnit(unit) {
+  if (unit !== 'wt%' && unit !== 'at%') return;
+  if (unit === currentConcentrationUnit) return;
+
+  const prevUnit = currentConcentrationUnit;
+  currentConcentrationUnit = unit;
+
+  const btnWt = document.getElementById('unit-btn-wt');
+  const btnAt = document.getElementById('unit-btn-at');
+  const unitLabel = document.getElementById('concentration-unit-label');
+
+  const activeUnitClass = 'px-3 py-1 font-bold rounded-md bg-blue-50 text-blue-900 border border-blue-400 shadow-2xs transition-all';
+  const inactiveUnitClass = 'px-3 py-1 font-medium rounded-md text-slate-600 hover:text-slate-900 border border-transparent transition-all';
+
+  if (unit === 'wt%') {
+    if (btnWt) btnWt.className = activeUnitClass;
+    if (btnAt) btnAt.className = inactiveUnitClass;
+  } else {
+    if (btnAt) btnAt.className = activeUnitClass;
+    if (btnWt) btnWt.className = inactiveUnitClass;
+  }
+  if (unitLabel) unitLabel.textContent = unit;
+
+  // Convert existing numeric concentrations in spectraListState
+  spectraListState.forEach(spec => {
+    spec.values = convertSpectrumUnits(spec.values, prevUnit, unit);
+  });
+
+  renderSelectedElementInputs();
+}
+window.setConcentrationUnit = setConcentrationUnit;
+
+function convertSpectrumUnits(valuesObj, fromUnit, toUnit) {
+  if (fromUnit === toUnit) return { ...valuesObj };
+  const result = { ...valuesObj };
+  const numericEntries = [];
+  let sumNumeric = 0;
+  let hasFeBalance = false;
+
+  for (const [sym, val] of Object.entries(valuesObj)) {
+    if (sym === 'Fe' && String(val).toLowerCase().startsWith('bal')) {
+      hasFeBalance = true;
+      continue;
+    }
+    const num = parseFloat(val);
+    if (!isNaN(num) && num > 0) {
+      numericEntries.push([sym, num]);
+      sumNumeric += num;
+    }
+  }
+
+  if (numericEntries.length === 0) return result;
+  if (hasFeBalance && sumNumeric < 100) {
+    numericEntries.push(['Fe', Math.max(0, 100 - sumNumeric)]);
+  }
+
+  if (fromUnit === 'wt%' && toUnit === 'at%') {
+    // moles_i = wt_i / AW_i
+    const moles = numericEntries.map(([sym, wt]) => [sym, wt / getAtomicWeight(sym)]);
+    const totalMoles = moles.reduce((acc, [, m]) => acc + m, 0);
+    if (totalMoles > 0) {
+      moles.forEach(([sym, m]) => {
+        if (sym === 'Fe' && hasFeBalance) {
+          result[sym] = 'Bal.';
+        } else {
+          result[sym] = Math.round(((m / totalMoles) * 100) * 100) / 100;
+        }
+      });
+    }
+  } else if (fromUnit === 'at%' && toUnit === 'wt%') {
+    // mass_i = at_i * AW_i
+    const masses = numericEntries.map(([sym, at]) => [sym, at * getAtomicWeight(sym)]);
+    const totalMass = masses.reduce((acc, [, m]) => acc + m, 0);
+    if (totalMass > 0) {
+      masses.forEach(([sym, m]) => {
+        if (sym === 'Fe' && hasFeBalance) {
+          result[sym] = 'Bal.';
+        } else {
+          result[sym] = Math.round(((m / totalMass) * 100) * 100) / 100;
+        }
+      });
+    }
+  }
+
+  return result;
+}
+
+/* =========================================================================
+   Initialization & Drag-and-Drop Setup
+   ========================================================================= */
+
 document.addEventListener('DOMContentLoaded', () => {
-  renderSpectrumTabs();
+  // Default on page load: Drag & Drop File mode
+  switchIngestTab('upload');
+  renderManualElementsUI();
+
+  const countBadge = document.getElementById('dataset-elements-count-badge');
+  if (countBadge) {
+    countBadge.textContent = `${getDatasetElements().length} supported dataset elements`;
+  }
 
   const dropZone = document.getElementById('drop-zone');
   if (dropZone) {
     ['dragenter', 'dragover'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
-        dropZone.classList.add('border-slate-500', 'bg-slate-100');
+        e.stopPropagation();
+        dropZone.classList.add('border-blue-500', 'bg-blue-50/40');
       });
     });
 
     ['dragleave', 'drop'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
-        dropZone.classList.remove('border-slate-500', 'bg-slate-100');
+        e.stopPropagation();
+        dropZone.classList.remove('border-blue-500', 'bg-blue-50/40');
       });
     });
 
@@ -77,7 +238,221 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================================================
-   Spectrum & Composition State Management
+   Manual Elements Mode: Dataset-Driven Element Grid & Concentration Inputs
+   ========================================================================= */
+
+function getActiveSpectrum() {
+  if (!spectraListState[activeSpectrumIdx]) {
+    spectraListState[activeSpectrumIdx] = {
+      selectedOrder: ['Fe'],
+      values: { Fe: 'Bal.' },
+    };
+  }
+  return spectraListState[activeSpectrumIdx];
+}
+
+function renderManualElementsUI() {
+  renderSpectrumTabs();
+  renderSelectableElementsGrid();
+  renderSelectedElementInputs();
+  updateUnselectedElementsHint();
+}
+
+function filterSelectableElements(query) {
+  elementSearchQuery = (query || '').trim().toLowerCase();
+  renderSelectableElementsGrid();
+}
+window.filterSelectableElements = filterSelectableElements;
+
+function renderSelectableElementsGrid() {
+  const grid = document.getElementById('selectable-elements-grid');
+  if (!grid) return;
+
+  const activeSpec = getActiveSpectrum();
+  const selectedSet = new Set(activeSpec.selectedOrder);
+  const allElements = getDatasetElements();
+
+  const filtered = allElements.filter(item => {
+    if (!elementSearchQuery) return true;
+    return (
+      item.symbol.toLowerCase().includes(elementSearchQuery) ||
+      (item.name && item.name.toLowerCase().includes(elementSearchQuery))
+    );
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full py-3 text-center text-xs text-slate-400">
+        No dataset element matches "${elementSearchQuery}".
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => {
+    const sym = item.symbol;
+    const isSelected = selectedSet.has(sym);
+
+    if (isSelected) {
+      return `
+        <button type="button" onclick="toggleElementSelection('${sym}')" title="${item.name} (${sym}) — Click to remove"
+          class="px-2.5 py-2 rounded-lg bg-blue-50 border-2 border-blue-500 text-blue-950 font-bold text-xs flex items-center justify-between gap-1 shadow-2xs transition-all">
+          <span>${sym}</span>
+          <span class="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] leading-none shrink-0">✓</span>
+        </button>
+      `;
+    } else {
+      return `
+        <button type="button" onclick="toggleElementSelection('${sym}')" title="${item.name} (${sym}) — Click to select"
+          class="px-2.5 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center transition-all">
+          <span>${sym}</span>
+        </button>
+      `;
+    }
+  }).join('');
+}
+
+function toggleElementSelection(sym) {
+  const activeSpec = getActiveSpectrum();
+  const idx = activeSpec.selectedOrder.indexOf(sym);
+
+  if (idx >= 0) {
+    activeSpec.selectedOrder.splice(idx, 1);
+    delete activeSpec.values[sym];
+  } else {
+    activeSpec.selectedOrder.push(sym);
+    activeSpec.values[sym] = sym === 'Fe' ? 'Bal.' : 0;
+  }
+
+  uploadedFileState = null; // Manual edit supersedes raw file upload
+  renderSelectableElementsGrid();
+  renderSelectedElementInputs();
+  updateUnselectedElementsHint();
+}
+window.toggleElementSelection = toggleElementSelection;
+
+function removeSelectedElement(sym) {
+  const activeSpec = getActiveSpectrum();
+  const idx = activeSpec.selectedOrder.indexOf(sym);
+  if (idx >= 0) {
+    activeSpec.selectedOrder.splice(idx, 1);
+    delete activeSpec.values[sym];
+    uploadedFileState = null;
+    renderSelectableElementsGrid();
+    renderSelectedElementInputs();
+    updateUnselectedElementsHint();
+  }
+}
+window.removeSelectedElement = removeSelectedElement;
+
+function clearAllSelectedElements() {
+  const activeSpec = getActiveSpectrum();
+  activeSpec.selectedOrder = [];
+  activeSpec.values = {};
+  uploadedFileState = null;
+  renderSelectableElementsGrid();
+  renderSelectedElementInputs();
+  updateUnselectedElementsHint();
+}
+window.clearAllSelectedElements = clearAllSelectedElements;
+
+function updateElementConcentration(sym, rawValue) {
+  const activeSpec = getActiveSpectrum();
+  uploadedFileState = null;
+  if (sym === 'Fe' && String(rawValue).trim().toLowerCase().startsWith('bal')) {
+    activeSpec.values['Fe'] = 'Bal.';
+  } else {
+    const parsed = parseFloat(rawValue);
+    activeSpec.values[sym] = isNaN(parsed) ? 0 : parsed;
+  }
+}
+window.updateElementConcentration = updateElementConcentration;
+
+function renderSelectedElementInputs() {
+  const grid = document.getElementById('selected-elements-inputs-grid');
+  if (!grid) return;
+
+  const activeSpec = getActiveSpectrum();
+  const cardsHtml = activeSpec.selectedOrder.map(sym => {
+    const val = activeSpec.values[sym] !== undefined ? activeSpec.values[sym] : (sym === 'Fe' ? 'Bal.' : 0);
+    const isFe = sym === 'Fe';
+
+    if (isFe) {
+      return `
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-800">${sym}</label>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="autoBalanceFe()" class="text-[10px] font-bold text-[#ED0007] hover:underline" title="Auto-balance Fe to 100%">
+                Balance
+              </button>
+              <button type="button" onclick="removeSelectedElement('${sym}')" class="text-xs text-slate-400 hover:text-rose-600 font-bold leading-none" title="Remove ${sym}">
+                ×
+              </button>
+            </div>
+          </div>
+          <input type="text" id="input-el-${sym}" value="${val}" placeholder="Bal."
+            onchange="updateElementConcentration('${sym}', this.value)"
+            class="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-right font-mono-code text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-600">
+        </div>
+      `;
+    }
+
+    return `
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-xs font-bold text-slate-800">${sym}</label>
+          <button type="button" onclick="removeSelectedElement('${sym}')" class="text-xs text-slate-400 hover:text-rose-600 font-bold leading-none" title="Remove ${sym}">
+            ×
+          </button>
+        </div>
+        <input type="number" step="0.01" min="0" max="100" id="input-el-${sym}" value="${val}" placeholder="0"
+          onchange="updateElementConcentration('${sym}', this.value)"
+          class="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-right font-mono-code text-sm font-semibold text-slate-900 focus:outline-none focus:border-slate-600">
+      </div>
+    `;
+  });
+
+  // Append the "+ Add Element" card at the end of the concentration grid (matching screenshot)
+  cardsHtml.push(`
+    <button type="button" onclick="focusElementSearch()"
+      class="border border-dashed border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-lg p-2.5 flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-slate-900 transition-colors min-h-[68px]">
+      <span class="material-symbols-outlined text-[18px] text-slate-500">add_circle</span>
+      <span class="text-xs font-semibold">Add Element</span>
+    </button>
+  `);
+
+  grid.innerHTML = cardsHtml.join('');
+}
+
+function updateUnselectedElementsHint() {
+  const hintEl = document.getElementById('unselected-elements-hint');
+  if (!hintEl) return;
+  const activeSpec = getActiveSpectrum();
+  const selectedSet = new Set(activeSpec.selectedOrder);
+  const unselected = getDatasetElements()
+    .map(e => e.symbol)
+    .filter(sym => !selectedSet.has(sym));
+
+  if (unselected.length === 0) {
+    hintEl.textContent = 'All dataset elements selected';
+  } else {
+    const preview = unselected.slice(0, 10).join(', ');
+    hintEl.textContent = `Add Element (${preview}${unselected.length > 10 ? ', ...' : ''})`;
+  }
+}
+
+function focusElementSearch() {
+  const searchInput = document.getElementById('element-search-input');
+  if (searchInput) {
+    searchInput.focus();
+    searchInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+window.focusElementSearch = focusElementSearch;
+
+/* =========================================================================
+   Multi-Spectrum Pooling Tabs & Fe Auto-Balance
    ========================================================================= */
 
 function renderSpectrumTabs() {
@@ -86,8 +461,8 @@ function renderSpectrumTabs() {
 
   container.innerHTML = spectraListState.map((spec, idx) => {
     const isActive = idx === activeSpectrumIdx;
-    const activeClass = 'px-2.5 py-1 text-xs font-bold rounded bg-slate-900 text-white shadow-sm transition-all';
-    const inactiveClass = 'px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all';
+    const activeClass = 'px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#0F2537] text-white shadow-2xs transition-all';
+    const inactiveClass = 'px-2.5 py-1 text-[11px] font-medium rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all';
 
     return `
       <button type="button" onclick="switchSpectrumTab(${idx})" class="${isActive ? activeClass : inactiveClass}">
@@ -96,107 +471,156 @@ function renderSpectrumTabs() {
     `;
   }).join('');
 
-  const badge = document.getElementById('active-spectrum-badge');
-  if (badge) {
-    const total = spectraListState.length;
-    badge.textContent = total > 1 ? `Editing Spectrum ${activeSpectrumIdx + 1} of ${total}` : 'Spectrum 1';
-  }
-
   const delBtn = document.getElementById('btn-delete-spectrum');
   if (delBtn) {
     delBtn.classList.toggle('hidden', spectraListState.length <= 1);
   }
 }
 
-function syncCurrentSpectrumFromInputs() {
-  if (!spectraListState[activeSpectrumIdx]) return;
-  spectraListState[activeSpectrumIdx] = {
-    Cr: parseFloat(document.getElementById('input-cr').value) || 0,
-    Ni: parseFloat(document.getElementById('input-ni').value) || 0,
-    Mn: parseFloat(document.getElementById('input-mn').value) || 0,
-    Si: parseFloat(document.getElementById('input-si').value) || 0,
-    Fe: document.getElementById('input-fe').value || 'Bal.',
-    extras: { ...extraElementsState },
-  };
-}
-
-function loadSpectrumToInputs(idx) {
-  if (!spectraListState[idx]) return;
-  const spec = spectraListState[idx];
-  document.getElementById('input-cr').value = spec.Cr !== undefined ? spec.Cr : 0;
-  document.getElementById('input-ni').value = spec.Ni !== undefined ? spec.Ni : 0;
-  document.getElementById('input-mn').value = spec.Mn !== undefined ? spec.Mn : 0;
-  document.getElementById('input-si').value = spec.Si !== undefined ? spec.Si : 0;
-  document.getElementById('input-fe').value = spec.Fe !== undefined ? spec.Fe : 'Bal.';
-
-  extraElementsState = { ...(spec.extras || {}) };
-  renderExtraElements();
-}
-
 function switchSpectrumTab(idx) {
-  if (idx === activeSpectrumIdx) return;
-  syncCurrentSpectrumFromInputs();
+  if (idx === activeSpectrumIdx || !spectraListState[idx]) return;
   activeSpectrumIdx = idx;
-  loadSpectrumToInputs(idx);
-  renderSpectrumTabs();
+  renderManualElementsUI();
 }
+window.switchSpectrumTab = switchSpectrumTab;
 
 function addNewSpectrumTab() {
-  syncCurrentSpectrumFromInputs();
-  const clonedExtras = {};
-  for (const k of Object.keys(extraElementsState)) {
-    clonedExtras[k] = 0;
-  }
+  const curr = getActiveSpectrum();
+  const newOrder = [...curr.selectedOrder];
+  const newValues = {};
+  newOrder.forEach(sym => {
+    newValues[sym] = sym === 'Fe' ? 'Bal.' : 0;
+  });
   spectraListState.push({
-    Cr: 0,
-    Ni: 0,
-    Mn: 0,
-    Si: 0,
-    Fe: 'Bal.',
-    extras: clonedExtras,
+    selectedOrder: newOrder,
+    values: newValues,
   });
   activeSpectrumIdx = spectraListState.length - 1;
-  loadSpectrumToInputs(activeSpectrumIdx);
-  renderSpectrumTabs();
+  renderManualElementsUI();
 }
+window.addNewSpectrumTab = addNewSpectrumTab;
 
 function removeCurrentSpectrumTab() {
   if (spectraListState.length <= 1) return;
   spectraListState.splice(activeSpectrumIdx, 1);
   activeSpectrumIdx = Math.max(0, activeSpectrumIdx - 1);
-  loadSpectrumToInputs(activeSpectrumIdx);
-  renderSpectrumTabs();
+  renderManualElementsUI();
 }
+window.removeCurrentSpectrumTab = removeCurrentSpectrumTab;
 
 function autoBalanceFe() {
-  syncCurrentSpectrumFromInputs();
-  const cr = parseFloat(document.getElementById('input-cr').value) || 0;
-  const ni = parseFloat(document.getElementById('input-ni').value) || 0;
-  const mn = parseFloat(document.getElementById('input-mn').value) || 0;
-  const si = parseFloat(document.getElementById('input-si').value) || 0;
-  
-  let extrasSum = 0;
-  for (const v of Object.values(extraElementsState)) {
-    extrasSum += (parseFloat(v) || 0);
+  const activeSpec = getActiveSpectrum();
+  if (!activeSpec.selectedOrder.includes('Fe')) {
+    activeSpec.selectedOrder.unshift('Fe');
   }
 
-  const sumOther = cr + ni + mn + si + extrasSum;
-  const feRem = Math.max(0, Math.round((100 - sumOther) * 100) / 100);
-  document.getElementById('input-fe').value = feRem.toFixed(2);
-  syncCurrentSpectrumFromInputs();
-}
+  let sumOthers = 0;
+  for (const sym of activeSpec.selectedOrder) {
+    if (sym === 'Fe') continue;
+    const val = parseFloat(activeSpec.values[sym]);
+    if (!isNaN(val) && val > 0) {
+      sumOthers += val;
+    }
+  }
 
-function handleFileSelected(file) {
+  const feRem = Math.max(0, Math.round((100 - sumOthers) * 100) / 100);
+  activeSpec.values['Fe'] = feRem.toFixed(2);
+  uploadedFileState = null;
+  renderSelectableElementsGrid();
+  renderSelectedElementInputs();
+  updateUnselectedElementsHint();
+}
+window.autoBalanceFe = autoBalanceFe;
+
+/* =========================================================================
+   File Upload & Extraction (Drag & Drop Mode)
+   ========================================================================= */
+
+async function handleFileSelected(file) {
   if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    alert('File exceeds the maximum allowed size of 10 MB.');
+    return;
+  }
+
   uploadedFileState = file;
 
   const statusText = document.getElementById('upload-status-text');
+  const subStatusText = document.getElementById('upload-substatus-text');
   if (statusText) {
-    statusText.innerHTML = `Loaded: <strong class="text-slate-900">${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+    statusText.innerHTML = `Selected: <span class="text-blue-700">${file.name}</span>`;
+  }
+  if (subStatusText) {
+    subStatusText.textContent = `File size: ${(file.size / 1024).toFixed(1)} KB — Extracting elemental composition...`;
   }
 
-  triggerPrediction();
+  // Extract elemental composition from the uploaded Excel/EDS file
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/extract', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCSRFToken() },
+      body: fd,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (subStatusText) {
+        subStatusText.innerHTML = `<span class="text-rose-600 font-semibold">${data.error || 'Could not extract EDS spectra from file.'}</span>`;
+      }
+      return;
+    }
+
+    // Populate spectraListState with the extracted spectra
+    if (Array.isArray(data.spectra) && data.spectra.length > 0) {
+      currentConcentrationUnit = 'wt%';
+      setConcentrationUnit('wt%');
+      spectraListState = data.spectra.map(specObj => {
+        const order = Object.keys(specObj);
+        const vals = {};
+        order.forEach(sym => {
+          vals[sym] = Math.round( parseFloat(specObj[sym]) * 100 ) / 100;
+        });
+        return { selectedOrder: order, values: vals };
+      });
+      activeSpectrumIdx = 0;
+      renderManualElementsUI();
+
+      // Populate optional Declared Material if present in file metadata
+      if (data.metadata && data.metadata.declared_material) {
+        const declInput = document.getElementById('input-declared-material');
+        if (declInput && !declInput.value) {
+          declInput.value = data.metadata.declared_material;
+        }
+      }
+
+      // Show extracted preview banner inside Drag & Drop card
+      const previewBox = document.getElementById('file-extracted-preview');
+      const previewTitle = document.getElementById('extracted-file-title');
+      const badgesContainer = document.getElementById('extracted-elements-badges');
+      if (previewBox && badgesContainer) {
+        previewBox.classList.remove('hidden');
+        if (previewTitle) {
+          previewTitle.textContent = `Extracted ${data.spectra.length} spectrum${data.spectra.length > 1 ? 's' : ''} from ${file.name} — Ready to Analyze`;
+        }
+        const firstSpec = data.spectra[0];
+        badgesContainer.innerHTML = Object.entries(firstSpec)
+          .map(([sym, wt]) => `<span class="px-2 py-0.5 rounded bg-white border border-emerald-300 text-[11px] font-mono-code font-bold text-slate-800">${sym}: ${Number(wt).toFixed(2)}%</span>`)
+          .join('');
+      }
+      if (subStatusText) {
+        subStatusText.textContent = `Composition extracted (${data.analysed_elements.join(', ')}). Click "Analyze EDS Spectrum" to run prediction.`;
+      }
+    }
+  } catch (err) {
+    console.error('File extraction error:', err);
+  }
 }
+window.handleFileSelected = handleFileSelected;
+
+/* =========================================================================
+   Preset Application & Form Reset
+   ========================================================================= */
 
 function applyPreset(presetId) {
   if (!presetId || !window.PRESETS_DATA) return;
@@ -204,87 +628,61 @@ function applyPreset(presetId) {
   if (!preset) return;
 
   const comp = preset.composition || {};
-  document.getElementById('input-cr').value = comp.Cr || 0;
-  document.getElementById('input-ni').value = comp.Ni || 0;
-  document.getElementById('input-mn').value = comp.Mn || 0;
-  document.getElementById('input-si').value = comp.Si || 0;
-  document.getElementById('input-fe').value = comp.Fe !== undefined ? comp.Fe : 'Bal.';
+  const selectedOrder = [];
+  const values = {};
 
-  extraElementsState = {};
+  if (comp.Fe !== undefined) {
+    selectedOrder.push('Fe');
+    values['Fe'] = comp.Fe;
+  } else {
+    selectedOrder.push('Fe');
+    values['Fe'] = 'Bal.';
+  }
+
   for (const [k, v] of Object.entries(comp)) {
-    if (!['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k) && typeof v === 'number') {
-      extraElementsState[k] = v;
+    if (k === 'Fe') continue;
+    if (typeof v === 'number' && v > 0) {
+      selectedOrder.push(k);
+      values[k] = v;
     }
   }
-  renderExtraElements();
-  syncCurrentSpectrumFromInputs();
+
+  uploadedFileState = null;
+  currentConcentrationUnit = 'wt%';
+  spectraListState[activeSpectrumIdx] = { selectedOrder, values };
+  switchIngestTab('manual');
+  renderManualElementsUI();
 }
-
-function showAddElementForm(show) {
-  document.getElementById('btn-show-add-element').classList.toggle('hidden', show);
-  document.getElementById('add-element-form').classList.toggle('hidden', !show);
-}
-
-function confirmAddExtraElement() {
-  const select = document.getElementById('new-element-select');
-  const input = document.getElementById('new-element-val');
-  const elem = select.value;
-  const val = parseFloat(input.value);
-
-  if (!isNaN(val) && elem) {
-    extraElementsState[elem] = val;
-    input.value = '';
-    showAddElementForm(false);
-    renderExtraElements();
-    syncCurrentSpectrumFromInputs();
-  }
-}
-
-function removeExtraElement(elem) {
-  delete extraElementsState[elem];
-  renderExtraElements();
-  syncCurrentSpectrumFromInputs();
-}
-
-function renderExtraElements() {
-  const container = document.getElementById('extra-elements-container');
-  const grid = document.getElementById('extra-elements-grid');
-  const keys = Object.keys(extraElementsState);
-
-  if (keys.length === 0) {
-    container.classList.add('hidden');
-    grid.innerHTML = '';
-    return;
-  }
-
-  container.classList.remove('hidden');
-  grid.innerHTML = keys.map(elem => `
-    <div class="bg-slate-50 border border-slate-200 rounded p-2.5 relative group">
-      <div class="flex items-center justify-between mb-1">
-        <label class="text-xs font-bold text-slate-700">${elem}</label>
-        <button type="button" onclick="removeExtraElement('${elem}')" class="text-[10px] text-rose-500 hover:text-rose-700 font-bold" title="Remove element">✕</button>
-      </div>
-      <input type="number" step="0.01" value="${extraElementsState[elem]}" onchange="extraElementsState['${elem}'] = parseFloat(this.value)||0; syncCurrentSpectrumFromInputs();" class="w-full bg-white border border-slate-300 rounded px-2 py-1.5 text-right font-mono-code text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-600">
-    </div>
-  `).join('');
-}
+window.applyPreset = applyPreset;
 
 function clearAnalyzerForm() {
   uploadedFileState = null;
-  extraElementsState = {};
+  currentConcentrationUnit = 'wt%';
+  elementSearchQuery = '';
+  const searchInput = document.getElementById('element-search-input');
+  if (searchInput) searchInput.value = '';
+
   spectraListState = [
-    { Cr: 0, Ni: 0, Mn: 0, Si: 0, Fe: 'Bal.', extras: {} }
+    {
+      selectedOrder: ['Fe', 'Ni', 'V'],
+      values: { Fe: 'Bal.', Ni: 0, V: 0 },
+    }
   ];
   activeSpectrumIdx = 0;
-  loadSpectrumToInputs(0);
-  renderSpectrumTabs();
+  renderManualElementsUI();
 
   const fileInput = document.getElementById('eds-file-input');
   if (fileInput) fileInput.value = '';
   const statusText = document.getElementById('upload-status-text');
-  if (statusText) statusText.textContent = 'Drag & Drop EDS Report or Click to Browse';
+  if (statusText) statusText.textContent = 'Drag and drop EDS file here';
+  const subStatusText = document.getElementById('upload-substatus-text');
+  if (subStatusText) subStatusText.textContent = 'Supports Excel files (.xlsx, .xls). Max size 10 MB.';
+  const previewBox = document.getElementById('file-extracted-preview');
+  if (previewBox) previewBox.classList.add('hidden');
   const declaredInput = document.getElementById('input-declared-material');
   if (declaredInput) declaredInput.value = '';
+  const presetSelector = document.getElementById('preset-selector');
+  if (presetSelector) presetSelector.value = '';
 
   document.getElementById('awaiting-analysis-card').classList.remove('hidden');
   document.getElementById('analysis-results-card').classList.add('hidden');
@@ -312,7 +710,7 @@ async function triggerPrediction() {
 
   try {
     let res;
-    if (uploadedFileState) {
+    if (currentIngestMode === 'upload' && uploadedFileState) {
       const fd = new FormData();
       fd.append('file', uploadedFileState);
       if (declaredMaterial) {
@@ -324,29 +722,33 @@ async function triggerPrediction() {
         body: fd,
       });
     } else {
-      syncCurrentSpectrumFromInputs();
-
+      // Build payload from Manual Elements state (converting at% -> wt% if needed)
       const spectraPayload = spectraListState.map(spec => {
-        const item = {
-          Cr: spec.Cr || 0,
-          Ni: spec.Ni || 0,
-          Mn: spec.Mn || 0,
-          Si: spec.Si || 0,
-          Fe: spec.Fe || 'Bal.',
-        };
-        for (const [k, v] of Object.entries(spec.extras || {})) {
-          item[k] = v;
-        }
+        const wtValues = currentConcentrationUnit === 'at%'
+          ? convertSpectrumUnits(spec.values, 'at%', 'wt%')
+          : { ...spec.values };
+
+        const item = {};
+        spec.selectedOrder.forEach(sym => {
+          if (wtValues[sym] !== undefined) {
+            item[sym] = wtValues[sym];
+          }
+        });
         return item;
       });
 
       const hasData = spectraPayload.some(s => {
-        return (s.Cr || 0) + (s.Ni || 0) + (s.Mn || 0) + (s.Si || 0) +
-          Object.entries(s).filter(([k]) => !['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k)).reduce((acc, [, v]) => acc + (typeof v === 'number' ? v : 0), 0) > 0;
+        const keys = Object.keys(s);
+        if (keys.length === 0) return false;
+        const nonFePositive = keys
+          .filter(k => k !== 'Fe')
+          .reduce((acc, k) => acc + (parseFloat(s[k]) || 0), 0);
+        const explicitFe = s.Fe !== undefined && !String(s.Fe).toLowerCase().startsWith('bal') && parseFloat(s.Fe) > 0;
+        return nonFePositive > 0 || explicitFe;
       });
 
       if (!hasData) {
-        alert('Please enter elemental concentrations (wt%) or select a reference preset to perform analysis.');
+        alert('Please select elements and enter their concentrations (or upload an EDS Excel file) before running analysis.');
         return;
       }
 
@@ -371,27 +773,19 @@ async function triggerPrediction() {
 
     currentPredictionData = data;
 
-    // Populate extracted multi-spectrum data back into tabs if file uploaded
-    if (data.allSpectra && data.allSpectra.length > 0) {
-      spectraListState = data.allSpectra.map(spec => {
-        const extras = {};
-        for (const [k, v] of Object.entries(spec)) {
-          if (!['Cr', 'Ni', 'Mn', 'Si', 'Fe', 'C'].includes(k) && typeof v === 'number') {
-            extras[k] = v;
-          }
-        }
-        return {
-          Cr: spec.Cr !== undefined ? spec.Cr : 0,
-          Ni: spec.Ni !== undefined ? spec.Ni : 0,
-          Mn: spec.Mn !== undefined ? spec.Mn : 0,
-          Si: spec.Si !== undefined ? spec.Si : 0,
-          Fe: spec.Fe !== undefined ? spec.Fe : 'Bal.',
-          extras,
-        };
+    // Sync extracted spectra into Manual Elements state when analyzed from file
+    const extractedList = data.extracted_spectra || data.allSpectra;
+    if (Array.isArray(extractedList) && extractedList.length > 0 && currentIngestMode === 'upload') {
+      spectraListState = extractedList.map(specObj => {
+        const order = Object.keys(specObj);
+        const vals = {};
+        order.forEach(sym => {
+          vals[sym] = Math.round(parseFloat(specObj[sym]) * 100) / 100;
+        });
+        return { selectedOrder: order, values: vals };
       });
       activeSpectrumIdx = 0;
-      loadSpectrumToInputs(0);
-      renderSpectrumTabs();
+      renderManualElementsUI();
     }
 
     renderPredictionResults(data, ((performance.now() - start) / 1000).toFixed(2));

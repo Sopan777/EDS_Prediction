@@ -10,6 +10,8 @@ from apps.knowledge.models import AlloyPreset
 from services.eds.extractor import (
     extract_all_spectra_from_file,
     clean_numeric_composition,
+    get_dataset_supported_elements,
+    generate_excel_template_bytes,
     HAVE_PDF,
 )
 from services.prediction.engine import run_prediction
@@ -60,13 +62,53 @@ def analyzer_view(request: HttpRequest) -> HttpResponse:
         except Exception:
             presets = []
 
+    dataset_elements = get_dataset_supported_elements()
     context = {
         'families': families,
         'active_family': active_family,
         'presets': [p.to_dict() for p in presets],
+        'dataset_elements': dataset_elements,
+        'dataset_elements_json': json.dumps(dataset_elements),
         'current_section': 'analyzer',
     }
     return render(request, 'analyzer/index.html', context)
+
+
+def download_excel_template_api(request: HttpRequest) -> HttpResponse:
+    """Serve the standard Excel (.xlsx) template with columns for the dataset's supported elements."""
+    xlsx_bytes = generate_excel_template_bytes()
+    response = HttpResponse(
+        xlsx_bytes,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename="Dhatu_Bodh_EDS_Template.xlsx"'
+    return response
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ExtractEDSFileAPIView(View):
+    """Extract elemental composition from an uploaded Excel/EDS file without running full prediction yet."""
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file provided'}, status=400)
+        uploaded_file = request.FILES['file']
+        if uploaded_file.size > 10 * 1024 * 1024:
+            return JsonResponse({'error': 'File exceeds maximum size of 10 MB.'}, status=400)
+        try:
+            file_bytes = uploaded_file.read()
+            spectra_list, analysed_elements, meta = extract_all_spectra_from_file(
+                file_bytes, uploaded_file.name
+            )
+            return JsonResponse({
+                'status': 'extracted',
+                'filename': uploaded_file.name,
+                'spectra': spectra_list,
+                'analysed_elements': analysed_elements,
+                'metadata': meta,
+            })
+        except Exception as err:
+            return JsonResponse({'error': f'Failed to extract composition from file: {str(err)}'}, status=400)
 
 
 def health_api(request: HttpRequest) -> JsonResponse:
@@ -90,6 +132,7 @@ class AnalyzeAPIView(View):
         source_filename = None
         source_type = 'manual_entry'
         body = {}
+        file_meta = {}
 
         if 'file' in request.FILES:
             uploaded_file = request.FILES['file']
@@ -97,7 +140,7 @@ class AnalyzeAPIView(View):
             source_type = 'file_upload'
             try:
                 file_bytes = uploaded_file.read()
-                spectra_list, analysed_elements, meta = extract_all_spectra_from_file(
+                spectra_list, analysed_elements, file_meta = extract_all_spectra_from_file(
                     file_bytes, source_filename
                 )
             except Exception as err:
@@ -136,21 +179,25 @@ class AnalyzeAPIView(View):
             request.GET.get('declared_material')
             or request.POST.get('declared_material')
             or (body.get('declared_material') if isinstance(body, dict) else None)
+            or file_meta.get('declared_material')
         )
         chemistry = (
             request.GET.get('chemistry')
             or request.POST.get('chemistry')
             or (body.get('chemistry') if isinstance(body, dict) else None)
+            or file_meta.get('chemistry')
         )
         surface_coating = (
             request.GET.get('surface_coating')
             or request.POST.get('surface_coating')
             or (body.get('surface_coating') if isinstance(body, dict) else None)
+            or file_meta.get('surface_coating')
         )
         location = (
             request.GET.get('location')
             or request.POST.get('location')
             or (body.get('location') if isinstance(body, dict) else None)
+            or file_meta.get('location')
         )
 
         if not spectra_list:
@@ -167,6 +214,8 @@ class AnalyzeAPIView(View):
                 surface_coating=surface_coating,
                 location=location,
             )
+            result['extracted_spectra'] = spectra_list
+            result['extracted_elements'] = analysed_elements
             return JsonResponse(result)
         except Exception as err:
             return JsonResponse({'error': f'Prediction execution failed: {str(err)}'}, status=500)

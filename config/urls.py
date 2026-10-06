@@ -14,6 +14,8 @@ from apps.analyzer.views import (
     analyzer_view,
     health_api,
     AnalyzeAPIView,
+    ExtractEDSFileAPIView,
+    download_excel_template_api,
     PresetsAPIView,
     list_components_api,
     get_component_detail_api,
@@ -55,6 +57,8 @@ urlpatterns = [
     # REST / JSON APIs (Backwards compatible with React and Python clients)
     path('api/health', health_api, name='api_health'),
     path('api/analyze', AnalyzeAPIView.as_view(), name='api_analyze'),
+    path('api/extract', ExtractEDSFileAPIView.as_view(), name='api_extract'),
+    path('api/template/excel', download_excel_template_api, name='api_template_excel'),
     path('api/presets', PresetsAPIView.as_view(), name='api_presets'),
 
     path('api/families', list_families_api, name='api_families'),
