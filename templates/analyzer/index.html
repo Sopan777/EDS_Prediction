@@ -69,6 +69,238 @@
        ========================================================================= -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+    <!-- Dedicated Styles for Spectral Ingestion & Elemental wt% Card -->
+    <style>
+      #spectral-ingestion-card.fluid-card:hover {
+        border-color: #E2E8F0;
+      }
+      .unit-toggle-group {
+        display: inline-flex;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        background-color: #F8FAFC;
+        padding: 2px;
+      }
+      .unit-toggle-btn {
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #64748B;
+        border-radius: 6px;
+        border: 1.5px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        line-height: 1.25;
+      }
+      .unit-toggle-btn.is-active {
+        background-color: #EBF5FF !important;
+        border-color: #60A5FA !important;
+        color: #0F172A !important;
+        font-weight: 700 !important;
+      }
+      .ingest-mode-switcher {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #F8FAFC;
+      }
+      .ingest-mode-tab {
+        padding: 10px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #334155;
+        background-color: #F8FAFC;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .ingest-mode-tab + .ingest-mode-tab {
+        border-left: 1px solid #CBD5E1;
+      }
+      .ingest-mode-tab:hover:not(.is-active) {
+        background-color: #F1F5F9;
+        color: #0F172A;
+      }
+      .ingest-mode-tab.is-active {
+        background-color: #0B2239 !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+      }
+      .eds-dropzone {
+        border: 1.5px dashed #CBD5E1;
+        border-radius: 10px;
+        background-color: #FAFCFF;
+        padding: 28px 24px 20px 24px;
+        text-align: center;
+        cursor: pointer;
+      }
+      .eds-dropzone:hover,
+      .eds-dropzone.is-dragover {
+        border-color: #3B82F6;
+        background-color: #F5F9FF;
+      }
+      .eds-choose-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 16px;
+        border-radius: 6px;
+        border: 1px solid #CBD5E1;
+        background-color: #FFFFFF;
+        color: #1E293B;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+      .eds-choose-btn:hover {
+        background-color: #F8FAFC;
+        border-color: #94A3B8;
+      }
+      .eds-format-footer {
+        margin-top: 22px;
+        background-color: #F1F5F9;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 12px 18px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        text-align: left;
+        cursor: default;
+      }
+      .eds-step-circle {
+        width: 20px;
+        height: 20px;
+        border-radius: 9999px;
+        background-color: #0B2239;
+        color: #FFFFFF;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .eds-elements-grid {
+        display: grid;
+        grid-template-columns: repeat(11, minmax(0, 1fr));
+        gap: 8px;
+      }
+      @media (max-width: 1024px) {
+        .eds-elements-grid {
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 640px) {
+        .eds-elements-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      .eds-el-chip {
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        background-color: #F8FAFC;
+        color: #1E293B;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+      }
+      .eds-el-chip:hover:not(.is-selected) {
+        background-color: #F1F5F9;
+        border-color: #CBD5E1;
+      }
+      .eds-el-chip.is-selected {
+        background-color: #EFF6FF !important;
+        border: 1.5px solid #3B82F6 !important;
+        color: #0F172A !important;
+        justify-content: space-between !important;
+      }
+      .eds-el-check {
+        width: 16px;
+        height: 16px;
+        border-radius: 9999px;
+        background-color: #2563EB;
+        color: #FFFFFF;
+        font-size: 10px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .eds-conc-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      @media (max-width: 768px) {
+        .eds-conc-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .eds-conc-card {
+        background-color: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .eds-add-el-card {
+        background-color: #FFFFFF;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 70px;
+      }
+      .eds-add-el-card:hover {
+        background-color: #F8FAFC;
+        border-color: #94A3B8;
+      }
+      html.dark .eds-dropzone {
+        background-color: #0E1524;
+        border-color: #273752;
+      }
+      html.dark .eds-format-footer,
+      html.dark .eds-conc-card,
+      html.dark .eds-el-chip:not(.is-selected) {
+        background-color: #182236;
+        border-color: #273752;
+        color: #F1F5F9;
+      }
+      html.dark .eds-el-chip.is-selected {
+        background-color: rgba(37, 99, 235, 0.2) !important;
+        border-color: #3B82F6 !important;
+        color: #FFFFFF !important;
+      }
+      html.dark .eds-add-el-card {
+        background-color: #131A2A;
+        border-color: #273752;
+        color: #CBD5E1;
+      }
+    </style>
+
     <!-- Main Ingestion Panel (8 cols) — SINGLE SECTION WITH TWO MODES -->
     <div id="spectral-ingestion-card" class="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5 fluid-card scroll-reveal">
       <!-- Ingestion Header, Reference Preset & wt%/at% Toggle -->
@@ -76,14 +308,14 @@
         <div>
           <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
             <span class="material-symbols-outlined text-[20px] text-slate-700">description</span>
-            Spectral Ingestion & Elemental wt%
+            Spectral Ingestion &amp; Elemental wt%
           </h2>
           <p class="text-xs text-slate-500 mt-0.5">Enter elemental concentrations or upload spectrometer reports.</p>
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">
           <!-- Preset Selector -->
-          <select id="preset-selector" onchange="applyPreset(this.value)" class="text-xs rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-slate-800 focus:outline-none focus:border-slate-500 font-medium shadow-2xs">
+          <select id="preset-selector" onchange="applyPreset(this.value)" class="text-xs rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-slate-800 focus:outline-none focus:border-slate-500 font-medium shadow-2xs min-w-[165px]">
             <option value="">— Reference Preset —</option>
             {% for p in presets %}
               <option value="{{ p.id }}">{{ p.name }} ({{ p.category }})</option>
@@ -91,11 +323,11 @@
           </select>
 
           <!-- wt% / at% Unit Toggle -->
-          <div class="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
-            <button type="button" id="unit-btn-wt" onclick="setConcentrationUnit('wt%')" class="px-3 py-1 font-bold rounded-md bg-blue-50 text-blue-900 border border-blue-400 shadow-2xs transition-all">
+          <div class="unit-toggle-group">
+            <button type="button" id="unit-btn-wt" onclick="setConcentrationUnit('wt%')" class="unit-toggle-btn is-active">
               wt%
             </button>
-            <button type="button" id="unit-btn-at" onclick="setConcentrationUnit('at%')" class="px-3 py-1 font-medium rounded-md text-slate-600 hover:text-slate-900 border border-transparent transition-all">
+            <button type="button" id="unit-btn-at" onclick="setConcentrationUnit('at%')" class="unit-toggle-btn">
               at%
             </button>
           </div>
@@ -103,12 +335,12 @@
       </div>
 
       <!-- Full-Width Two-Mode Switcher: [ Drag & Drop File ] [ Manual Elements ] -->
-      <div class="grid grid-cols-2 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden text-xs">
-        <button type="button" id="tab-btn-upload" onclick="switchIngestTab('upload')" class="py-2.5 px-4 font-bold bg-[#0F2537] text-white flex items-center justify-center gap-2 transition-all">
+      <div class="ingest-mode-switcher">
+        <button type="button" id="tab-btn-upload" onclick="switchIngestTab('upload')" class="ingest-mode-tab is-active">
           <span class="material-symbols-outlined text-[16px]">upload</span>
           <span>Drag &amp; Drop File</span>
         </button>
-        <button type="button" id="tab-btn-manual" onclick="switchIngestTab('manual')" class="py-2.5 px-4 font-semibold bg-slate-50 text-slate-700 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all border-l border-slate-200">
+        <button type="button" id="tab-btn-manual" onclick="switchIngestTab('manual')" class="ingest-mode-tab">
           <span class="material-symbols-outlined text-[16px]">grid_on</span>
           <span>Manual Elements</span>
         </button>
@@ -117,13 +349,13 @@
       <!-- ===================================================================
            MODE 1: DRAG & DROP FILE (DEFAULT ON PAGE LOAD)
            =================================================================== -->
-      <div id="section-file-upload" class="space-y-4">
-        <div id="drop-zone" onclick="document.getElementById('eds-file-input').click()" class="border-2 border-dashed border-slate-300 hover:border-slate-500 bg-slate-50/40 hover:bg-slate-50/80 rounded-xl p-6 text-center cursor-pointer transition-all">
+      <div id="section-file-upload">
+        <div id="drop-zone" onclick="document.getElementById('eds-file-input').click()" class="eds-dropzone">
           <input type="file" id="eds-file-input" accept=".xlsx,.xls,.csv,.pdf,.json" class="hidden" onchange="handleFileSelected(this.files[0])">
 
-          <div class="py-4">
-            <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-3">
-              <span class="material-symbols-outlined text-[28px]">cloud_upload</span>
+          <div class="py-2">
+            <div class="flex items-center justify-center text-slate-500 mb-2">
+              <span class="material-symbols-outlined text-[34px]">cloud_upload</span>
             </div>
             <p id="upload-status-text" class="text-sm font-bold text-slate-900">
               Drag and drop EDS file here
@@ -131,16 +363,16 @@
             <p id="upload-substatus-text" class="text-xs text-slate-500 mt-1">
               Supports Excel files (.xlsx, .xls). Max size 10 MB.
             </p>
-            <div class="mt-4">
-              <button type="button" onclick="event.stopPropagation(); document.getElementById('eds-file-input').click();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 shadow-xs transition-colors">
-                <span class="material-symbols-outlined text-[16px] text-slate-600">upload_file</span>
+            <div class="mt-3.5">
+              <button type="button" onclick="event.stopPropagation(); document.getElementById('eds-file-input').click();" class="eds-choose-btn">
+                <span class="material-symbols-outlined text-[15px] text-slate-600">description</span>
                 <span>Choose File</span>
               </button>
             </div>
           </div>
 
           <!-- Extracted Composition Preview Banner (Appears when file is uploaded) -->
-          <div id="file-extracted-preview" onclick="event.stopPropagation();" class="hidden mt-3 mb-4 p-3.5 rounded-lg bg-emerald-50/90 border border-emerald-200 text-left">
+          <div id="file-extracted-preview" onclick="event.stopPropagation();" class="hidden mt-3 mb-2 p-3.5 rounded-lg bg-emerald-50/90 border border-emerald-200 text-left">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px] text-emerald-600">check_circle</span>
@@ -157,21 +389,21 @@
           </div>
 
           <!-- Allowed Format & Download Template Footer Box -->
-          <div onclick="event.stopPropagation();" class="mt-4 bg-slate-100/80 border border-slate-200/90 rounded-lg p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left cursor-default">
+          <div onclick="event.stopPropagation();" class="eds-format-footer">
             <div class="flex items-start gap-2.5">
               <span class="material-symbols-outlined text-[18px] text-slate-500 mt-0.5">description</span>
               <div class="text-xs text-slate-600">
                 <div class="font-bold text-slate-800">Allowed format:</div>
-                <ul class="list-disc list-inside text-[11px] text-slate-600 mt-0.5 space-y-0.5">
+                <ul class="list-disc list-inside text-[11.5px] text-slate-600 mt-0.5 space-y-0.5">
                   <li>Excel files (.xlsx, .xls)</li>
                   <li>Use the provided template with columns for the supported elements.</li>
                 </ul>
               </div>
             </div>
 
-            <div class="sm:border-l sm:border-slate-200 sm:pl-5 shrink-0">
+            <div class="sm:border-l sm:border-slate-300 sm:pl-6 sm:pr-4 shrink-0">
               <a href="{% url 'api_template_excel' %}" download="Dhatu_Bodh_EDS_Template.xlsx" class="group flex items-center gap-2 text-left">
-                <span class="material-symbols-outlined text-[20px] text-blue-600 group-hover:translate-y-0.5 transition-transform">download</span>
+                <span class="material-symbols-outlined text-[20px] text-blue-600">download</span>
                 <div>
                   <div class="text-xs font-bold text-blue-600 group-hover:underline">Download Template</div>
                   <div class="text-[11px] text-slate-500">Get the standard Excel template</div>
@@ -191,27 +423,37 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-[#0F2537] text-white font-mono-code text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+              <span class="eds-step-circle">1</span>
               <span class="text-xs font-bold text-slate-900">Select elements from the available list</span>
             </div>
-            <span class="text-[11px] text-slate-500 font-mono-code" id="dataset-elements-count-badge">Dataset elements</span>
           </div>
 
           <!-- Search Element & Clear All Row -->
           <div class="flex items-center gap-2">
             <div class="relative flex-1">
               <span class="material-symbols-outlined text-[16px] text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">search</span>
-              <input type="text" id="element-search-input" oninput="filterSelectableElements(this.value)" placeholder="Search element (e.g., Fe, Cr, Ni)" class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-slate-500">
+              <input type="text" id="element-search-input" oninput="filterSelectableElements(this.value)" placeholder="Search element (e.g., Fe, Cr, Ni)" class="w-full bg-slate-50/60 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-slate-400">
             </div>
-            <button type="button" onclick="clearAllSelectedElements()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1 shrink-0 transition-colors">
+            <button type="button" onclick="clearAllSelectedElements()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 shrink-0 transition-colors">
               <span>Clear All</span>
-              <span class="text-slate-400 font-bold">✕</span>
+              <span class="text-slate-400 font-bold">×</span>
             </button>
           </div>
 
-          <!-- Dataset-Driven Selectable Elements Grid -->
-          <div id="selectable-elements-grid" class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-11 gap-2">
-            <!-- Populated dynamically from window.DATASET_ELEMENTS -->
+          <!-- Dataset-Driven Selectable Elements Grid (Server-Side Initial + Dynamic JS) -->
+          <div id="selectable-elements-grid" class="eds-elements-grid">
+            {% for item in dataset_elements %}
+              {% if item.symbol == 'Fe' or item.symbol == 'Ni' or item.symbol == 'V' %}
+                <button type="button" onclick="toggleElementSelection('{{ item.symbol }}')" title="{{ item.name }} ({{ item.symbol }}) — Click to remove" class="eds-el-chip is-selected">
+                  <span>{{ item.symbol }}</span>
+                  <span class="eds-el-check">✓</span>
+                </button>
+              {% else %}
+                <button type="button" onclick="toggleElementSelection('{{ item.symbol }}')" title="{{ item.name }} ({{ item.symbol }}) — Click to select" class="eds-el-chip">
+                  <span>{{ item.symbol }}</span>
+                </button>
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
 
@@ -219,7 +461,7 @@
         <div class="space-y-3 pt-2 border-t border-slate-100">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-[#0F2537] text-white font-mono-code text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+              <span class="eds-step-circle">2</span>
               <span class="text-xs font-bold text-slate-900">
                 Enter elemental concentration (<span id="concentration-unit-label">wt%</span>)
               </span>
@@ -239,15 +481,49 @@
           </div>
 
           <!-- Selected Elements Concentration Inputs Grid -->
-          <div id="selected-elements-inputs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            <!-- Rendered dynamically for selected elements + Add Element card -->
+          <div id="selected-elements-inputs-grid" class="eds-conc-grid">
+            <!-- Fe (initial) -->
+            <div class="eds-conc-card">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold text-slate-800">Fe</label>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="autoBalanceFe()" class="text-[10px] font-bold text-[#ED0007] hover:underline">Balance</button>
+                  <button type="button" onclick="removeSelectedElement('Fe')" class="text-xs text-slate-400 hover:text-rose-600 font-bold leading-none">×</button>
+                </div>
+              </div>
+              <input type="text" id="input-el-Fe" value="Bal." placeholder="Bal." onchange="updateElementConcentration('Fe', this.value)" class="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-right font-mono-code text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-600">
+            </div>
+
+            <!-- Ni (initial) -->
+            <div class="eds-conc-card">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold text-slate-800">Ni</label>
+                <button type="button" onclick="removeSelectedElement('Ni')" class="text-xs text-slate-400 hover:text-rose-600 font-bold leading-none">×</button>
+              </div>
+              <input type="number" step="0.01" min="0" max="100" id="input-el-Ni" value="0" placeholder="0" onchange="updateElementConcentration('Ni', this.value)" class="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-right font-mono-code text-sm font-semibold text-slate-900 focus:outline-none focus:border-slate-600">
+            </div>
+
+            <!-- V (initial) -->
+            <div class="eds-conc-card">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold text-slate-800">V</label>
+                <button type="button" onclick="removeSelectedElement('V')" class="text-xs text-slate-400 hover:text-rose-600 font-bold leading-none">×</button>
+              </div>
+              <input type="number" step="0.01" min="0" max="100" id="input-el-V" value="0" placeholder="0" onchange="updateElementConcentration('V', this.value)" class="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-right font-mono-code text-sm font-semibold text-slate-900 focus:outline-none focus:border-slate-600">
+            </div>
+
+            <!-- + Add Element Card -->
+            <button type="button" onclick="focusElementSearch()" class="eds-add-el-card">
+              <span class="material-symbols-outlined text-[18px] text-slate-500">add_circle</span>
+              <span>Add Element</span>
+            </button>
           </div>
 
           <!-- Footer Row: Quick Add Hint & Auto-balance Fe -->
           <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <button type="button" onclick="focusElementSearch()" class="text-xs font-semibold text-[#ED0007] hover:underline flex items-center gap-1 text-left">
               <span class="material-symbols-outlined text-[16px]">add_circle</span>
-              <span id="unselected-elements-hint">Add Element (Mo, Cu, Sn, Al, Zn, W, Ti, Nb, Co...)</span>
+              <span id="unselected-elements-hint">Add Element (Mo, Cu, Sn, Al, Zn, W, Ti, Nb, Co, N, ...)</span>
             </button>
 
             <button type="button" onclick="autoBalanceFe()" class="text-xs font-semibold text-blue-700 hover:underline flex items-center gap-1">
@@ -512,5 +788,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/analyzer.js' %}"></script>
+<script src="{% static 'js/analyzer.js' %}?v=20261006_v4"></script>
 {% endblock %}

@@ -88,19 +88,16 @@ function switchIngestTab(tab) {
   const uploadSection = document.getElementById('section-file-upload');
   const manualSection = document.getElementById('section-manual-elements');
 
-  const activeTabClass = 'py-2.5 px-4 font-bold bg-[#0F2537] text-white flex items-center justify-center gap-2 transition-all';
-  const inactiveTabClass = 'py-2.5 px-4 font-semibold bg-slate-50 text-slate-700 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center gap-2 transition-all';
-
   if (currentIngestMode === 'upload') {
     if (uploadSection) uploadSection.classList.remove('hidden');
     if (manualSection) manualSection.classList.add('hidden');
-    if (btnUpload) btnUpload.className = activeTabClass;
-    if (btnManual) btnManual.className = inactiveTabClass + ' border-l border-slate-200';
+    if (btnUpload) btnUpload.className = 'ingest-mode-tab is-active';
+    if (btnManual) btnManual.className = 'ingest-mode-tab';
   } else {
     if (uploadSection) uploadSection.classList.add('hidden');
     if (manualSection) manualSection.classList.remove('hidden');
-    if (btnUpload) btnUpload.className = inactiveTabClass;
-    if (btnManual) btnManual.className = activeTabClass + ' border-l border-slate-200';
+    if (btnUpload) btnUpload.className = 'ingest-mode-tab';
+    if (btnManual) btnManual.className = 'ingest-mode-tab is-active';
     renderManualElementsUI();
   }
 }
@@ -121,15 +118,12 @@ function setConcentrationUnit(unit) {
   const btnAt = document.getElementById('unit-btn-at');
   const unitLabel = document.getElementById('concentration-unit-label');
 
-  const activeUnitClass = 'px-3 py-1 font-bold rounded-md bg-blue-50 text-blue-900 border border-blue-400 shadow-2xs transition-all';
-  const inactiveUnitClass = 'px-3 py-1 font-medium rounded-md text-slate-600 hover:text-slate-900 border border-transparent transition-all';
-
   if (unit === 'wt%') {
-    if (btnWt) btnWt.className = activeUnitClass;
-    if (btnAt) btnAt.className = inactiveUnitClass;
+    if (btnWt) btnWt.className = 'unit-toggle-btn is-active';
+    if (btnAt) btnAt.className = 'unit-toggle-btn';
   } else {
-    if (btnAt) btnAt.className = activeUnitClass;
-    if (btnWt) btnWt.className = inactiveUnitClass;
+    if (btnAt) btnAt.className = 'unit-toggle-btn is-active';
+    if (btnWt) btnWt.className = 'unit-toggle-btn';
   }
   if (unitLabel) unitLabel.textContent = unit;
 
@@ -206,18 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
   switchIngestTab('upload');
   renderManualElementsUI();
 
-  const countBadge = document.getElementById('dataset-elements-count-badge');
-  if (countBadge) {
-    countBadge.textContent = `${getDatasetElements().length} supported dataset elements`;
-  }
-
   const dropZone = document.getElementById('drop-zone');
   if (dropZone) {
     ['dragenter', 'dragover'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
         e.stopPropagation();
-        dropZone.classList.add('border-blue-500', 'bg-blue-50/40');
+        dropZone.classList.add('is-dragover');
       });
     });
 
@@ -225,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
         e.stopPropagation();
-        dropZone.classList.remove('border-blue-500', 'bg-blue-50/40');
+        dropZone.classList.remove('is-dragover');
       });
     });
 
@@ -296,15 +285,15 @@ function renderSelectableElementsGrid() {
     if (isSelected) {
       return `
         <button type="button" onclick="toggleElementSelection('${sym}')" title="${item.name} (${sym}) — Click to remove"
-          class="px-2.5 py-2 rounded-lg bg-blue-50 border-2 border-blue-500 text-blue-950 font-bold text-xs flex items-center justify-between gap-1 shadow-2xs transition-all">
+          class="eds-el-chip is-selected">
           <span>${sym}</span>
-          <span class="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] leading-none shrink-0">✓</span>
+          <span class="eds-el-check">✓</span>
         </button>
       `;
     } else {
       return `
         <button type="button" onclick="toggleElementSelection('${sym}')" title="${item.name} (${sym}) — Click to select"
-          class="px-2.5 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center transition-all">
+          class="eds-el-chip">
           <span>${sym}</span>
         </button>
       `;
@@ -379,7 +368,7 @@ function renderSelectedElementInputs() {
 
     if (isFe) {
       return `
-        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+        <div class="eds-conc-card">
           <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-bold text-slate-800">${sym}</label>
             <div class="flex items-center gap-1.5">
@@ -399,7 +388,7 @@ function renderSelectedElementInputs() {
     }
 
     return `
-      <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+      <div class="eds-conc-card">
         <div class="flex items-center justify-between mb-1.5">
           <label class="text-xs font-bold text-slate-800">${sym}</label>
           <button type="button" onclick="removeSelectedElement('${sym}')" class="text-xs text-slate-400 hover:text-rose-600 font-bold leading-none" title="Remove ${sym}">
@@ -415,10 +404,9 @@ function renderSelectedElementInputs() {
 
   // Append the "+ Add Element" card at the end of the concentration grid (matching screenshot)
   cardsHtml.push(`
-    <button type="button" onclick="focusElementSearch()"
-      class="border border-dashed border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-lg p-2.5 flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-slate-900 transition-colors min-h-[68px]">
+    <button type="button" onclick="focusElementSearch()" class="eds-add-el-card">
       <span class="material-symbols-outlined text-[18px] text-slate-500">add_circle</span>
-      <span class="text-xs font-semibold">Add Element</span>
+      <span>Add Element</span>
     </button>
   `);
 
