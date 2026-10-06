@@ -18,6 +18,8 @@ from apps.analyzer.views import (
     list_components_api,
     get_component_detail_api,
     validation_results_api,
+    InternalSourcePredictV2APIView,
+    DataReconciliationAPIView,
 )
 from apps.knowledge.views import (
     knowledge_view,
@@ -70,6 +72,8 @@ urlpatterns = [
     path('api/components', list_components_api, name='api_components'),
     path('api/components/<str:cid>', get_component_detail_api, name='api_component_detail'),
     path('api/validate', validation_results_api, name='api_validate'),
+    path('api/v2/predict', InternalSourcePredictV2APIView.as_view(), name='api_v2_predict'),
+    path('api/v2/reconciliation', DataReconciliationAPIView.as_view(), name='api_v2_reconciliation'),
 
     path('api/feedback', FeedbackAPIView.as_view(), name='api_feedback'),
 

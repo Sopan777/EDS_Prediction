@@ -1,0 +1,16 @@
+{
+  "n_internal_sites": 282,
+  "n_internal_reports": 150,
+  "n_spectrum_internal_sites": 66,
+  "report_level_split_leakage": 0,
+  "candidate_set_coverage": 0.9504,
+  "top1_candidate_compatibility_rate": 0.8191,
+  "high_confidence_count": 78,
+  "high_confidence_selective_precision": 0.9744,
+  "ambiguous_count": 201,
+  "ambiguous_set_coverage": 0.9552,
+  "spectrum_bearing_set_coverage": 0.9848,
+  "spectrum_bearing_top1_rate": 0.8485,
+  "location_only_baseline_top1": 0.4291,
+  "external_contaminant_non_single_rate": 0.855
+}

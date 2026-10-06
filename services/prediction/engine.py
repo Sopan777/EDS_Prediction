@@ -72,6 +72,9 @@ def run_prediction(
     source_type: str = "manual",
     source_filename: Optional[str] = None,
     declared_material: Optional[str] = None,
+    chemistry: Optional[str] = None,
+    surface_coating: Optional[str] = None,
+    location: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Execute prediction for single spectrum or multiple spectra (pooled particle).
@@ -295,6 +298,19 @@ def run_prediction(
         "coating_fraction": norm_pooled.coating_fraction,
     }
 
+    # Unified Internal Source Prediction (ISP v2.0 - Validated Reference Engine)
+    isp_result = None
+    try:
+        from isp.runtime import predict_internal_source_dict
+        isp_result = predict_internal_source_dict(
+            spectra_inputs=spectra_list,
+            chemistry_raw=chemistry or declared_material,
+            surface_coating_raw=surface_coating,
+            location_raw=location,
+        )
+    except Exception as isp_err:
+        print(f"Warning: ISP v2 engine error: {isp_err}")
+
     return {
         # Standardized modern structure
         "status": decision_val,
@@ -344,4 +360,5 @@ def run_prediction(
             "declared_family": conflict_result.declared_family,
         },
         "warnings": warnings_list,
+        "internal_source_prediction": isp_result,
     }

@@ -1,0 +1,22 @@
+{
+  "file": "data\\primary\\EDS_Internal_Report_Particle_Dataset.xlsx",
+  "sha256": "575c45c06d51b99f2931a82b7909e670f3998ecbffc4351407f914c2a696bad2",
+  "sheets": {
+    "Report_Particle_Dataset": [
+      463,
+      195
+    ],
+    "EDS_Spectra": [
+      181,
+      45
+    ],
+    "Internal_Sources": [
+      460,
+      6
+    ],
+    "README": [
+      9,
+      2
+    ]
+  }
+}

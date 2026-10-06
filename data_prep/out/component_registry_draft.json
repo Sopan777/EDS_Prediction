@@ -1,0 +1,187 @@
+{
+  "status": "UNREVIEWED - needs domain-owner sign-off",
+  "components": {
+    "IC_STUD": {
+      "canonical_name": "IC Stud",
+      "class": "INTERNAL",
+      "pattern": "\\bic ?stud"
+    },
+    "INJECTOR_BODY": {
+      "canonical_name": "Injector Body",
+      "class": "INTERNAL",
+      "pattern": "injector body|^body$"
+    },
+    "MAGNET_CORE": {
+      "canonical_name": "Magnet Core",
+      "class": "INTERNAL",
+      "pattern": "magnet core"
+    },
+    "NHB": {
+      "canonical_name": "NHB (undefined)",
+      "class": "INTERNAL",
+      "pattern": "^nhb$"
+    },
+    "VSS": {
+      "canonical_name": "VSS / VSS Screw",
+      "class": "INTERNAL",
+      "pattern": "^vss"
+    },
+    "VALVE_PISTON": {
+      "canonical_name": "Valve Piston",
+      "class": "INTERNAL",
+      "pattern": "valve piston"
+    },
+    "MAGNET_NUT": {
+      "canonical_name": "Magnet Nut",
+      "class": "INTERNAL",
+      "pattern": "magnet nut"
+    },
+    "NR_NUT": {
+      "canonical_name": "NR Nut",
+      "class": "INTERNAL",
+      "pattern": "\\bnr nut"
+    },
+    "NOZZLE_NEEDLE": {
+      "canonical_name": "Nozzle Needle",
+      "class": "INTERNAL",
+      "pattern": "nozzle needle|^needle$"
+    },
+    "NOZZLE_BODY": {
+      "canonical_name": "Nozzle Body",
+      "class": "INTERNAL",
+      "pattern": "nozzle body"
+    },
+    "INLET_CONNECTOR": {
+      "canonical_name": "Inlet Connector",
+      "class": "INTERNAL",
+      "pattern": "inlet connector"
+    },
+    "VALVE_BALL": {
+      "canonical_name": "Valve Ball",
+      "class": "INTERNAL",
+      "pattern": "valve ball"
+    },
+    "SEALING_RING": {
+      "canonical_name": "Sealing Ring",
+      "class": "INTERNAL",
+      "pattern": "seal(ing)? ring"
+    },
+    "NOZZLE_SPRING": {
+      "canonical_name": "Nozzle Spring",
+      "class": "INTERNAL",
+      "pattern": "nozzle spring"
+    },
+    "BUSHING": {
+      "canonical_name": "Bushing",
+      "class": "INTERNAL",
+      "pattern": "bushing"
+    },
+    "ARMATURE_SPRING": {
+      "canonical_name": "Armature Spring",
+      "class": "INTERNAL",
+      "pattern": "armature spring"
+    },
+    "HPP_SLEEVE": {
+      "canonical_name": "HPP Sleeve",
+      "class": "INTERNAL",
+      "pattern": "hpp sleeve"
+    },
+    "BAR_EDGE_FILTER": {
+      "canonical_name": "Bar/Edge Filter",
+      "class": "INTERNAL",
+      "pattern": "bar filter|edge filter"
+    },
+    "CLAMPING_SADDLE": {
+      "canonical_name": "Clamping Saddle",
+      "class": "INTERNAL",
+      "pattern": "clamping saddle"
+    },
+    "FIXING_PIN": {
+      "canonical_name": "Fixing Pin",
+      "class": "INTERNAL",
+      "pattern": "fixing pin"
+    },
+    "RETAINING_SCREW": {
+      "canonical_name": "Retaining Screw",
+      "class": "INTERNAL",
+      "pattern": "retaining screw"
+    },
+    "VALVE_SPRING": {
+      "canonical_name": "Valve Spring",
+      "class": "INTERNAL",
+      "pattern": "valve spring"
+    },
+    "NOZZLE_NUT": {
+      "canonical_name": "Nozzle Nut",
+      "class": "INTERNAL",
+      "pattern": "nozzle nut"
+    },
+    "UNION_NUT": {
+      "canonical_name": "Union Nut",
+      "class": "INTERNAL",
+      "pattern": "union (external )?nut"
+    },
+    "SHIM": {
+      "canonical_name": "Shim",
+      "class": "INTERNAL",
+      "pattern": "\\bshim\\b"
+    },
+    "COPPER_WASHER": {
+      "canonical_name": "Copper Washer/Shim",
+      "class": "INTERNAL",
+      "pattern": "copper (washer|shim|coupling)"
+    },
+    "BACK_FLOW_TUBE": {
+      "canonical_name": "Back Flow Tube",
+      "class": "INTERNAL",
+      "pattern": "back flow tube"
+    },
+    "ARMATURE_PLATE": {
+      "canonical_name": "Armature Plate",
+      "class": "INTERNAL",
+      "pattern": "armature plate"
+    },
+    "ARMATURE_GUIDE": {
+      "canonical_name": "Armature Guide",
+      "class": "INTERNAL",
+      "pattern": "armature guide"
+    },
+    "VALVE_PIECE": {
+      "canonical_name": "Valve Piece",
+      "class": "INTERNAL",
+      "pattern": "valve piece"
+    },
+    "MAGNET_SLEEVE": {
+      "canonical_name": "Magnet Sleeve",
+      "class": "INTERNAL",
+      "pattern": "magnet sleeve"
+    },
+    "BA_HEXAFERRITE": {
+      "canonical_name": "Ba-hexaferrite magnet",
+      "class": "INTERNAL",
+      "pattern": "barium hexaferrite"
+    },
+    "VITON_RING": {
+      "canonical_name": "Viton Ring",
+      "class": "INTERNAL",
+      "pattern": "viton ring"
+    },
+    "STRAINING_SCREW": {
+      "canonical_name": "Straining Screw",
+      "class": "INTERNAL",
+      "pattern": "straining screw"
+    },
+    "HPP": {
+      "canonical_name": "HPP (generic)",
+      "class": "INTERNAL",
+      "pattern": "^hpp$|probable hpp"
+    }
+  },
+  "open": [
+    "NHB meaning",
+    "VSS meaning",
+    "Nozzle Needle vs Valve Piston",
+    "Bar filter vs Filters",
+    "Body vs Injector body"
+  ]
+}

@@ -122,7 +122,10 @@ class AnalyzeAPIView(View):
                 if isinstance(raw_comp, dict):
                     raw_comp = {
                         k: v for k, v in raw_comp.items()
-                        if k not in ('declared_material', 'source_type', 'source_filename', 'sample_id', 'customer', 'timestamp')
+                        if k not in (
+                            'declared_material', 'chemistry', 'surface_coating', 'location',
+                            'source_type', 'source_filename', 'sample_id', 'customer', 'timestamp'
+                        )
                     }
                 source_type = 'manual_entry'
                 clean_s, analysed_elements = clean_numeric_composition(raw_comp)
@@ -133,6 +136,21 @@ class AnalyzeAPIView(View):
             request.GET.get('declared_material')
             or request.POST.get('declared_material')
             or (body.get('declared_material') if isinstance(body, dict) else None)
+        )
+        chemistry = (
+            request.GET.get('chemistry')
+            or request.POST.get('chemistry')
+            or (body.get('chemistry') if isinstance(body, dict) else None)
+        )
+        surface_coating = (
+            request.GET.get('surface_coating')
+            or request.POST.get('surface_coating')
+            or (body.get('surface_coating') if isinstance(body, dict) else None)
+        )
+        location = (
+            request.GET.get('location')
+            or request.POST.get('location')
+            or (body.get('location') if isinstance(body, dict) else None)
         )
 
         if not spectra_list:
@@ -145,10 +163,83 @@ class AnalyzeAPIView(View):
                 source_type=source_type,
                 source_filename=source_filename,
                 declared_material=declared_material,
+                chemistry=chemistry,
+                surface_coating=surface_coating,
+                location=location,
             )
             return JsonResponse(result)
         except Exception as err:
             return JsonResponse({'error': f'Prediction execution failed: {str(err)}'}, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class InternalSourcePredictV2APIView(View):
+    """Unified v2 endpoint for EDS Internal Source Prediction (Section C & D contract)."""
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        from isp.runtime import predict_internal_source_dict
+        try:
+            body = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON request body'}, status=400)
+
+        particle = body.get('particle', body) if isinstance(body, dict) else {}
+        report_info = body.get('report', {}) if isinstance(body, dict) else {}
+
+        raw_spectra = particle.get('spectra', [])
+        spectra_inputs = []
+        if isinstance(raw_spectra, list) and raw_spectra:
+            for item in raw_spectra:
+                if isinstance(item, dict):
+                    els = item.get('elements', item)
+                    clean_s, _ = clean_numeric_composition(els)
+                    if clean_s:
+                        spectra_inputs.append(clean_s)
+        elif isinstance(particle.get('composition') or particle.get('elements'), dict):
+            clean_s, _ = clean_numeric_composition(particle.get('composition') or particle.get('elements'))
+            if clean_s:
+                spectra_inputs.append(clean_s)
+
+        chemistry_raw = particle.get('chemistry') or particle.get('declared_material')
+        coating_field = particle.get('surface_coating')
+        if isinstance(coating_field, dict):
+            surface_coating_raw = coating_field.get('value') or coating_field.get('type')
+        else:
+            surface_coating_raw = coating_field
+        location_raw = particle.get('location')
+
+        if not spectra_inputs and not chemistry_raw:
+            return JsonResponse({'error': 'At least one EDS spectrum or chemistry description is required.'}, status=400)
+
+        res = predict_internal_source_dict(
+            spectra_inputs=spectra_inputs,
+            chemistry_raw=chemistry_raw,
+            surface_coating_raw=surface_coating_raw,
+            location_raw=location_raw,
+            site_uid=str(particle.get('site_uid') or f"site_{particle.get('site_index', 1)}"),
+            report_id=str(report_info.get('id') or 'api_report'),
+        )
+        return JsonResponse(res)
+
+
+class DataReconciliationAPIView(View):
+    """Return the Reference-First Data Reconciliation Report and Secondary Verification summary."""
+
+    def get(self, request: HttpRequest) -> JsonResponse:
+        import csv
+        from isp.runtime import load_trusted_store, RECONCILIATION_CSV
+        store = load_trusted_store()
+        rows = []
+        if RECONCILIATION_CSV.exists():
+            with open(RECONCILIATION_CSV, 'r', encoding='utf-8') as f:
+                rows = list(csv.DictReader(f))
+        return JsonResponse({
+            'version': store.get('version'),
+            'data_release': store.get('data_release'),
+            'secondary_verification_summary': store.get('secondary_verification_summary'),
+            'validation_metrics': store.get('validation_metrics'),
+            'reconciliation_table': rows,
+        })
 
 
 def list_components_api(request: HttpRequest) -> JsonResponse:

@@ -1,0 +1,1818 @@
+{
+  "version": "2.0.0",
+  "data_release": "r2.0-validated",
+  "calibrated_reports": 150,
+  "fingerprints": {
+    "IC_STUD": {
+      "component_id": "IC_STUD",
+      "canonical_name": "IC Stud",
+      "trust_level": 1,
+      "n_reports": 7,
+      "n_sites": 14,
+      "n_single_candidate_sites": 1,
+      "n_spectra": 35,
+      "quality": "HIGH",
+      "elements": {
+        "Al": {
+          "element": "Al",
+          "median": 0.4832,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.4832,
+          "max_val": 0.4832,
+          "sigma_eff": 0.2,
+          "frequency": 0.0714,
+          "n_sites": 1
+        },
+        "Cr": {
+          "element": "Cr",
+          "median": 0.195,
+          "iqr": 1.3252,
+          "mad": 0.0741,
+          "min_val": 0.135,
+          "max_val": 1.5092,
+          "sigma_eff": 0.9824,
+          "frequency": 0.7857,
+          "n_sites": 11
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 98.5725,
+          "iqr": 1.0238,
+          "mad": 0.4105,
+          "min_val": 97.6275,
+          "max_val": 98.9968,
+          "sigma_eff": 3.4521,
+          "frequency": 1.0,
+          "n_sites": 14
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.7875,
+          "iqr": 0.3625,
+          "mad": 0.1849,
+          "min_val": 0.3798,
+          "max_val": 1.0032,
+          "sigma_eff": 0.2687,
+          "frequency": 1.0,
+          "n_sites": 14
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.355,
+          "iqr": 0.1495,
+          "mad": 0.1109,
+          "min_val": 0.1701,
+          "max_val": 0.4298,
+          "sigma_eff": 0.2,
+          "frequency": 0.9286,
+          "n_sites": 13
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.0015,
+          0.002,
+          0.0151
+        ],
+        "Mn/Fe": [
+          0.0056,
+          0.008,
+          0.0092
+        ],
+        "Si/Fe": [
+          0.0026,
+          0.0036,
+          0.0042
+        ],
+        "Si/Mn": [
+          0.3262,
+          0.4658,
+          0.5735
+        ]
+      }
+    },
+    "INJECTOR_BODY": {
+      "component_id": "INJECTOR_BODY",
+      "canonical_name": "Injector Body",
+      "trust_level": 1,
+      "n_reports": 4,
+      "n_sites": 8,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 18,
+      "quality": "MEDIUM",
+      "elements": {
+        "Al": {
+          "element": "Al",
+          "median": 0.4832,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.4832,
+          "max_val": 0.4832,
+          "sigma_eff": 0.2,
+          "frequency": 0.125,
+          "n_sites": 1
+        },
+        "Cr": {
+          "element": "Cr",
+          "median": 0.1701,
+          "iqr": 0.05,
+          "mad": 0.0369,
+          "min_val": 0.135,
+          "max_val": 0.2299,
+          "sigma_eff": 0.2,
+          "frequency": 0.875,
+          "n_sites": 7
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 98.6471,
+          "iqr": 0.3587,
+          "mad": 0.2078,
+          "min_val": 98.3927,
+          "max_val": 98.915,
+          "sigma_eff": 3.4547,
+          "frequency": 1.0,
+          "n_sites": 8
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.8377,
+          "iqr": 0.1861,
+          "mad": 0.1108,
+          "min_val": 0.705,
+          "max_val": 0.98,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 8
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.3275,
+          "iqr": 0.145,
+          "mad": 0.1108,
+          "min_val": 0.1701,
+          "max_val": 0.4298,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 8
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.0015,
+          0.0017,
+          0.002
+        ],
+        "Mn/Fe": [
+          0.0073,
+          0.0085,
+          0.0091
+        ],
+        "Si/Fe": [
+          0.0023,
+          0.0033,
+          0.0038
+        ],
+        "Si/Mn": [
+          0.289,
+          0.3759,
+          0.4658
+        ]
+      }
+    },
+    "MAGNET_CORE": {
+      "component_id": "MAGNET_CORE",
+      "canonical_name": "Magnet Core",
+      "trust_level": 2,
+      "n_reports": 16,
+      "n_sites": 47,
+      "n_single_candidate_sites": 47,
+      "n_spectra": 86,
+      "quality": "HIGH",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 0.1996,
+          "iqr": 0.0525,
+          "mad": 0.0389,
+          "min_val": 0.1733,
+          "max_val": 0.2258,
+          "sigma_eff": 0.2,
+          "frequency": 0.0426,
+          "n_sites": 2
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 100.0,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 99.597,
+          "max_val": 100.0,
+          "sigma_eff": 3.5021,
+          "frequency": 1.0,
+          "n_sites": 47
+        },
+        "S": {
+          "element": "S",
+          "median": 0.3579,
+          "iqr": 0.1795,
+          "mad": 0.0421,
+          "min_val": 0.19,
+          "max_val": 0.403,
+          "sigma_eff": 0.2,
+          "frequency": 0.0851,
+          "n_sites": 4
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.2298,
+          "iqr": 0.1202,
+          "mad": 0.0891,
+          "min_val": 0.1697,
+          "max_val": 0.2899,
+          "sigma_eff": 0.2,
+          "frequency": 0.0426,
+          "n_sites": 2
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.0017,
+          0.002,
+          0.0023
+        ],
+        "Si/Fe": [
+          0.0017,
+          0.0023,
+          0.0029
+        ]
+      }
+    },
+    "NHB": {
+      "component_id": "NHB",
+      "canonical_name": "NHB (Nozzle Holder Body)",
+      "trust_level": 1,
+      "n_reports": 2,
+      "n_sites": 5,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 14,
+      "quality": "MEDIUM",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 1.4793,
+          "iqr": 0.0633,
+          "mad": 0.0252,
+          "min_val": 1.4201,
+          "max_val": 1.5092,
+          "sigma_eff": 0.2239,
+          "frequency": 0.8,
+          "n_sites": 4
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.7647,
+          "iqr": 0.09,
+          "mad": 0.1238,
+          "min_val": 97.6275,
+          "max_val": 98.9038,
+          "sigma_eff": 5.1359,
+          "frequency": 1.0,
+          "n_sites": 5
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.4595,
+          "iqr": 0.1623,
+          "mad": 0.1182,
+          "min_val": 0.3798,
+          "max_val": 0.9049,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 5
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.3801,
+          "iqr": 0.1632,
+          "mad": 0.0737,
+          "min_val": 0.1913,
+          "max_val": 0.4298,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 5
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.0145,
+          0.0151,
+          0.0152
+        ],
+        "Mn/Fe": [
+          0.0039,
+          0.0047,
+          0.0056
+        ],
+        "Si/Fe": [
+          0.0027,
+          0.0039,
+          0.0044
+        ],
+        "Si/Mn": [
+          0.491,
+          0.9347,
+          1.0
+        ]
+      }
+    },
+    "VSS": {
+      "component_id": "VSS",
+      "canonical_name": "VSS / VSS Screw",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "VALVE_PISTON": {
+      "component_id": "VALVE_PISTON",
+      "canonical_name": "Valve Piston",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "MAGNET_NUT": {
+      "component_id": "MAGNET_NUT",
+      "canonical_name": "Magnet Nut",
+      "trust_level": 1,
+      "n_reports": 4,
+      "n_sites": 5,
+      "n_single_candidate_sites": 1,
+      "n_spectra": 10,
+      "quality": "MEDIUM",
+      "elements": {
+        "Fe": {
+          "element": "Fe",
+          "median": 98.5554,
+          "iqr": 0.5335,
+          "mad": 0.4276,
+          "min_val": 98.1502,
+          "max_val": 98.8438,
+          "sigma_eff": 3.4515,
+          "frequency": 1.0,
+          "n_sites": 5
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 1.3981,
+          "iqr": 0.119,
+          "mad": 0.0689,
+          "min_val": 1.1562,
+          "max_val": 1.4446,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 5
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.4331,
+          "iqr": 0.0372,
+          "mad": 0.0276,
+          "min_val": 0.4145,
+          "max_val": 0.4517,
+          "sigma_eff": 0.2,
+          "frequency": 0.4,
+          "n_sites": 2
+        }
+      },
+      "ratios": {
+        "Mn/Fe": [
+          0.0131,
+          0.0142,
+          0.0144
+        ],
+        "Si/Fe": [
+          0.0042,
+          0.0044,
+          0.0046
+        ],
+        "Si/Mn": [
+          0.2937,
+          0.3084,
+          0.3231
+        ]
+      }
+    },
+    "NR_NUT": {
+      "component_id": "NR_NUT",
+      "canonical_name": "NR Nut",
+      "trust_level": 1,
+      "n_reports": 2,
+      "n_sites": 3,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 6,
+      "quality": "MEDIUM",
+      "elements": {
+        "Fe": {
+          "element": "Fe",
+          "median": 98.174,
+          "iqr": 0.5573,
+          "mad": 0.0353,
+          "min_val": 98.1502,
+          "max_val": 98.7075,
+          "sigma_eff": 5.1573,
+          "frequency": 1.0,
+          "n_sites": 3
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 1.3981,
+          "iqr": 0.119,
+          "mad": 0.0199,
+          "min_val": 1.2925,
+          "max_val": 1.4115,
+          "sigma_eff": 0.2196,
+          "frequency": 1.0,
+          "n_sites": 3
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.4331,
+          "iqr": 0.0372,
+          "mad": 0.0276,
+          "min_val": 0.4145,
+          "max_val": 0.4517,
+          "sigma_eff": 0.2,
+          "frequency": 0.6667,
+          "n_sites": 2
+        }
+      },
+      "ratios": {
+        "Mn/Fe": [
+          0.0131,
+          0.0142,
+          0.0144
+        ],
+        "Si/Fe": [
+          0.0042,
+          0.0044,
+          0.0046
+        ],
+        "Si/Mn": [
+          0.2937,
+          0.3084,
+          0.3231
+        ]
+      }
+    },
+    "NOZZLE_NEEDLE": {
+      "component_id": "NOZZLE_NEEDLE",
+      "canonical_name": "Nozzle Needle",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "NOZZLE_BODY": {
+      "component_id": "NOZZLE_BODY",
+      "canonical_name": "Nozzle Body",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "INLET_CONNECTOR": {
+      "component_id": "INLET_CONNECTOR",
+      "canonical_name": "Inlet Connector",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "VALVE_BALL": {
+      "component_id": "VALVE_BALL",
+      "canonical_name": "Valve Ball",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "SEALING_RING": {
+      "component_id": "SEALING_RING",
+      "canonical_name": "Sealing Ring",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "NOZZLE_SPRING": {
+      "component_id": "NOZZLE_SPRING",
+      "canonical_name": "Nozzle Spring",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 1,
+      "quality": "LOW",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 0.6398,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.6398,
+          "max_val": 0.6398,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.0502,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 97.0502,
+          "max_val": 97.0502,
+          "sigma_eff": 5.0983,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.7049,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.7049,
+          "max_val": 0.7049,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Si": {
+          "element": "Si",
+          "median": 1.605,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.605,
+          "max_val": 1.605,
+          "sigma_eff": 0.2308,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.00659,
+          0.00659,
+          0.00659
+        ],
+        "Mn/Fe": [
+          0.00726,
+          0.00726,
+          0.00726
+        ],
+        "Si/Fe": [
+          0.01654,
+          0.01654,
+          0.01654
+        ],
+        "Si/Mn": [
+          2.2769,
+          2.2769,
+          2.2769
+        ]
+      }
+    },
+    "BUSHING": {
+      "component_id": "BUSHING",
+      "canonical_name": "Bushing",
+      "trust_level": 1,
+      "n_reports": 2,
+      "n_sites": 2,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 4,
+      "quality": "MEDIUM",
+      "elements": {
+        "Fe": {
+          "element": "Fe",
+          "median": 98.7756,
+          "iqr": 0.1363,
+          "mad": 0.101,
+          "min_val": 98.7075,
+          "max_val": 98.8438,
+          "sigma_eff": 5.1888,
+          "frequency": 1.0,
+          "n_sites": 2
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 1.2243,
+          "iqr": 0.1363,
+          "mad": 0.101,
+          "min_val": 1.1562,
+          "max_val": 1.2925,
+          "sigma_eff": 0.211,
+          "frequency": 1.0,
+          "n_sites": 2
+        }
+      },
+      "ratios": {
+        "Mn/Fe": [
+          0.0117,
+          0.0124,
+          0.0131
+        ]
+      }
+    },
+    "ARMATURE_SPRING": {
+      "component_id": "ARMATURE_SPRING",
+      "canonical_name": "Armature Spring",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 1,
+      "quality": "LOW",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 0.6398,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.6398,
+          "max_val": 0.6398,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.0502,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 97.0502,
+          "max_val": 97.0502,
+          "sigma_eff": 5.0983,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.7049,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.7049,
+          "max_val": 0.7049,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Si": {
+          "element": "Si",
+          "median": 1.605,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.605,
+          "max_val": 1.605,
+          "sigma_eff": 0.2308,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.00659,
+          0.00659,
+          0.00659
+        ],
+        "Mn/Fe": [
+          0.00726,
+          0.00726,
+          0.00726
+        ],
+        "Si/Fe": [
+          0.01654,
+          0.01654,
+          0.01654
+        ],
+        "Si/Mn": [
+          2.2769,
+          2.2769,
+          2.2769
+        ]
+      }
+    },
+    "HPP_SLEEVE": {
+      "component_id": "HPP_SLEEVE",
+      "canonical_name": "HPP Sleeve",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "BAR_EDGE_FILTER": {
+      "component_id": "BAR_EDGE_FILTER",
+      "canonical_name": "Bar/Edge Filter",
+      "trust_level": 1,
+      "n_reports": 3,
+      "n_sites": 3,
+      "n_single_candidate_sites": 1,
+      "n_spectra": 7,
+      "quality": "MEDIUM",
+      "elements": {
+        "Fe": {
+          "element": "Fe",
+          "median": 98.8438,
+          "iqr": 0.3207,
+          "mad": 0.2021,
+          "min_val": 98.7075,
+          "max_val": 99.0282,
+          "sigma_eff": 3.4616,
+          "frequency": 1.0,
+          "n_sites": 3
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 1.1562,
+          "iqr": 0.3207,
+          "mad": 0.2021,
+          "min_val": 0.9718,
+          "max_val": 1.2925,
+          "sigma_eff": 0.2377,
+          "frequency": 1.0,
+          "n_sites": 3
+        }
+      },
+      "ratios": {
+        "Mn/Fe": [
+          0.0098,
+          0.0117,
+          0.0131
+        ]
+      }
+    },
+    "CLAMPING_SADDLE": {
+      "component_id": "CLAMPING_SADDLE",
+      "canonical_name": "Clamping Saddle",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "FIXING_PIN": {
+      "component_id": "FIXING_PIN",
+      "canonical_name": "Fixing Pin",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 1,
+      "quality": "LOW",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 0.6398,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.6398,
+          "max_val": 0.6398,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.0502,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 97.0502,
+          "max_val": 97.0502,
+          "sigma_eff": 5.0983,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.7049,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.7049,
+          "max_val": 0.7049,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Si": {
+          "element": "Si",
+          "median": 1.605,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.605,
+          "max_val": 1.605,
+          "sigma_eff": 0.2308,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.00659,
+          0.00659,
+          0.00659
+        ],
+        "Mn/Fe": [
+          0.00726,
+          0.00726,
+          0.00726
+        ],
+        "Si/Fe": [
+          0.01654,
+          0.01654,
+          0.01654
+        ],
+        "Si/Mn": [
+          2.2769,
+          2.2769,
+          2.2769
+        ]
+      }
+    },
+    "RETAINING_SCREW": {
+      "component_id": "RETAINING_SCREW",
+      "canonical_name": "Retaining Screw",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "VALVE_SPRING": {
+      "component_id": "VALVE_SPRING",
+      "canonical_name": "Valve Spring",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "NOZZLE_NUT": {
+      "component_id": "NOZZLE_NUT",
+      "canonical_name": "Nozzle Nut",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "UNION_NUT": {
+      "component_id": "UNION_NUT",
+      "canonical_name": "Union Nut",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "SHIM": {
+      "component_id": "SHIM",
+      "canonical_name": "Shim",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 2,
+      "quality": "LOW",
+      "elements": {
+        "Fe": {
+          "element": "Fe",
+          "median": 98.8438,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 98.8438,
+          "max_val": 98.8438,
+          "sigma_eff": 5.1924,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 1.1562,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.1562,
+          "max_val": 1.1562,
+          "sigma_eff": 0.2079,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Mn/Fe": [
+          0.0117,
+          0.0117,
+          0.0117
+        ]
+      }
+    },
+    "COPPER_WASHER": {
+      "component_id": "COPPER_WASHER",
+      "canonical_name": "Copper Washer/Shim",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 1,
+      "n_spectra": 1,
+      "quality": "LOW",
+      "elements": {
+        "Cu": {
+          "element": "Cu",
+          "median": 100.0,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 100.0,
+          "max_val": 100.0,
+          "sigma_eff": 5.2531,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {}
+    },
+    "BACK_FLOW_TUBE": {
+      "component_id": "BACK_FLOW_TUBE",
+      "canonical_name": "Back Flow Tube",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "ARMATURE_PLATE": {
+      "component_id": "ARMATURE_PLATE",
+      "canonical_name": "Armature Plate",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 3,
+      "quality": "LOW",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 1.639,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.639,
+          "max_val": 1.639,
+          "sigma_eff": 0.2326,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.7913,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 97.7913,
+          "max_val": 97.7913,
+          "sigma_eff": 5.1372,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.2798,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.2798,
+          "max_val": 0.2798,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.2898,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.2898,
+          "max_val": 0.2898,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.01676,
+          0.01676,
+          0.01676
+        ],
+        "Mn/Fe": [
+          0.00286,
+          0.00286,
+          0.00286
+        ],
+        "Si/Fe": [
+          0.00296,
+          0.00296,
+          0.00296
+        ],
+        "Si/Mn": [
+          1.0357,
+          1.0357,
+          1.0357
+        ]
+      }
+    },
+    "ARMATURE_GUIDE": {
+      "component_id": "ARMATURE_GUIDE",
+      "canonical_name": "Armature Guide",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 3,
+      "quality": "LOW",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 1.639,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.639,
+          "max_val": 1.639,
+          "sigma_eff": 0.2326,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.7913,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 97.7913,
+          "max_val": 97.7913,
+          "sigma_eff": 5.1372,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.2798,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.2798,
+          "max_val": 0.2798,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.2898,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.2898,
+          "max_val": 0.2898,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.01676,
+          0.01676,
+          0.01676
+        ],
+        "Mn/Fe": [
+          0.00286,
+          0.00286,
+          0.00286
+        ],
+        "Si/Fe": [
+          0.00296,
+          0.00296,
+          0.00296
+        ],
+        "Si/Mn": [
+          1.0357,
+          1.0357,
+          1.0357
+        ]
+      }
+    },
+    "VALVE_PIECE": {
+      "component_id": "VALVE_PIECE",
+      "canonical_name": "Valve Piece",
+      "trust_level": 1,
+      "n_reports": 1,
+      "n_sites": 1,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 3,
+      "quality": "LOW",
+      "elements": {
+        "Cr": {
+          "element": "Cr",
+          "median": 1.639,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 1.639,
+          "max_val": 1.639,
+          "sigma_eff": 0.2326,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Fe": {
+          "element": "Fe",
+          "median": 97.7913,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 97.7913,
+          "max_val": 97.7913,
+          "sigma_eff": 5.1372,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Mn": {
+          "element": "Mn",
+          "median": 0.2798,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.2798,
+          "max_val": 0.2798,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        },
+        "Si": {
+          "element": "Si",
+          "median": 0.2898,
+          "iqr": 0.0,
+          "mad": 0.0,
+          "min_val": 0.2898,
+          "max_val": 0.2898,
+          "sigma_eff": 0.2,
+          "frequency": 1.0,
+          "n_sites": 1
+        }
+      },
+      "ratios": {
+        "Cr/Fe": [
+          0.01676,
+          0.01676,
+          0.01676
+        ],
+        "Mn/Fe": [
+          0.00286,
+          0.00286,
+          0.00286
+        ],
+        "Si/Fe": [
+          0.00296,
+          0.00296,
+          0.00296
+        ],
+        "Si/Mn": [
+          1.0357,
+          1.0357,
+          1.0357
+        ]
+      }
+    },
+    "MAGNET_SLEEVE": {
+      "component_id": "MAGNET_SLEEVE",
+      "canonical_name": "Magnet Sleeve",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "BA_HEXAFERRITE": {
+      "component_id": "BA_HEXAFERRITE",
+      "canonical_name": "Ba-hexaferrite Magnet",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "VITON_RING": {
+      "component_id": "VITON_RING",
+      "canonical_name": "Viton Ring",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "STRAINING_SCREW": {
+      "component_id": "STRAINING_SCREW",
+      "canonical_name": "Straining Screw",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    },
+    "HPP": {
+      "component_id": "HPP",
+      "canonical_name": "HPP (High Pressure Pipe)",
+      "trust_level": 1,
+      "n_reports": 0,
+      "n_sites": 0,
+      "n_single_candidate_sites": 0,
+      "n_spectra": 0,
+      "quality": "NONE",
+      "elements": {},
+      "ratios": {}
+    }
+  },
+  "family_comp_counts": {
+    "FREE_CUTTING_RESULPH_ETG": {
+      "MAGNET_NUT": 6.896333324654329,
+      "BAR_EDGE_FILTER": 0.23721578792435022,
+      "BUSHING": 0.32906390165439253,
+      "SHIM": 0.1564274741413025,
+      "NR_NUT": 1.1836433079013169,
+      "NOZZLE_NUT": 0.19731620372430958
+    },
+    "MN_CR_MN_STEEL": {
+      "INJECTOR_BODY": 0.33943706817302033,
+      "IC_STUD": 2.260116036165405,
+      "NR_NUT": 0.25844431509414156,
+      "MAGNET_NUT": 1.717836299988468,
+      "BAR_EDGE_FILTER": 5.326385110737014,
+      "BUSHING": 0.09778116984195089
+    },
+    "PLAIN_C_STEEL": {
+      "MAGNET_NUT": 0.6797618876271834,
+      "BAR_EDGE_FILTER": 0.5185353921148826,
+      "BUSHING": 0.25962258177543607,
+      "SHIM": 1.3138399241261962,
+      "NR_NUT": 0.3008992455103051,
+      "INJECTOR_BODY": 13.761532604072706,
+      "IC_STUD": 74.52662458195908,
+      "NHB": 2.8177436536214,
+      "VSS": 0.6515376338660288,
+      "INLET_CONNECTOR": 0.39586679129655344,
+      "MAGNET_CORE": 3.576559355836014,
+      "HPP": 0.6354074175261254,
+      "HPP_SLEEVE": 0.6354074175261254,
+      "UNION_NUT": 2.7291851649477494,
+      "COPPER_WASHER": 1.0,
+      "VALVE_SPRING": 0.1119482445003373,
+      "RETAINING_SCREW": 0.08552810369383702
+    },
+    "PURE_IRON_SOFT_MAGNETIC": {
+      "MAGNET_CORE": 53.0,
+      "BA_HEXAFERRITE": 1.0
+    },
+    "HSS_TOOL_STEEL": {
+      "NOZZLE_NEEDLE": 11.86505147641519,
+      "VALVE_PISTON": 8.134948523584807
+    },
+    "ZN_FLAKES_PLATING": {
+      "HPP": 0.5,
+      "HPP_SLEEVE": 0.5,
+      "INJECTOR_BODY": 0.8053285202342856,
+      "NR_NUT": 0.19467147976571433
+    },
+    "LEADED_PLAIN_C": {
+      "NHB": 0.5692428429103931,
+      "IC_STUD": 24.81205760696993,
+      "INJECTOR_BODY": 9.203979237983159,
+      "VSS": 1.2020525110312255,
+      "INLET_CONNECTOR": 0.20208716075890623,
+      "STRAINING_SCREW": 0.010580640346379434
+    },
+    "SL48_NOZZLE_STEEL": {
+      "NOZZLE_BODY": 11.0
+    },
+    "NI_ALLOY_PLATING": {
+      "CLAMPING_SADDLE": 4.0
+    },
+    "CU_SN_BRONZE": {
+      "SEALING_RING": 9.0
+    },
+    "SPRING_CR_SI_STEEL": {
+      "ARMATURE_SPRING": 1.9885877186339869,
+      "NOZZLE_SPRING": 1.9885877186339869,
+      "VALVE_SPRING": 0.3728957056073181,
+      "FIXING_PIN": 0.6499288571247077
+    },
+    "CARBON_POLYMER_NONMETAL": {
+      "VITON_RING": 1.0
+    },
+    "CERAMIC_SILICA_CARBO": {
+      "SEALING_RING": 1.0,
+      "VALVE_BALL": 6.0
+    },
+    "BEARING_100CR6": {
+      "MAGNET_CORE": 1.0,
+      "NHB": 0.45440609834434786,
+      "IC_STUD": 3.545593901655652,
+      "VALVE_PIECE": 0.3333333333333333,
+      "ARMATURE_PLATE": 0.3333333333333333,
+      "ARMATURE_GUIDE": 0.3333333333333333
+    },
+    "AUSTENITIC_SS": {
+      "MAGNET_SLEEVE": 0.5,
+      "BACK_FLOW_TUBE": 0.5
+    }
+  },
+  "coating_comp_counts": {
+    "NONE": {
+      "MAGNET_NUT": 2.5725521220852996,
+      "BAR_EDGE_FILTER": 5.573815347378857,
+      "BUSHING": 0.18436866964135315,
+      "SHIM": 2.4702673982674987,
+      "NOZZLE_NEEDLE": 4.613480942707511,
+      "VALVE_PISTON": 2.3865190572924897,
+      "MAGNET_CORE": 5.0,
+      "NOZZLE_BODY": 2.0,
+      "INJECTOR_BODY": 1.5107339255158332,
+      "VSS": 0.14197571758894195,
+      "IC_STUD": 9.076037031272696,
+      "ARMATURE_SPRING": 1.2236430201932342,
+      "NOZZLE_SPRING": 1.2236430201932342,
+      "VALVE_SPRING": 0.47422305453388247,
+      "SEALING_RING": 6.0,
+      "COPPER_WASHER": 2.0,
+      "VALVE_BALL": 6.0,
+      "NR_NUT": 0.19899646262699117,
+      "FIXING_PIN": 0.17981825400621326,
+      "VALVE_PIECE": 0.3333333333333333,
+      "ARMATURE_PLATE": 0.3333333333333333,
+      "ARMATURE_GUIDE": 0.3333333333333333,
+      "INLET_CONNECTOR": 0.09477216512314605,
+      "RETAINING_SCREW": 0.07515381157281809
+    },
+    "ZnP": {
+      "INJECTOR_BODY": 11.794429530936736,
+      "IC_STUD": 57.03286002867709,
+      "NR_NUT": 0.7483987617987221,
+      "MAGNET_NUT": 3.264624480679212,
+      "NHB": 2.8123941390717873,
+      "VSS": 1.3491951012517196,
+      "INLET_CONNECTOR": 0.24731608143972725,
+      "BAR_EDGE_FILTER": 0.3380009931334742,
+      "BUSHING": 0.21734486293707192,
+      "MAGNET_CORE": 0.08544707169528044,
+      "NOZZLE_NUT": 0.09940830803281171,
+      "STRAINING_SCREW": 0.010580640346379434
+    },
+    "UNKNOWN": {
+      "MAGNET_NUT": 3.456754909505468,
+      "NR_NUT": 0.9902631238457644,
+      "BAR_EDGE_FILTER": 0.17031995026391558,
+      "BUSHING": 0.28475412069335443,
+      "MAGNET_CORE": 52.49111228414073,
+      "INJECTOR_BODY": 10.309817852785958,
+      "IC_STUD": 37.58337366071067,
+      "NOZZLE_NEEDLE": 7.251570533707678,
+      "VALVE_PISTON": 5.748429466292317,
+      "NOZZLE_BODY": 9.0,
+      "NHB": 1.0289984558043535,
+      "CLAMPING_SADDLE": 2.0,
+      "SEALING_RING": 5.0,
+      "INLET_CONNECTOR": 0.2558657054925863,
+      "VSS": 0.3098368533708944,
+      "BA_HEXAFERRITE": 1.0,
+      "HPP": 0.6354074175261254,
+      "HPP_SLEEVE": 0.6354074175261254,
+      "UNION_NUT": 2.7291851649477494,
+      "VALVE_SPRING": 0.010620895573772918,
+      "RETAINING_SCREW": 0.010374292121018942,
+      "NOZZLE_NUT": 0.09790789569149785,
+      "VITON_RING": 1.0,
+      "ARMATURE_SPRING": 0.7649446984407527,
+      "NOZZLE_SPRING": 0.7649446984407527,
+      "FIXING_PIN": 0.4701106031184945,
+      "MAGNET_SLEEVE": 0.5,
+      "BACK_FLOW_TUBE": 0.5
+    },
+    "Zn": {
+      "HPP": 0.5,
+      "HPP_SLEEVE": 0.5,
+      "INJECTOR_BODY": 0.49529612122464506,
+      "IC_STUD": 1.4521214060896566,
+      "VSS": 0.05258247268569847
+    },
+    "Ni": {
+      "CLAMPING_SADDLE": 2.0
+    }
+  },
+  "zone_comp_counts": {
+    "IC_STUD_INLET": {
+      "MAGNET_NUT": 3.2125905373471952,
+      "NR_NUT": 0.5912892142971395,
+      "BAR_EDGE_FILTER": 1.4967050610009296,
+      "BUSHING": 0.5020989836304264,
+      "NOZZLE_NUT": 0.19731620372430958,
+      "SHIM": 1.0,
+      "CLAMPING_SADDLE": 1.0,
+      "COPPER_WASHER": 1.0,
+      "SEALING_RING": 1.0,
+      "MAGNET_CORE": 1.0
+    },
+    "ARMATURE_GROUP": {
+      "MAGNET_CORE": 7.0,
+      "NOZZLE_NEEDLE": 1.160059941762099,
+      "VALVE_PISTON": 0.8399400582379011,
+      "ARMATURE_SPRING": 0.7892484228185468,
+      "NOZZLE_SPRING": 0.7892484228185468,
+      "VALVE_SPRING": 0.18644785280365905,
+      "INJECTOR_BODY": 0.38424706745803416,
+      "IC_STUD": 1.615752932541966,
+      "SEALING_RING": 1.0,
+      "FIXING_PIN": 0.23505530155924725
+    },
+    "FILTER_BFT": {
+      "NOZZLE_NEEDLE": 2.320119883524198,
+      "VALVE_PISTON": 1.6798801164758022,
+      "NHB": 0.34428711201950885,
+      "IC_STUD": 4.65571288798049,
+      "INLET_CONNECTOR": 0.10867845737701659,
+      "INJECTOR_BODY": 1.737984149851636,
+      "VSS": 0.15333739277134747,
+      "NOZZLE_BODY": 1.0,
+      "CLAMPING_SADDLE": 1.0
+    },
+    "BODY_Z_HOLE_VALVE": {
+      "INJECTOR_BODY": 5.999675219325552,
+      "IC_STUD": 22.73516921962744,
+      "NHB": 0.9043827343058586,
+      "SEALING_RING": 7.0,
+      "VSS": 0.5799678671524168,
+      "INLET_CONNECTOR": 0.173724029373944,
+      "MAGNET_CORE": 0.5765593558360141,
+      "NOZZLE_BODY": 1.0,
+      "NR_NUT": 0.2647613925600947,
+      "VALVE_BALL": 2.0,
+      "MAGNET_SLEEVE": 0.5,
+      "BACK_FLOW_TUBE": 0.5,
+      "MAGNET_NUT": 0.7657601818186769,
+      "UNION_NUT": 1.0
+    },
+    "NOZZLE_SEAT_SPRAY": {
+      "NHB": 0.2850381041120848,
+      "IC_STUD": 12.03438430894119,
+      "INJECTOR_BODY": 3.1647761422454375,
+      "VSS": 0.46527965451156217,
+      "HPP": 0.21180247250870846,
+      "HPP_SLEEVE": 0.21180247250870846,
+      "UNION_NUT": 0.5763950549825831,
+      "NOZZLE_BODY": 1.0,
+      "INLET_CONNECTOR": 0.05052179018972656,
+      "BAR_EDGE_FILTER": 1.0,
+      "NOZZLE_NEEDLE": 0.5578131179775139,
+      "VALVE_PISTON": 0.44218688202248607,
+      "VALVE_PIECE": 0.3333333333333333,
+      "ARMATURE_PLATE": 0.3333333333333333,
+      "ARMATURE_GUIDE": 0.3333333333333333
+    },
+    "MAGNET_GROUP": {
+      "MAGNET_CORE": 1.0,
+      "NOZZLE_NEEDLE": 0.5578131179775139,
+      "VALVE_PISTON": 0.44218688202248607
+    },
+    "VALVE_PISTON_AREA": {
+      "MAGNET_CORE": 1.0
+    },
+    "OTHER_ZONE": {
+      "MAGNET_NUT": 1.0
+    }
+  },
+  "comp_report_counts": {
+    "IC_STUD": 79,
+    "INJECTOR_BODY": 49,
+    "MAGNET_CORE": 18,
+    "NHB": 34,
+    "VSS": 28,
+    "VALVE_PISTON": 9,
+    "MAGNET_NUT": 10,
+    "NR_NUT": 9,
+    "NOZZLE_NEEDLE": 10,
+    "NOZZLE_BODY": 6,
+    "INLET_CONNECTOR": 9,
+    "VALVE_BALL": 2,
+    "SEALING_RING": 10,
+    "NOZZLE_SPRING": 3,
+    "BUSHING": 5,
+    "ARMATURE_SPRING": 3,
+    "HPP_SLEEVE": 2,
+    "BAR_EDGE_FILTER": 6,
+    "CLAMPING_SADDLE": 3,
+    "FIXING_PIN": 2,
+    "RETAINING_SCREW": 2,
+    "VALVE_SPRING": 3,
+    "NOZZLE_NUT": 2,
+    "UNION_NUT": 2,
+    "SHIM": 3,
+    "COPPER_WASHER": 2,
+    "BACK_FLOW_TUBE": 1,
+    "ARMATURE_PLATE": 1,
+    "ARMATURE_GUIDE": 1,
+    "VALVE_PIECE": 1,
+    "MAGNET_SLEEVE": 1,
+    "BA_HEXAFERRITE": 1,
+    "VITON_RING": 1,
+    "STRAINING_SCREW": 1,
+    "HPP": 2
+  },
+  "comp_site_counts": {
+    "IC_STUD": 123,
+    "INJECTOR_BODY": 74,
+    "MAGNET_CORE": 59,
+    "NHB": 52,
+    "VSS": 36,
+    "VALVE_PISTON": 19,
+    "MAGNET_NUT": 15,
+    "NR_NUT": 14,
+    "NOZZLE_NEEDLE": 20,
+    "NOZZLE_BODY": 11,
+    "INLET_CONNECTOR": 11,
+    "VALVE_BALL": 6,
+    "SEALING_RING": 11,
+    "NOZZLE_SPRING": 5,
+    "BUSHING": 6,
+    "ARMATURE_SPRING": 5,
+    "HPP_SLEEVE": 4,
+    "BAR_EDGE_FILTER": 10,
+    "CLAMPING_SADDLE": 4,
+    "FIXING_PIN": 3,
+    "RETAINING_SCREW": 2,
+    "VALVE_SPRING": 4,
+    "NOZZLE_NUT": 2,
+    "UNION_NUT": 4,
+    "SHIM": 4,
+    "COPPER_WASHER": 2,
+    "BACK_FLOW_TUBE": 1,
+    "ARMATURE_PLATE": 1,
+    "ARMATURE_GUIDE": 1,
+    "VALVE_PIECE": 1,
+    "MAGNET_SLEEVE": 1,
+    "BA_HEXAFERRITE": 1,
+    "VITON_RING": 1,
+    "STRAINING_SCREW": 1,
+    "HPP": 4
+  },
+  "cooccurrence_sets": {
+    "IC_STUD": [
+      "BAR_EDGE_FILTER",
+      "INJECTOR_BODY",
+      "MAGNET_NUT",
+      "NHB",
+      "NR_NUT",
+      "RETAINING_SCREW",
+      "STRAINING_SCREW",
+      "VALVE_SPRING",
+      "VSS"
+    ],
+    "INJECTOR_BODY": [
+      "BAR_EDGE_FILTER",
+      "IC_STUD",
+      "INLET_CONNECTOR",
+      "MAGNET_CORE",
+      "MAGNET_NUT",
+      "NR_NUT",
+      "RETAINING_SCREW",
+      "STRAINING_SCREW",
+      "VALVE_SPRING",
+      "VSS"
+    ],
+    "MAGNET_CORE": [
+      "INJECTOR_BODY",
+      "INLET_CONNECTOR",
+      "VSS"
+    ],
+    "NHB": [
+      "IC_STUD",
+      "NR_NUT",
+      "VSS"
+    ],
+    "VSS": [
+      "BAR_EDGE_FILTER",
+      "IC_STUD",
+      "INJECTOR_BODY",
+      "INLET_CONNECTOR",
+      "MAGNET_CORE",
+      "NHB"
+    ],
+    "VALVE_PISTON": [
+      "NOZZLE_NEEDLE"
+    ],
+    "MAGNET_NUT": [
+      "BAR_EDGE_FILTER",
+      "BUSHING",
+      "IC_STUD",
+      "INJECTOR_BODY",
+      "NOZZLE_NUT",
+      "NR_NUT",
+      "SHIM"
+    ],
+    "NR_NUT": [
+      "BAR_EDGE_FILTER",
+      "BUSHING",
+      "IC_STUD",
+      "INJECTOR_BODY",
+      "MAGNET_NUT",
+      "NHB"
+    ],
+    "NOZZLE_NEEDLE": [
+      "VALVE_PISTON"
+    ],
+    "NOZZLE_BODY": [],
+    "INLET_CONNECTOR": [
+      "INJECTOR_BODY",
+      "MAGNET_CORE",
+      "RETAINING_SCREW",
+      "VALVE_SPRING",
+      "VSS"
+    ],
+    "VALVE_BALL": [],
+    "SEALING_RING": [],
+    "NOZZLE_SPRING": [
+      "ARMATURE_SPRING",
+      "FIXING_PIN",
+      "VALVE_SPRING"
+    ],
+    "BUSHING": [
+      "BAR_EDGE_FILTER",
+      "MAGNET_NUT",
+      "NOZZLE_NUT",
+      "NR_NUT",
+      "SHIM"
+    ],
+    "ARMATURE_SPRING": [
+      "FIXING_PIN",
+      "NOZZLE_SPRING",
+      "VALVE_SPRING"
+    ],
+    "HPP_SLEEVE": [
+      "HPP",
+      "UNION_NUT"
+    ],
+    "BAR_EDGE_FILTER": [
+      "BUSHING",
+      "IC_STUD",
+      "INJECTOR_BODY",
+      "MAGNET_NUT",
+      "NR_NUT",
+      "SHIM",
+      "VSS"
+    ],
+    "CLAMPING_SADDLE": [],
+    "FIXING_PIN": [
+      "ARMATURE_SPRING",
+      "NOZZLE_SPRING"
+    ],
+    "RETAINING_SCREW": [
+      "IC_STUD",
+      "INJECTOR_BODY",
+      "INLET_CONNECTOR",
+      "VALVE_SPRING"
+    ],
+    "VALVE_SPRING": [
+      "ARMATURE_SPRING",
+      "IC_STUD",
+      "INJECTOR_BODY",
+      "INLET_CONNECTOR",
+      "NOZZLE_SPRING",
+      "RETAINING_SCREW"
+    ],
+    "NOZZLE_NUT": [
+      "BUSHING",
+      "MAGNET_NUT"
+    ],
+    "UNION_NUT": [
+      "HPP",
+      "HPP_SLEEVE"
+    ],
+    "SHIM": [
+      "BAR_EDGE_FILTER",
+      "BUSHING",
+      "MAGNET_NUT"
+    ],
+    "COPPER_WASHER": [],
+    "BACK_FLOW_TUBE": [
+      "MAGNET_SLEEVE"
+    ],
+    "ARMATURE_PLATE": [
+      "ARMATURE_GUIDE",
+      "VALVE_PIECE"
+    ],
+    "ARMATURE_GUIDE": [
+      "ARMATURE_PLATE",
+      "VALVE_PIECE"
+    ],
+    "VALVE_PIECE": [
+      "ARMATURE_GUIDE",
+      "ARMATURE_PLATE"
+    ],
+    "MAGNET_SLEEVE": [
+      "BACK_FLOW_TUBE"
+    ],
+    "BA_HEXAFERRITE": [],
+    "VITON_RING": [],
+    "STRAINING_SCREW": [
+      "IC_STUD",
+      "INJECTOR_BODY"
+    ],
+    "HPP": [
+      "HPP_SLEEVE",
+      "UNION_NUT"
+    ]
+  },
+  "secondary_verification_summary": {
+    "total_secondary_spectra": 176,
+    "accepted_level2": 4,
+    "review_pending": 107,
+    "rejected_conflicting": 25,
+    "excluded_no_counterpart": 40
+  },
+  "validation_metrics": {
+    "n_internal_sites": 282,
+    "n_internal_reports": 150,
+    "n_spectrum_internal_sites": 66,
+    "report_level_split_leakage": 0,
+    "candidate_set_coverage": 0.9504,
+    "top1_candidate_compatibility_rate": 0.8191,
+    "high_confidence_count": 78,
+    "high_confidence_selective_precision": 0.9744,
+    "ambiguous_count": 201,
+    "ambiguous_set_coverage": 0.9552,
+    "spectrum_bearing_set_coverage": 0.9848,
+    "spectrum_bearing_top1_rate": 0.8485,
+    "location_only_baseline_top1": 0.4291,
+    "external_contaminant_non_single_rate": 0.855
+  }
+}
