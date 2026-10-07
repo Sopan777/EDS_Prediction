@@ -320,6 +320,52 @@ class PredictSingleSpectrumAPIView(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class IndirectSourcePredictAPIView(View):
+    """
+    Standalone API endpoint for the Indirect Material Source Rule Engine.
+    - GET: Returns all 24 Cleaning Area indirect reference parts, material families, and tolerance rules.
+    - POST: Runs two-stage Indirect Material Source prediction (Composition -> Indirect Material Family -> Indirect Part).
+    """
+
+    def get(self, request: HttpRequest) -> JsonResponse:
+        from indirect_engine.reference_loader import load_indirect_reference
+        from indirect_engine.engine import INDIRECT_FAMILY_LABELS
+
+        parts = load_indirect_reference()
+        return JsonResponse({
+            'status': 'ok',
+            'scope': 'Indirect Material Composition - Cleaning Area',
+            'totalParts': len(parts),
+            'materialFamilies': INDIRECT_FAMILY_LABELS,
+            'toleranceRules': [
+                {'range': '< 1', 'tolerance': '±25%', 'minFormula': 'Value * 0.75', 'maxFormula': 'Value * 1.25'},
+                {'range': '1 to 5 (inclusive)', 'tolerance': '±20%', 'minFormula': 'Value * 0.80', 'maxFormula': 'Value * 1.20'},
+                {'range': '> 5', 'tolerance': '±10%', 'minFormula': 'Value * 0.90', 'maxFormula': 'Value * 1.10'},
+            ],
+            'parts': [p.to_dict() for p in parts],
+        })
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        from indirect_engine.engine import predict_indirect_source, predict_indirect_particle
+
+        try:
+            body = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
+
+        if 'spectra' in body and isinstance(body['spectra'], list) and body['spectra']:
+            res = predict_indirect_particle(body['spectra'])
+            return JsonResponse(res)
+
+        raw_comp = body.get('composition') or body.get('spectrum') or body.get('elements') or body
+        if not isinstance(raw_comp, dict):
+            return JsonResponse({'error': 'Composition dictionary is required'}, status=400)
+
+        res = predict_indirect_source(raw_comp)
+        return JsonResponse(res)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class InternalSourcePredictV2APIView(View):
     """Unified v2 endpoint for EDS Internal Source Prediction (Section C & D contract)."""
 

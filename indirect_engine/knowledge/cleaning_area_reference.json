@@ -1,0 +1,1426 @@
+{
+  "version": "1.0.0",
+  "source_file": "data/Cleaning area.xlsx",
+  "scope": "Indirect Material Composition - Cleaning Area",
+  "tolerance_rules": [
+    {
+      "range": "< 1",
+      "tolerance": 0.25,
+      "min_formula": "Value * 0.75",
+      "max_formula": "Value * 1.25"
+    },
+    {
+      "range": "1 to 5 (inclusive)",
+      "tolerance": 0.2,
+      "min_formula": "Value * 0.80",
+      "max_formula": "Value * 1.20"
+    },
+    {
+      "range": "> 5",
+      "tolerance": 0.1,
+      "min_formula": "Value * 0.90",
+      "max_formula": "Value * 1.10"
+    }
+  ],
+  "material_families": {
+    "SS 304": [
+      "IC Stud Tray",
+      "Magnet Trays",
+      "Square Bowl",
+      "Round Bowl",
+      "NR Nut Tray",
+      "Durr Basket",
+      "Basket Cover",
+      "Magnet Housing Tray",
+      "Magnet Back flow tube Tray",
+      "Magnet Core Tray",
+      "Nozzle Tray",
+      "NSS Protection Cap",
+      "SS Table",
+      "T & T Basket",
+      "T & T Suet",
+      "Conveyor"
+    ],
+    "Mn Steel": [
+      "Durr Rack Angle"
+    ],
+    "CS": [
+      "Magnet Nut Spanner",
+      "Seal Ring remover",
+      "Body Holding Fixture"
+    ],
+    "AiSi 410": [
+      "IC Stud & NR Nut Loosening Spanner",
+      "Shim removing Clip"
+    ],
+    "SS 301": [
+      "Magnet Lifter Position"
+    ],
+    "EN 31": [
+      "Valve Set removing Base"
+    ]
+  },
+  "parts": [
+    {
+      "sn": 1,
+      "part_name": "IC Stud Tray",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.51,
+          "tolerance": 0.2,
+          "min_value": 1.208,
+          "max_value": 1.812
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.34,
+          "tolerance": 0.25,
+          "min_value": 0.255,
+          "max_value": 0.425
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 8.08,
+          "tolerance": 0.1,
+          "min_value": 7.272,
+          "max_value": 8.888
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 18.17,
+          "tolerance": 0.1,
+          "min_value": 16.353,
+          "max_value": 19.987
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.08,
+          "tolerance": 0.25,
+          "min_value": 0.06,
+          "max_value": 0.1
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.063,
+          "tolerance": 0.25,
+          "min_value": 0.04725,
+          "max_value": 0.07875
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.14,
+          "tolerance": 0.25,
+          "min_value": 0.105,
+          "max_value": 0.175
+        }
+      }
+    },
+    {
+      "sn": 2,
+      "part_name": "Magnet Trays",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.938,
+          "tolerance": 0.2,
+          "min_value": 1.5504,
+          "max_value": 2.3256
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.55,
+          "tolerance": 0.25,
+          "min_value": 0.4125,
+          "max_value": 0.6875
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.92,
+          "tolerance": 0.1,
+          "min_value": 7.128,
+          "max_value": 8.712
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.86,
+          "tolerance": 0.1,
+          "min_value": 16.074,
+          "max_value": 19.646
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.08,
+          "tolerance": 0.25,
+          "min_value": 0.06,
+          "max_value": 0.1
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.1,
+          "tolerance": 0.25,
+          "min_value": 0.075,
+          "max_value": 0.125
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.14,
+          "tolerance": 0.25,
+          "min_value": 0.105,
+          "max_value": 0.175
+        }
+      }
+    },
+    {
+      "sn": 4,
+      "part_name": "Square Bowl",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.2,
+          "tolerance": 0.2,
+          "min_value": 0.96,
+          "max_value": 1.44
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.45,
+          "tolerance": 0.25,
+          "min_value": 0.3375,
+          "max_value": 0.5625
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 9.68,
+          "tolerance": 0.1,
+          "min_value": 8.712,
+          "max_value": 10.648
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.8,
+          "tolerance": 0.1,
+          "min_value": 16.02,
+          "max_value": 19.58
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.25,
+          "tolerance": 0.25,
+          "min_value": 0.1875,
+          "max_value": 0.3125
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.24,
+          "tolerance": 0.25,
+          "min_value": 0.18,
+          "max_value": 0.3
+        }
+      }
+    },
+    {
+      "sn": 5,
+      "part_name": "Round Bowl",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.43,
+          "tolerance": 0.2,
+          "min_value": 1.144,
+          "max_value": 1.716
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.32,
+          "tolerance": 0.25,
+          "min_value": 0.24,
+          "max_value": 0.4
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 8.97,
+          "tolerance": 0.1,
+          "min_value": 8.073,
+          "max_value": 9.867
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.82,
+          "tolerance": 0.1,
+          "min_value": 16.038,
+          "max_value": 19.602
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.087,
+          "tolerance": 0.25,
+          "min_value": 0.06525,
+          "max_value": 0.10875
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.1,
+          "tolerance": 0.25,
+          "min_value": 0.075,
+          "max_value": 0.125
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.24,
+          "tolerance": 0.25,
+          "min_value": 0.18,
+          "max_value": 0.3
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.19,
+          "tolerance": 0.25,
+          "min_value": 0.1425,
+          "max_value": 0.2375
+        }
+      }
+    },
+    {
+      "sn": 6,
+      "part_name": "NR Nut Tray",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.32,
+          "tolerance": 0.2,
+          "min_value": 1.056,
+          "max_value": 1.584
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.2,
+          "tolerance": 0.25,
+          "min_value": 0.15,
+          "max_value": 0.25
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 9.21,
+          "tolerance": 0.1,
+          "min_value": 8.289,
+          "max_value": 10.131
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.8,
+          "tolerance": 0.1,
+          "min_value": 16.02,
+          "max_value": 19.58
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.21,
+          "tolerance": 0.25,
+          "min_value": 0.1575,
+          "max_value": 0.2625
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        }
+      }
+    },
+    {
+      "sn": 7,
+      "part_name": "Durr Basket",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.89,
+          "tolerance": 0.2,
+          "min_value": 1.512,
+          "max_value": 2.268
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.58,
+          "tolerance": 0.25,
+          "min_value": 0.435,
+          "max_value": 0.725
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.92,
+          "tolerance": 0.1,
+          "min_value": 7.128,
+          "max_value": 8.712
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.88,
+          "tolerance": 0.1,
+          "min_value": 16.092,
+          "max_value": 19.668
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.21,
+          "tolerance": 0.25,
+          "min_value": 0.1575,
+          "max_value": 0.2625
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.38,
+          "tolerance": 0.25,
+          "min_value": 0.285,
+          "max_value": 0.475
+        }
+      }
+    },
+    {
+      "sn": 8,
+      "part_name": "Basket Cover",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.57,
+          "tolerance": 0.2,
+          "min_value": 1.256,
+          "max_value": 1.884
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.48,
+          "tolerance": 0.25,
+          "min_value": 0.36,
+          "max_value": 0.6
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 8.68,
+          "tolerance": 0.1,
+          "min_value": 7.812,
+          "max_value": 9.548
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.83,
+          "tolerance": 0.1,
+          "min_value": 16.047,
+          "max_value": 19.613
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.079,
+          "tolerance": 0.25,
+          "min_value": 0.05925,
+          "max_value": 0.09875
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.24,
+          "tolerance": 0.25,
+          "min_value": 0.18,
+          "max_value": 0.3
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.25,
+          "tolerance": 0.25,
+          "min_value": 0.1875,
+          "max_value": 0.3125
+        }
+      }
+    },
+    {
+      "sn": 9,
+      "part_name": "Magnet Housing Tray",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.66,
+          "tolerance": 0.2,
+          "min_value": 1.328,
+          "max_value": 1.992
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.33,
+          "tolerance": 0.25,
+          "min_value": 0.2475,
+          "max_value": 0.4125
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 8.42,
+          "tolerance": 0.1,
+          "min_value": 7.578,
+          "max_value": 9.262
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.92,
+          "tolerance": 0.1,
+          "min_value": 16.128,
+          "max_value": 19.712
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.037,
+          "tolerance": 0.25,
+          "min_value": 0.02775,
+          "max_value": 0.04625
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.19,
+          "tolerance": 0.25,
+          "min_value": 0.1425,
+          "max_value": 0.2375
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.32,
+          "tolerance": 0.25,
+          "min_value": 0.24,
+          "max_value": 0.4
+        }
+      }
+    },
+    {
+      "sn": 10,
+      "part_name": "Magnet Back flow tube Tray",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.57,
+          "tolerance": 0.2,
+          "min_value": 1.256,
+          "max_value": 1.884
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.32,
+          "tolerance": 0.25,
+          "min_value": 0.24,
+          "max_value": 0.4
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 8.05,
+          "tolerance": 0.1,
+          "min_value": 7.245,
+          "max_value": 8.855
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.9,
+          "tolerance": 0.1,
+          "min_value": 16.11,
+          "max_value": 19.69
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.037,
+          "tolerance": 0.25,
+          "min_value": 0.02775,
+          "max_value": 0.04625
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.19,
+          "tolerance": 0.25,
+          "min_value": 0.1425,
+          "max_value": 0.2375
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.3,
+          "tolerance": 0.25,
+          "min_value": 0.225,
+          "max_value": 0.375
+        }
+      }
+    },
+    {
+      "sn": 11,
+      "part_name": "Magnet Core Tray",
+      "location": "Durr Tray Supermarket",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.75,
+          "tolerance": 0.2,
+          "min_value": 1.4,
+          "max_value": 2.1
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.27,
+          "tolerance": 0.25,
+          "min_value": 0.2025,
+          "max_value": 0.3375
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.9,
+          "tolerance": 0.1,
+          "min_value": 7.11,
+          "max_value": 8.69
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 18.02,
+          "tolerance": 0.1,
+          "min_value": 16.218,
+          "max_value": 19.822
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.064,
+          "tolerance": 0.25,
+          "min_value": 0.048,
+          "max_value": 0.08
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.17,
+          "tolerance": 0.25,
+          "min_value": 0.1275,
+          "max_value": 0.2125
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.28,
+          "tolerance": 0.25,
+          "min_value": 0.21,
+          "max_value": 0.35
+        }
+      }
+    },
+    {
+      "sn": 12,
+      "part_name": "Nozzle Tray",
+      "location": "Gluth Machine",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.01,
+          "tolerance": 0.2,
+          "min_value": 0.808,
+          "max_value": 1.212
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.14,
+          "tolerance": 0.25,
+          "min_value": 0.105,
+          "max_value": 0.175
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 8.06,
+          "tolerance": 0.1,
+          "min_value": 7.254,
+          "max_value": 8.866
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.93,
+          "tolerance": 0.1,
+          "min_value": 16.137,
+          "max_value": 19.723
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.07,
+          "tolerance": 0.25,
+          "min_value": 0.0525,
+          "max_value": 0.0875
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.06,
+          "tolerance": 0.25,
+          "min_value": 0.045,
+          "max_value": 0.075
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.07,
+          "tolerance": 0.25,
+          "min_value": 0.0525,
+          "max_value": 0.0875
+        }
+      }
+    },
+    {
+      "sn": 14,
+      "part_name": "NSS Protection Cap",
+      "location": "S+B",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.37,
+          "tolerance": 0.2,
+          "min_value": 1.096,
+          "max_value": 1.644
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.46,
+          "tolerance": 0.25,
+          "min_value": 0.345,
+          "max_value": 0.575
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.97,
+          "tolerance": 0.1,
+          "min_value": 7.173,
+          "max_value": 8.767
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 18.32,
+          "tolerance": 0.1,
+          "min_value": 16.488,
+          "max_value": 20.152
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.075,
+          "tolerance": 0.25,
+          "min_value": 0.05625,
+          "max_value": 0.09375
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.091,
+          "tolerance": 0.25,
+          "min_value": 0.06825,
+          "max_value": 0.11375
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.029,
+          "tolerance": 0.25,
+          "min_value": 0.02175,
+          "max_value": 0.03625
+        }
+      }
+    },
+    {
+      "sn": 15,
+      "part_name": "Durr Rack Angle",
+      "location": "Durr Tray Supermarket",
+      "material": "Mn Steel",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 8.66,
+          "tolerance": 0.1,
+          "min_value": 7.794,
+          "max_value": 9.526
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 1.43,
+          "tolerance": 0.2,
+          "min_value": 1.144,
+          "max_value": 1.716
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 0.91,
+          "tolerance": 0.25,
+          "min_value": 0.6825,
+          "max_value": 1.1375
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 14.99,
+          "tolerance": 0.1,
+          "min_value": 13.491,
+          "max_value": 16.489
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.06,
+          "tolerance": 0.25,
+          "min_value": 0.045,
+          "max_value": 0.075
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.061,
+          "tolerance": 0.25,
+          "min_value": 0.04575,
+          "max_value": 0.07625
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.078,
+          "tolerance": 0.25,
+          "min_value": 0.0585,
+          "max_value": 0.0975
+        }
+      }
+    },
+    {
+      "sn": 16,
+      "part_name": "SS Table",
+      "location": "All Tables",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.51,
+          "tolerance": 0.2,
+          "min_value": 1.208,
+          "max_value": 1.812
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.22,
+          "tolerance": 0.25,
+          "min_value": 0.165,
+          "max_value": 0.275
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.9,
+          "tolerance": 0.1,
+          "min_value": 7.11,
+          "max_value": 8.69
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 18.13,
+          "tolerance": 0.1,
+          "min_value": 16.317,
+          "max_value": 19.943
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.09,
+          "tolerance": 0.25,
+          "min_value": 0.0675,
+          "max_value": 0.1125
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.06,
+          "tolerance": 0.25,
+          "min_value": 0.045,
+          "max_value": 0.075
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.15,
+          "tolerance": 0.25,
+          "min_value": 0.1125,
+          "max_value": 0.1875
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.14,
+          "tolerance": 0.25,
+          "min_value": 0.105,
+          "max_value": 0.175
+        }
+      }
+    },
+    {
+      "sn": 17,
+      "part_name": "Magnet Nut Spanner",
+      "location": "Dis-Assembly Bench",
+      "material": "CS",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.16,
+          "tolerance": 0.2,
+          "min_value": 0.928,
+          "max_value": 1.392
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.01,
+          "tolerance": 0.25,
+          "min_value": 0.0075,
+          "max_value": 0.0125
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 0.04,
+          "tolerance": 0.25,
+          "min_value": 0.03,
+          "max_value": 0.05
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 0.05,
+          "tolerance": 0.25,
+          "min_value": 0.0375,
+          "max_value": 0.0625
+        },
+        "Nb": {
+          "element": "Nb",
+          "reference_value": 0.02,
+          "tolerance": 0.25,
+          "min_value": 0.015,
+          "max_value": 0.025
+        }
+      }
+    },
+    {
+      "sn": 18,
+      "part_name": "IC Stud & NR Nut Loosening Spanner",
+      "location": "Dis-Assembly Bench",
+      "material": "AiSi 410",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 0.86,
+          "tolerance": 0.25,
+          "min_value": 0.645,
+          "max_value": 1.075
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.14,
+          "tolerance": 0.25,
+          "min_value": 0.105,
+          "max_value": 0.175
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 0.11,
+          "tolerance": 0.25,
+          "min_value": 0.0825,
+          "max_value": 0.1375
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 1.03,
+          "tolerance": 0.2,
+          "min_value": 0.824,
+          "max_value": 1.236
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.06,
+          "tolerance": 0.25,
+          "min_value": 0.045,
+          "max_value": 0.075
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.18,
+          "tolerance": 0.25,
+          "min_value": 0.135,
+          "max_value": 0.225
+        },
+        "Pb": {
+          "element": "Pb",
+          "reference_value": 0.02,
+          "tolerance": 0.25,
+          "min_value": 0.015,
+          "max_value": 0.025
+        }
+      }
+    },
+    {
+      "sn": 20,
+      "part_name": "Seal Ring remover",
+      "location": "Dis-Assembly Bench",
+      "material": "CS",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 0.35,
+          "tolerance": 0.25,
+          "min_value": 0.2625,
+          "max_value": 0.4375
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.3,
+          "tolerance": 0.25,
+          "min_value": 0.225,
+          "max_value": 0.375
+        },
+        "Fe": {
+          "element": "Fe",
+          "reference_value": 99.0,
+          "tolerance": 0.1,
+          "min_value": 89.1,
+          "max_value": 108.9
+        }
+      }
+    },
+    {
+      "sn": 21,
+      "part_name": "Magnet Lifter Position",
+      "location": "Dis-Assembly Bench",
+      "material": "SS 301",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 0.1,
+          "tolerance": 0.25,
+          "min_value": 0.075,
+          "max_value": 0.125
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.4,
+          "tolerance": 0.25,
+          "min_value": 0.3,
+          "max_value": 0.5
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.64,
+          "tolerance": 0.1,
+          "min_value": 6.876,
+          "max_value": 8.404
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.66,
+          "tolerance": 0.1,
+          "min_value": 15.894,
+          "max_value": 19.426
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.1,
+          "tolerance": 0.25,
+          "min_value": 0.075,
+          "max_value": 0.125
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.28,
+          "tolerance": 0.25,
+          "min_value": 0.21,
+          "max_value": 0.35
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.1,
+          "tolerance": 0.25,
+          "min_value": 0.075,
+          "max_value": 0.125
+        },
+        "Pb": {
+          "element": "Pb",
+          "reference_value": 0.036,
+          "tolerance": 0.25,
+          "min_value": 0.027,
+          "max_value": 0.045
+        }
+      }
+    },
+    {
+      "sn": 22,
+      "part_name": "Body Holding Fixture",
+      "location": "Dis-Assembly Bench",
+      "material": "CS",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 0.71,
+          "tolerance": 0.25,
+          "min_value": 0.5325,
+          "max_value": 0.8875
+        },
+        "Zn": {
+          "element": "Zn",
+          "reference_value": 0.49,
+          "tolerance": 0.25,
+          "min_value": 0.3675,
+          "max_value": 0.6125
+        },
+        "Pb": {
+          "element": "Pb",
+          "reference_value": 0.031,
+          "tolerance": 0.25,
+          "min_value": 0.02325,
+          "max_value": 0.03875
+        }
+      }
+    },
+    {
+      "sn": 23,
+      "part_name": "Shim removing Clip",
+      "location": "Dis-Assembly Bench",
+      "material": "AiSi 410",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 0.54,
+          "tolerance": 0.25,
+          "min_value": 0.405,
+          "max_value": 0.675
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.12,
+          "tolerance": 0.25,
+          "min_value": 0.09,
+          "max_value": 0.15
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 0.21,
+          "tolerance": 0.25,
+          "min_value": 0.1575,
+          "max_value": 0.2625
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 12.1,
+          "tolerance": 0.1,
+          "min_value": 10.89,
+          "max_value": 13.31
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.03,
+          "tolerance": 0.25,
+          "min_value": 0.0225,
+          "max_value": 0.0375
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.02,
+          "tolerance": 0.25,
+          "min_value": 0.015,
+          "max_value": 0.025
+        }
+      }
+    },
+    {
+      "sn": 24,
+      "part_name": "Valve Set removing Base",
+      "location": "Dis-Assembly Bench",
+      "material": "EN 31",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 0.47,
+          "tolerance": 0.25,
+          "min_value": 0.3525,
+          "max_value": 0.5875
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 0.04,
+          "tolerance": 0.25,
+          "min_value": 0.03,
+          "max_value": 0.05
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 1.45,
+          "tolerance": 0.2,
+          "min_value": 1.16,
+          "max_value": 1.74
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.02,
+          "tolerance": 0.25,
+          "min_value": 0.015,
+          "max_value": 0.025
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.03,
+          "tolerance": 0.25,
+          "min_value": 0.0225,
+          "max_value": 0.0375
+        }
+      }
+    },
+    {
+      "sn": 25,
+      "part_name": "T & T Basket",
+      "location": "T & T Machine",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.64,
+          "tolerance": 0.2,
+          "min_value": 1.312,
+          "max_value": 1.968
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.58,
+          "tolerance": 0.25,
+          "min_value": 0.435,
+          "max_value": 0.725
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 9.28,
+          "tolerance": 0.1,
+          "min_value": 8.352,
+          "max_value": 10.208
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.5,
+          "tolerance": 0.1,
+          "min_value": 15.75,
+          "max_value": 19.25
+        },
+        "V": {
+          "element": "V",
+          "reference_value": 0.1,
+          "tolerance": 0.25,
+          "min_value": 0.075,
+          "max_value": 0.125
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.65,
+          "tolerance": 0.25,
+          "min_value": 0.4875,
+          "max_value": 0.8125
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.34,
+          "tolerance": 0.25,
+          "min_value": 0.255,
+          "max_value": 0.425
+        },
+        "Nb": {
+          "element": "Nb",
+          "reference_value": 0.21,
+          "tolerance": 0.25,
+          "min_value": 0.1575,
+          "max_value": 0.2625
+        }
+      }
+    },
+    {
+      "sn": 26,
+      "part_name": "T & T Suet",
+      "location": "T & T Machine",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.87,
+          "tolerance": 0.2,
+          "min_value": 1.496,
+          "max_value": 2.244
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.35,
+          "tolerance": 0.25,
+          "min_value": 0.2625,
+          "max_value": 0.4375
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.96,
+          "tolerance": 0.1,
+          "min_value": 7.164,
+          "max_value": 8.756
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 17.91,
+          "tolerance": 0.1,
+          "min_value": 16.119,
+          "max_value": 19.701
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.08,
+          "tolerance": 0.25,
+          "min_value": 0.06,
+          "max_value": 0.1
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.21,
+          "tolerance": 0.25,
+          "min_value": 0.1575,
+          "max_value": 0.2625
+        }
+      }
+    },
+    {
+      "sn": 27,
+      "part_name": "Conveyor",
+      "location": "All conveyor form Cleaning to Assembly",
+      "material": "SS 304",
+      "elements": {
+        "Mn": {
+          "element": "Mn",
+          "reference_value": 1.1,
+          "tolerance": 0.2,
+          "min_value": 0.88,
+          "max_value": 1.32
+        },
+        "Cu": {
+          "element": "Cu",
+          "reference_value": 0.43,
+          "tolerance": 0.25,
+          "min_value": 0.3225,
+          "max_value": 0.5375
+        },
+        "Ni": {
+          "element": "Ni",
+          "reference_value": 7.97,
+          "tolerance": 0.1,
+          "min_value": 7.173,
+          "max_value": 8.767
+        },
+        "Cr": {
+          "element": "Cr",
+          "reference_value": 18.18,
+          "tolerance": 0.1,
+          "min_value": 16.362,
+          "max_value": 19.998
+        },
+        "Co": {
+          "element": "Co",
+          "reference_value": 0.06,
+          "tolerance": 0.25,
+          "min_value": 0.045,
+          "max_value": 0.075
+        },
+        "Mo": {
+          "element": "Mo",
+          "reference_value": 0.36,
+          "tolerance": 0.25,
+          "min_value": 0.27,
+          "max_value": 0.45
+        },
+        "Nb": {
+          "element": "Nb",
+          "reference_value": 0.011,
+          "tolerance": 0.25,
+          "min_value": 0.00825,
+          "max_value": 0.01375
+        }
+      }
+    }
+  ]
+}

@@ -892,6 +892,9 @@ function renderPredictionResults(data, elapsedSecs) {
     topCard.classList.add('hidden');
   }
 
+  // --- 2B. PROBABLE INDIRECT SOURCE (Separate Cleaning Area Rule Engine) ---
+  renderIndirectSourceCard(data);
+
   // --- 3. COMPOSITION BREAKDOWN (MEASURED VS EXPECTED BANDS) ---
   renderCompositionBreakdown(data);
 
@@ -903,6 +906,97 @@ function renderPredictionResults(data, elapsedSecs) {
 
   // --- 6. WARNINGS & CONFLICTS ---
   renderWarningsAndConflicts(data);
+}
+
+function renderIndirectSourceCard(data) {
+  const card = document.getElementById('probable-indirect-source-card');
+  if (!card) return;
+
+  const ind = data.indirectSourcePrediction || null;
+  if (!ind) {
+    card.classList.add('hidden');
+    return;
+  }
+
+  card.classList.remove('hidden');
+  const famBadge = document.getElementById('indirect-source-family-badge');
+  const decBadge = document.getElementById('indirect-source-decision-badge');
+  const partNameEl = document.getElementById('indirect-source-part-name');
+  const locEl = document.getElementById('indirect-source-location');
+  const ratEl = document.getElementById('indirect-source-rationale');
+  const pctEl = document.getElementById('indirect-source-compat-pct');
+  const tolEl = document.getElementById('indirect-source-tol-summary');
+  const elBox = document.getElementById('indirect-source-elements-box');
+  const altBox = document.getElementById('indirect-source-alternatives-box');
+
+  const indFamily = ind.indirectFamily || ind.predictedMaterialFamily || 'Unknown / Inconclusive';
+  const indDecision = ind.decision || 'unknown';
+  const topSource = ind.topIndirectSource || null;
+  const isUnknown = indDecision === 'unknown' || !topSource;
+
+  if (famBadge) {
+    famBadge.textContent = `Stage 1 Indirect Family: ${indFamily}`;
+  }
+
+  if (decBadge) {
+    if (indDecision === 'identified') {
+      decBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200';
+      decBadge.textContent = 'IDENTIFIED';
+    } else if (indDecision === 'ambiguous' || indDecision === 'multiple_plausible') {
+      decBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200';
+      decBadge.textContent = 'MULTIPLE PLAUSIBLE';
+    } else {
+      decBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300';
+      decBadge.textContent = 'UNKNOWN / INCONCLUSIVE';
+    }
+  }
+
+  if (isUnknown) {
+    if (partNameEl) partNameEl.textContent = 'Unknown / Inconclusive';
+    if (locEl) locEl.textContent = 'No compatible Cleaning Area indirect source matched';
+    if (ratEl) ratEl.textContent = ind.stage1Reason || ind.decisionRationale || 'Insufficient elemental compatibility with Cleaning Area reference parts.';
+    if (pctEl) pctEl.textContent = '—';
+    if (tolEl) tolEl.textContent = 'No match';
+    if (elBox) elBox.innerHTML = '';
+    if (altBox) altBox.innerHTML = '';
+    return;
+  }
+
+  if (partNameEl) partNameEl.textContent = topSource.partName || 'Unknown / Inconclusive';
+  if (locEl) locEl.textContent = `Location: ${topSource.location || 'Cleaning Area'} • Material Class: ${topSource.material || indFamily}`;
+  if (ratEl) ratEl.textContent = topSource.notes || ind.stage1Reason || '';
+  if (pctEl) pctEl.textContent = `${topSource.compatibilityPct || 0}%`;
+  if (tolEl) {
+    const wCount = (topSource.withinToleranceElements || []).length;
+    const oCount = (topSource.outsideToleranceElements || []).length;
+    const mCount = (topSource.missingElements || []).length;
+    tolEl.textContent = `${wCount} in-tol / ${oCount} out / ${mCount} missing`;
+  }
+
+  if (elBox) {
+    const evals = topSource.elementChecks || [];
+    elBox.innerHTML = evals.map(ev => {
+      const measStr = ev.measuredValue !== null && ev.measuredValue !== undefined ? `${Number(ev.measuredValue).toFixed(2)}%` : 'N/A';
+      const rangeStr = `[${Number(ev.minValue).toFixed(2)}–${Number(ev.maxValue).toFixed(2)}%]`;
+      let cls = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+      if (ev.status !== 'within_tolerance') {
+        cls = ev.status === 'missing'
+          ? 'bg-rose-50 text-rose-800 border-rose-200'
+          : 'bg-amber-50 text-amber-800 border-amber-200';
+      }
+      return `<span class="px-2 py-0.5 rounded border text-[10.5px] font-mono-code font-semibold ${cls}">${ev.element}: ${measStr} ${rangeStr}</span>`;
+    }).join('');
+  }
+
+  if (altBox) {
+    const alts = (ind.candidates || []).slice(1, 5);
+    if (alts.length > 0) {
+      altBox.innerHTML = `<span class="font-bold text-slate-700 mr-1.5">Plausible Indirect Alternatives:</span>` +
+        alts.map(a => `<span class="inline-block px-2 py-0.5 mr-1.5 mb-1 rounded bg-slate-100 border border-slate-200 font-semibold text-slate-800">${a.partName} <span class="font-mono-code text-indigo-700">(${a.compatibilityPct}%)</span></span>`).join('');
+    } else {
+      altBox.innerHTML = `<span class="text-slate-400">No other indirect parts in ${indFamily} exceeded compatibility threshold.</span>`;
+    }
+  }
 }
 
 function renderCompositionBreakdown(data) {

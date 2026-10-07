@@ -152,6 +152,41 @@ function getStatusBadgeHtml(decision) {
   return `<span class="status-pill unknown">○ Needs Review</span>`;
 }
 
+function buildOverviewIndirectCellHtml(sp) {
+  const ind = sp.indirectSourcePrediction;
+  if (!ind) {
+    return `<span class="text-slate-400 text-xs">Unknown / Inconclusive</span>`;
+  }
+
+  const indDec = (ind.decision || 'unknown').toLowerCase();
+  const topInd = ind.topIndirectSource;
+  const indCands = ind.candidates || [];
+  const indFam = ind.indirectFamily || 'Unknown / Inconclusive';
+
+  if (indDec !== 'unknown' && topInd) {
+    const altNames = indCands.slice(1, 3).map(c => `${c.partName} (${c.compatibilityPct}%)`).join(', ');
+    return `
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="px-1.5 py-0.5 rounded bg-blue-900 text-white font-mono-code text-[10px] font-bold">${escapeHtml(topInd.material || indFam)}</span>
+        <span class="font-bold text-slate-900">${escapeHtml(topInd.partName)}</span>
+        <span class="text-[11px] font-mono-code font-bold text-blue-700">(${topInd.compatibilityPct}%)</span>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-0.5">
+        ${topInd.location ? `Loc: ${escapeHtml(topInd.location)}` : ''}
+        ${topInd.withinToleranceElements && topInd.withinToleranceElements.length > 0 ? ` • In tol: ${escapeHtml(topInd.withinToleranceElements.join(', '))}` : ''}
+      </div>
+      ${altNames ? `<div class="text-[11px] text-slate-500">Also plausible: ${escapeHtml(altNames)}</div>` : ''}
+    `;
+  }
+
+  return `
+    <div class="font-bold text-slate-500 text-xs">Unknown / Inconclusive</div>
+    <div class="text-[11px] text-slate-400 mt-0.5">
+      ${indFam !== 'Unknown / Inconclusive' ? `Family: ${escapeHtml(indFam)} (Outside tolerance)` : 'No matching indirect family'}
+    </div>
+  `;
+}
+
 function renderSummaryTable() {
   const tbody = document.getElementById('all-spectra-summary-tbody');
   if (!tbody) return;
@@ -181,6 +216,8 @@ function renderSummaryTable() {
       compHtml = `<div class="text-xs text-slate-600">Closest ref: ${escapeHtml(topNames)}</div>`;
     }
 
+    const indirectHtml = buildOverviewIndirectCellHtml(sp);
+
     return `
       <tr>
         <td class="font-mono-code font-bold text-slate-700">#${idx + 1}</td>
@@ -202,6 +239,7 @@ function renderSummaryTable() {
           </div>
         </td>
         <td>${compHtml}</td>
+        <td>${indirectHtml}</td>
         <td>${getStatusBadgeHtml(sp.decision)}</td>
         <td style="text-align: right;">
           <button type="button" onclick="jumpAndEditSpectrum(${idx})" class="btn-outline" style="padding: 5px 10px; font-size: 11.5px;">
@@ -224,6 +262,102 @@ function renderSpectrumCards() {
 
   const spectra = reportPredictionState.perSpectrum || [];
   container.innerHTML = spectra.map((sp, idx) => buildSingleSpectrumCardHtml(sp, idx)).join('');
+}
+
+function buildIndirectCardBoxHtml(sp) {
+  const ind = sp.indirectSourcePrediction || {};
+  const indDec = (ind.decision || 'unknown').toLowerCase();
+  const indFam = ind.indirectFamily || 'Unknown / Inconclusive';
+  const indFamLabel = ind.indirectFamilyLabel || indFam;
+  const topInd = ind.topIndirectSource || null;
+  const indCands = ind.candidates || [];
+
+  const badgeClass = indDec === 'identified'
+    ? 'bg-blue-700 text-white'
+    : (indDec === 'ambiguous' ? 'bg-amber-600 text-white' : 'bg-slate-600 text-white');
+
+  let checksHtml = '';
+  if (topInd && Array.isArray(topInd.elementChecks) && topInd.elementChecks.length > 0) {
+    const checkPills = topInd.elementChecks.map(chk => {
+      if (chk.status === 'within_tolerance') {
+        return `<span class="px-1.5 py-0.5 rounded bg-emerald-100 border border-emerald-300 text-emerald-900 font-mono-code text-[10px] font-bold" title="Ref: ${chk.referenceValue}% (${chk.toleranceLabel}: ${chk.minValue}–${chk.maxValue}%)">✓ ${escapeHtml(chk.element)}: ${chk.measuredValue}% [${chk.minValue}–${chk.maxValue}]</span>`;
+      }
+      if (chk.status === 'outside_tolerance') {
+        return `<span class="px-1.5 py-0.5 rounded bg-amber-100 border border-amber-300 text-amber-900 font-mono-code text-[10px] font-bold" title="Ref: ${chk.referenceValue}% (${chk.toleranceLabel}: ${chk.minValue}–${chk.maxValue}%)">! ${escapeHtml(chk.element)}: ${chk.measuredValue}% [${chk.minValue}–${chk.maxValue}]</span>`;
+      }
+      return `<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-600 font-mono-code text-[10px]" title="Ref: ${chk.referenceValue}% (Not detected in EDS)">○ ${escapeHtml(chk.element)} (Ref ${chk.referenceValue}%)</span>`;
+    }).join(' ');
+    checksHtml = `<div class="flex flex-wrap gap-1 mt-2">${checkPills}</div>`;
+  }
+
+  const indCandRowsHtml = indCands.slice(0, 4).map((c, cIdx) => `
+    <tr class="border-b border-blue-200/60 last:border-none text-xs">
+      <td class="py-1.5 pr-2 font-mono-code font-bold text-slate-500">#${cIdx + 1}</td>
+      <td class="py-1.5 px-2">
+        <div class="font-bold text-slate-900">${escapeHtml(c.partName)}</div>
+        <div class="text-[10px] text-slate-500">${escapeHtml(c.location || '')}</div>
+      </td>
+      <td class="py-1.5 px-2">
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono-code font-bold bg-white border border-blue-200 text-blue-900">
+          ${escapeHtml(c.material)}
+        </span>
+      </td>
+      <td class="py-1.5 pl-2 text-right font-mono-code font-bold text-slate-900">${c.compatibilityPct}%</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="pred-box-indirect">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-800">3. Probable Indirect Source</span>
+        <span class="px-2 py-0.5 rounded font-mono-code text-[10.5px] font-bold ${badgeClass}">
+          ${escapeHtml(indFam)}
+        </span>
+      </div>
+
+      <div class="text-[11px] text-slate-600 mt-1">
+        Stage 1 Indirect Family: <strong>${escapeHtml(indFamLabel)}</strong>
+      </div>
+
+      ${topInd && indDec !== 'unknown' ? `
+        <div class="mt-2 flex items-baseline justify-between gap-2">
+          <div>
+            <span class="text-lg font-black text-slate-900">${escapeHtml(topInd.partName)}</span>
+            ${topInd.location ? `<div class="text-[11px] text-slate-600">Location: <strong>${escapeHtml(topInd.location)}</strong></div>` : ''}
+          </div>
+          <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-300 font-mono-code text-xs font-bold shrink-0">
+            ${topInd.compatibilityPct}% Match
+          </span>
+        </div>
+        ${checksHtml}
+        <p class="text-[11px] text-slate-600 mt-1.5">${escapeHtml(topInd.notes || '')}</p>
+      ` : `
+        <div class="text-sm font-black text-slate-700 mt-2">Unknown / Inconclusive</div>
+        <p class="text-[11.5px] text-slate-600 mt-1 leading-relaxed">
+          ${escapeHtml(ind.stage1Reason || 'Measured EDS elemental values do not match any Cleaning Area indirect material source within tolerance.')}
+        </p>
+      `}
+
+      ${indCandRowsHtml && indDec !== 'unknown' ? `
+        <div class="mt-3 pt-2 border-t border-blue-200/80">
+          <div class="text-[10px] font-bold uppercase text-blue-800 mb-1">Cleaning Area Reference Matches (±25% / ±20% / ±10% Tol)</div>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] font-bold uppercase text-slate-500 border-b border-blue-200/80">
+                <th class="pb-1">Rank</th>
+                <th class="pb-1 px-2">Indirect Part</th>
+                <th class="pb-1 px-2">Material</th>
+                <th class="pb-1 text-right">Compat.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${indCandRowsHtml}
+            </tbody>
+          </table>
+        </div>
+      ` : ''}
+    </div>
+  `;
 }
 
 function buildSingleSpectrumCardHtml(sp, idx) {
@@ -300,6 +434,8 @@ function buildSingleSpectrumCardHtml(sp, idx) {
       <span>${escapeHtml(c)}</span>
     </div>
   `).join('');
+
+  const indirectBoxHtml = buildIndirectCardBoxHtml(sp);
 
   return `
     <div id="spectrum-card-${idx}" class="spectrum-card ${statusClass}">
@@ -388,13 +524,14 @@ function buildSingleSpectrumCardHtml(sp, idx) {
           </div>
         </div>
 
-        <!-- 2-Column Prediction Output for This Spectrum -->
-        <div class="pred-two-col">
+        <!-- 3-Column Prediction Output:
+             1. Predicted Material Family -> 2. Probable Component / Source(s) -> 3. Probable Indirect Source -->
+        <div class="pred-three-col">
 
-          <!-- Left Column: Material Family Prediction -->
+          <!-- Column 1: Predicted Material Family -->
           <div class="pred-box">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">1. Material Family Identification</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">1. Predicted Material Family</span>
               <span class="px-2 py-0.5 rounded bg-slate-900 text-white font-mono-code text-xs font-bold">
                 ${escapeHtml(sp.familyCode && sp.familyCode !== 'NONE' ? sp.familyCode : 'UNCLASSIFIED')}
               </span>
@@ -424,10 +561,10 @@ function buildSingleSpectrumCardHtml(sp, idx) {
             <div class="mt-2">${caveatsHtml}</div>
           </div>
 
-          <!-- Right Column: Component & Internal Injector Source Prediction -->
+          <!-- Column 2: Probable Component / Source(s) (Direct Injector Component Engine) -->
           <div class="pred-box">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-[#ED0007]">2. Probable Internal Component Source(s)</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#ED0007]">2. Probable Component / Source(s)</span>
               <span class="text-[11px] font-mono-code text-slate-500">
                 ${cands.length} Candidate${cands.length === 1 ? '' : 's'}
               </span>
@@ -439,7 +576,7 @@ function buildSingleSpectrumCardHtml(sp, idx) {
                   <span class="text-lg font-black text-slate-900">${escapeHtml(topCand.name)}</span>
                   <span class="text-xs text-slate-500 ml-1">(${escapeHtml(topCand.fingerprintQuality || 'REF')} Quality)</span>
                 </div>
-                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono-code text-xs font-bold">
+                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono-code text-xs font-bold shrink-0">
                   ${topCand.confidence !== undefined ? topCand.confidence : Math.round((topCand.compatibility || 0) * 100)}% Match
                 </span>
               </div>
@@ -466,6 +603,9 @@ function buildSingleSpectrumCardHtml(sp, idx) {
               </div>
             ` : ''}
           </div>
+
+          <!-- Column 3: Probable Indirect Source (Separate Cleaning Area Rule Engine) -->
+          ${indirectBoxHtml}
 
         </div>
       </div>

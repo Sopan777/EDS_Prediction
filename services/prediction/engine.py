@@ -192,6 +192,14 @@ def predict_single_spectrum_full(
         prediction_family_label=top_fam.label if top_fam else None,
     )
 
+    # Separate Indirect Material Source Rule Engine (Cleaning Area Reference)
+    indirect_pred = None
+    try:
+        from indirect_engine.engine import predict_indirect_source
+        indirect_pred = predict_indirect_source(spec)
+    except Exception as ind_err:
+        print(f"Warning: Indirect Source Engine error: {ind_err}")
+
     checks_list = [chk.to_dict() for chk in top_fam.checks] if top_fam else []
     fam_label = top_fam.label if top_fam else "Unclassified / Needs Review"
 
@@ -231,6 +239,7 @@ def predict_single_spectrum_full(
         "candidateComponents": spec_candidates,
         "componentDecision": comp_dec_str,
         "internalSourcePrediction": spec_isp,
+        "indirectSourcePrediction": indirect_pred,
         "conflict": {
             "has_conflict": spec_conflict.has_conflict,
             "severity": spec_conflict.severity,
@@ -493,6 +502,14 @@ def run_prediction(
     except Exception as isp_err:
         print(f"Warning: ISP v2 engine error: {isp_err}")
 
+    # Separate Indirect Material Source Rule Engine (Cleaning Area Reference)
+    indirect_pooled_result = None
+    try:
+        from indirect_engine.engine import predict_indirect_particle
+        indirect_pooled_result = predict_indirect_particle(spectra_list)
+    except Exception as ind_err:
+        print(f"Warning: Indirect Source Engine error: {ind_err}")
+
     return {
         # Standardized modern structure
         "status": decision_val,
@@ -543,6 +560,7 @@ def run_prediction(
         },
         "warnings": warnings_list,
         "internal_source_prediction": isp_result,
+        "indirectSourcePrediction": indirect_pooled_result,
         "sourceFilename": source_filename or "Manual Spectrum Input",
         "reportMetadata": report_metadata or {},
     }

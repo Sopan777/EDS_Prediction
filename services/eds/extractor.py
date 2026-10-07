@@ -112,6 +112,7 @@ def get_dataset_supported_elements() -> List[Dict[str, Any]]:
         PROJECT_ROOT / "data" / "primary" / "EDS_Internal_Report_Particle_Dataset.xlsx",
         PROJECT_ROOT / "data" / "primary" / "EDS_Consolidation_SECONDARY.xlsx",
         PROJECT_ROOT / "data" / "EDS Consolidation.xlsx",
+        PROJECT_ROOT / "data" / "Cleaning area.xlsx",
     ]
 
     for wb_path in candidate_workbooks:
