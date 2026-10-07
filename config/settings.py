@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'services.audit.terminal_logger.ColoredRequestLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -122,3 +123,43 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Upload limits (allow up to 25MB for large SEM/EDS reports)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
 FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400
+
+# Colorized Terminal Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'colored_terminal': {
+            '()': 'services.audit.terminal_logger.ColoredFormatter',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'colored_terminal',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'dhatu_bodh': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+

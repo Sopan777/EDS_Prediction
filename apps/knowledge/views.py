@@ -1,14 +1,27 @@
 import json
+import os
 import time
 from datetime import datetime
 from django.http import JsonResponse, HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.utils.decorators import method_decorator
 
 from apps.knowledge.models import RatioGate
-from services.knowledge.kb import get_all_families_mapped, format_material_family, get_kb
+from services.knowledge.kb import (
+    get_all_families_mapped,
+    format_material_family,
+    get_kb,
+    save_family_customization,
+    save_component_customization,
+)
+from indirect_engine.reference_loader import (
+    get_indirect_kb_payload,
+    save_indirect_part_customization,
+    delete_indirect_part_customization,
+    save_indirect_family_customization,
+)
 from services.audit.logger import log_event
 
 
@@ -27,8 +40,12 @@ def knowledge_view(request: HttpRequest) -> HttpResponse:
         active_family = families[0]
 
     # Load component aliases
-    import json, os
-    aliases_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'rule_engine', 'knowledge', 'component_aliases.json')
+    aliases_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        'rule_engine',
+        'knowledge',
+        'component_aliases.json',
+    )
     alias_map = {}
     if os.path.exists(aliases_path):
         try:
@@ -54,6 +71,7 @@ def knowledge_view(request: HttpRequest) -> HttpResponse:
             'component_id': fp.component_id,
             'display_name': fp.display_name,
             'family_ids': fp.family_ids,
+            'family_ids_str': ', '.join(fp.family_ids),
             'material_body': fp.material_body or 'Standard Material',
             'sample_count': fp.sample_count,
             'fingerprint_quality': fp.fingerprint_quality,
@@ -91,8 +109,11 @@ def knowledge_view(request: HttpRequest) -> HttpResponse:
     raw_spectra = load_spectra()
     reference_spectra = []
     for sp in raw_spectra:
-        # Build clean summary string
-        top_elems = sorted([(k, v) for k, v in sp.values.items() if v > 0.1 and k not in ['C', 'O', 'N']], key=lambda x: x[1], reverse=True)[:4]
+        top_elems = sorted(
+            [(k, v) for k, v in sp.values.items() if v > 0.1 and k not in ['C', 'O', 'N']],
+            key=lambda x: x[1],
+            reverse=True,
+        )[:4]
         summary_str = ', '.join([f"{k} {v:.1f}%" for k, v in top_elems])
         reference_spectra.append({
             'spectrum_id': sp.spectrum_id,
@@ -102,12 +123,20 @@ def knowledge_view(request: HttpRequest) -> HttpResponse:
             'summary': summary_str,
         })
 
+    # Load Indirect Material Source Knowledge Base (Cleaning Area)
+    indirect_kb = get_indirect_kb_payload()
+
     context = {
         'families': families,
         'active_family': active_family,
         'components': components_list,
         'all_gates': all_gates,
         'reference_spectra': reference_spectra,
+        'indirect_kb': indirect_kb,
+        'families_json': json.dumps(families),
+        'active_family_json': json.dumps(active_family),
+        'components_json': json.dumps(components_list),
+        'indirect_kb_json': json.dumps(indirect_kb),
         'current_section': 'knowledge',
         'top_tab': 'dashboard',
     }
@@ -126,23 +155,150 @@ def gate_editor_view(request: HttpRequest, fid: str) -> HttpResponse:
 
     context = {
         'active_family': active_family,
+        'active_family_json': json.dumps(active_family),
         'current_section': 'gate-editor',
         'top_tab': 'dashboard',
     }
     return render(request, 'knowledge/gates.html', context)
 
 
+@csrf_exempt
 def list_families_api(request: HttpRequest) -> JsonResponse:
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            fid = str(body.get('code') or body.get('family_id') or '').strip()
+            if not fid:
+                return JsonResponse({'error': 'Family code (e.g. F9) is required.'}, status=400)
+            updated = save_family_customization(fid, body)
+            log_event(
+                user_name='Dr. Marcus Vance',
+                user_role='Snr. Metallurgist',
+                action=f"Created / customized Material Family {fid} ({updated.get('name')})",
+                action_type='KB Customization',
+                entity_id=fid,
+                details={'family_id': fid, 'name': updated.get('name')},
+                impact_type='positive',
+            )
+            return JsonResponse({'status': 'success', 'family': updated})
+        except Exception as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+
     families = get_all_families_mapped()
     return JsonResponse(families, safe=False)
 
 
+@csrf_exempt
 def get_family_detail_api(request: HttpRequest, fid: str) -> JsonResponse:
+    if request.method in ('PUT', 'POST'):
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            updated = save_family_customization(fid, body)
+            log_event(
+                user_name='Dr. Marcus Vance',
+                user_role='Snr. Metallurgist',
+                action=f"Customized Material Family {fid} ({updated.get('name')})",
+                action_type='KB Customization',
+                entity_id=fid,
+                details={
+                    'family_id': fid,
+                    'name': updated.get('name'),
+                    'components_count': len(updated.get('components', [])),
+                    'bands_count': len(updated.get('elementBands', [])),
+                },
+                impact_type='positive',
+            )
+            return JsonResponse({'status': 'success', 'family': updated})
+        except Exception as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+
     kb = get_kb()
     if not kb or fid not in kb.families:
         return JsonResponse({'error': f"Family '{fid}' not found"}, status=404)
     family = format_material_family(fid, kb.families[fid])
     return JsonResponse(family)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class IndirectKBAPIView(View):
+    """GET / PUT / POST / DELETE API for customizing the Indirect Material Source Knowledge Base."""
+
+    def get(self, request: HttpRequest) -> JsonResponse:
+        return JsonResponse(get_indirect_kb_payload())
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        return self._save(request)
+
+    def put(self, request: HttpRequest) -> JsonResponse:
+        return self._save(request)
+
+    def _save(self, request: HttpRequest) -> JsonResponse:
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            action_mode = body.get('mode', 'part')
+            if action_mode == 'family':
+                old_name = body.get('old_name')
+                new_name = body.get('new_name') or body.get('name')
+                label = body.get('label')
+                kb_payload = save_indirect_family_customization(old_name, new_name, label)
+                log_event(
+                    user_name='Dr. Marcus Vance',
+                    user_role='Snr. Metallurgist',
+                    action=f"Customized Indirect Material Family '{new_name}'",
+                    action_type='Indirect KB Edit',
+                    entity_id=str(new_name),
+                    details={'old_name': old_name, 'new_name': new_name, 'label': label},
+                    impact_type='positive',
+                )
+            else:
+                kb_payload = save_indirect_part_customization(body)
+                part_name = body.get('part_name') or body.get('partName')
+                log_event(
+                    user_name='Dr. Marcus Vance',
+                    user_role='Snr. Metallurgist',
+                    action=f"Customized Indirect Source Part '{part_name}'",
+                    action_type='Indirect KB Edit',
+                    entity_id=str(part_name),
+                    details={'part_name': part_name, 'material': body.get('material')},
+                    impact_type='positive',
+                )
+            return JsonResponse({'status': 'success', 'indirect_kb': kb_payload})
+        except Exception as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+
+    def delete(self, request: HttpRequest) -> JsonResponse:
+        try:
+            body = json.loads(request.body.decode('utf-8')) if request.body else {}
+            sn = body.get('sn') or request.GET.get('sn')
+            if not sn:
+                return JsonResponse({'error': 'Part sn is required to delete.'}, status=400)
+            kb_payload = delete_indirect_part_customization(int(sn))
+            return JsonResponse({'status': 'success', 'indirect_kb': kb_payload})
+        except Exception as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+
+
+@csrf_exempt
+def customize_component_api(request: HttpRequest, cid: str = None) -> JsonResponse:
+    """PUT / POST handler to customize a canonical component fingerprint & aliases."""
+    if request.method not in ('PUT', 'POST'):
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+        target_cid = cid or body.get('component_id') or body.get('display_name')
+        updated = save_component_customization(target_cid, body)
+        log_event(
+            user_name='Dr. Marcus Vance',
+            user_role='Snr. Metallurgist',
+            action=f"Customized Component Profile '{updated.get('display_name')}'",
+            action_type='KB Customization',
+            entity_id=updated.get('component_id', ''),
+            details={'component_id': updated.get('component_id'), 'display_name': updated.get('display_name')},
+            impact_type='positive',
+        )
+        return JsonResponse({'status': 'success', 'component': updated})
+    except Exception as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -256,3 +412,4 @@ class ValidateGatesAPIView(View):
             'failing': failing,
             'topFailing': top_failing,
         })
+

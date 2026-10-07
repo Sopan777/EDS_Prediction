@@ -38,6 +38,21 @@ def log_event(
         details_json=json.dumps(details or {}),
         impact_type=impact_type,
     )
+
+    try:
+        from services.audit.terminal_logger import ANSI, get_terminal_logger
+        tlog = get_terminal_logger("dhatu_bodh.audit")
+        imp_col = ANSI.GREEN if impact_type == "positive" else (ANSI.RED if impact_type == "negative" else ANSI.YELLOW)
+        tlog.info(
+            f"{ANSI.BG_CYAN} AUDIT {ANSI.RESET} "
+            f"{imp_col}{ANSI.BOLD}[{action_type}]{ANSI.RESET} "
+            f"{ANSI.CYAN}({entity_id or 'All'}){ANSI.RESET} "
+            f"{ANSI.WHITE}{action}{ANSI.RESET} "
+            f"{ANSI.GRAY}by {user_name} ({user_role}){ANSI.RESET}"
+        )
+    except Exception:
+        pass
+
     return log_id
 
 

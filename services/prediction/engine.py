@@ -584,5 +584,30 @@ def run_prediction(
     except Exception as db_err:
         print(f"Warning: Failed to write analysis record to DB: {db_err}")
 
+    try:
+        from services.audit.terminal_logger import log_prediction_summary
+        ind_top_dict = (indirect_pooled_result or {}).get("topIndirectSource") or {}
+        ind_fam_obj = (indirect_pooled_result or {}).get("predictedMaterialFamily")
+        if isinstance(ind_fam_obj, dict):
+            ind_fam_str = str(ind_fam_obj.get("family") or ind_fam_obj.get("label") or "Unknown")
+        else:
+            ind_fam_str = str(ind_fam_obj or "Unknown")
+        log_prediction_summary(
+            analysis_id=hist_id,
+            decision=decision_val,
+            family_code=top_score.family_id if top_score else "NONE",
+            family_name=top_score.label if top_score else "Unknown",
+            confidence=comp_pct,
+            top_component=top_candidate["name"] if top_candidate else "Inconclusive",
+            indirect_family=ind_fam_str,
+            indirect_source=str(ind_top_dict.get("partName") or "Unknown / Inconclusive"),
+            indirect_decision=str((indirect_pooled_result or {}).get("decision") or "unknown"),
+            spectra_count=len(spectra_list),
+            elapsed_s=elapsed_s,
+        )
+    except Exception:
+        pass
+
     return full_payload
+
 

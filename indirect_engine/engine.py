@@ -572,8 +572,22 @@ def predict_indirect_source(
         }
 
     all_parts = load_indirect_reference()
+    # Resolve any user-customized family names / labels from cleaning_area_reference.json
+    from indirect_engine.reference_loader import _load_raw_indirect_json, DEFAULT_INDIRECT_FAMILY_LABELS
+    raw_kb = _load_raw_indirect_json()
+    family_aliases = raw_kb.get("family_aliases", {})
+    labels_map = {**DEFAULT_INDIRECT_FAMILY_LABELS, **raw_kb.get("family_labels", {})}
+
+    # Expand candidate_families with any user-renamed family names that alias to them
+    expanded_candidates = list(candidate_families)
+    for custom_fam, base_fam in family_aliases.items():
+        if base_fam in candidate_families and custom_fam not in expanded_candidates:
+            expanded_candidates.append(custom_fam)
+            if primary_family == base_fam:
+                primary_family = custom_fam
+
     # Stage 2: Filter strictly to parts belonging to the Stage 1 candidate material family(ies)
-    family_parts = [p for p in all_parts if p.material in candidate_families]
+    family_parts = [p for p in all_parts if p.material in expanded_candidates]
 
     scored: List[IndirectPartCandidate] = [
         score_indirect_part(p, raw_wt, metal_wt, has_light_dilution)
@@ -602,7 +616,7 @@ def predict_indirect_source(
             "decision": "unknown",
             "statusLabel": "Unknown / Inconclusive",
             "indirectFamily": primary_family,
-            "indirectFamilyLabel": INDIRECT_FAMILY_LABELS.get(primary_family, primary_family),
+            "indirectFamilyLabel": labels_map.get(primary_family, primary_family),
             "stage1Reason": (
                 f"{stage1_reason} However, measured element concentrations fall outside the acceptable "
                 f"tolerance bands of all {primary_family} indirect sources."
@@ -636,7 +650,7 @@ def predict_indirect_source(
         "decision": decision,
         "statusLabel": status_label,
         "indirectFamily": winning_family,
-        "indirectFamilyLabel": INDIRECT_FAMILY_LABELS.get(winning_family, winning_family),
+        "indirectFamilyLabel": labels_map.get(winning_family, winning_family),
         "stage1Reason": stage1_reason,
         "topIndirectSource": top.to_dict(),
         "candidates": [c.to_dict() for c in viable[:max_candidates]],

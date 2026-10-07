@@ -228,3 +228,80 @@ def test_indirect_predict_api_and_analyze_integration():
     assert "Detailed Per-Spectrum Predictions" in hist_html
     assert analysis_id in hist_html
 
+
+def test_knowledge_base_frontend_parity_and_customization():
+    """
+    Verify that /knowledge/ exposes the full Direct Material Families (with components & bands),
+    the Indirect Material Source Knowledge Base (Cleaning Area families, parts, and tolerances),
+    and supports interactive customization via REST APIs while preserving original files.
+    """
+    import json
+    from django.test import Client
+    from rule_engine.scoring import KNOWLEDGE_PATH
+    from indirect_engine.reference_loader import JSON_CACHE_PATH
+    from services.knowledge.kb import reload_kb
+
+    orig_materials = KNOWLEDGE_PATH.read_text(encoding="utf-8")
+    orig_indirect = JSON_CACHE_PATH.read_text(encoding="utf-8")
+
+    try:
+        client = Client()
+        res = client.get("/knowledge/")
+        assert res.status_code == 200
+        html = res.content.decode("utf-8")
+
+        # Customize F4 family name via PUT /api/families/F4
+        f4_res = client.get("/api/families/F4")
+        assert f4_res.status_code == 200
+        f4_data = f4_res.json()
+        assert len(f4_data["components"]) > 0
+
+        # Direct Material Family F4 components and bands are rendered in /knowledge/
+        assert f4_data["components"][0] in html
+        assert "Indirect Sources KB (24)" in html
+        assert "IC Stud Tray" in html
+        assert "Valve Set removing Base" in html
+        assert "SS 304" in html
+        assert "AiSi 410" in html
+
+        put_res = client.put(
+            "/api/families/F4",
+            data=json.dumps({
+                "name": "Austenitic Stainless Steel (Customized 304)",
+                "gradeHint": f4_data["gradeHint"],
+                "status": f4_data["status"],
+                "description": f4_data["description"],
+                "discriminators": f4_data["discriminators"],
+                "components": f4_data["components"],
+                "elementBands": f4_data["elementBands"],
+            }),
+            content_type="application/json",
+        )
+        assert put_res.status_code == 200
+        assert put_res.json()["family"]["name"] == "Austenitic Stainless Steel (Customized 304)"
+
+        # Customize an Indirect Source Part via PUT /api/indirect-kb
+        ind_put = client.put(
+            "/api/indirect-kb",
+            data=json.dumps({
+                "mode": "part",
+                "sn": 1,
+                "part_name": "IC Stud Tray (Calibrated)",
+                "location": "Durr Tray Supermarket",
+                "material": "SS 304",
+                "elements": {"Cr": 18.17, "Ni": 8.08, "Mn": 1.51, "Cu": 0.34},
+            }),
+            content_type="application/json",
+        )
+        assert ind_put.status_code == 200
+        ind_kb = ind_put.json()["indirect_kb"]
+        part1 = next(p for p in ind_kb["parts"] if p["sn"] == 1)
+        assert part1["part_name"] == "IC Stud Tray (Calibrated)"
+    finally:
+        KNOWLEDGE_PATH.write_text(orig_materials, encoding="utf-8")
+        JSON_CACHE_PATH.write_text(orig_indirect, encoding="utf-8")
+        reload_kb()
+        from indirect_engine.reference_loader import load_indirect_reference
+        load_indirect_reference(force_reload=True)
+
+

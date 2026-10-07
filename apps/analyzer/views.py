@@ -521,8 +521,13 @@ class DataReconciliationAPIView(View):
         })
 
 
+@csrf_exempt
 def list_components_api(request: HttpRequest) -> JsonResponse:
-    """Return all canonical components and their fingerprint quality."""
+    """Return all canonical components and their fingerprint quality, or create/update on POST."""
+    if request.method in ('POST', 'PUT'):
+        from apps.knowledge.views import customize_component_api
+        return customize_component_api(request)
+
     from rule_engine.component_fingerprints import load_fingerprints
     fps = load_fingerprints()
     components_list = []
@@ -540,8 +545,13 @@ def list_components_api(request: HttpRequest) -> JsonResponse:
     return JsonResponse(components_list, safe=False)
 
 
+@csrf_exempt
 def get_component_detail_api(request: HttpRequest, cid: str) -> JsonResponse:
-    """Return full statistical fingerprint for one component."""
+    """Return full statistical fingerprint for one component, or customize on PUT/POST."""
+    if request.method in ('PUT', 'POST'):
+        from apps.knowledge.views import customize_component_api
+        return customize_component_api(request, cid=cid)
+
     from rule_engine.component_fingerprints import get_fingerprint
     fp = get_fingerprint(cid)
     if not fp:

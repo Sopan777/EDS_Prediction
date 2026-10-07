@@ -7,34 +7,37 @@
 <div id="knowledge-base-container" class="space-y-6 pb-12">
 
   <!-- =========================================================================
-       PAGE HEADER
+       PAGE HEADER & 5-TAB SWITCHER
        ========================================================================= -->
   <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs scroll-reveal fluid-card">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Engineering Reference Library</span>
+          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Engineering Reference Library &bull; Customizable</span>
         </div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Material & Component Knowledge Base</h1>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Material, Component &amp; Indirect Source Knowledge Base</h1>
         <p class="text-xs text-slate-500 mt-0.5">
-          International alloy specifications, empirical component fingerprints (48 parts), reference spectra (171 spectra), and stoichiometric gates.
+          Inspect and customize Direct Material Families ({{ families|length }}), Indirect Cleaning-Area Sources ({{ indirect_kb.parts|length }} parts / {{ indirect_kb.families|length }} families), Component Fingerprints ({{ components|length }}), Reference Spectra ({{ reference_spectra|length }}), and Stoichiometric Gates.
         </p>
       </div>
 
-      <!-- Navigation Tabs (4 Sections) -->
-      <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold shrink-0">
-        <button type="button" id="tab-btn-families" onclick="switchKbTab('families')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
-          Material Families ({{ families|length }})
+      <!-- Navigation Tabs (5 Sections) -->
+      <div class="flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold shrink-0">
+        <button type="button" id="tab-btn-families" onclick="switchKbTab('families')" class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
+          Direct Material Families ({{ families|length }})
         </button>
-        <button type="button" id="tab-btn-components" onclick="switchKbTab('components')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+        <button type="button" id="tab-btn-indirect" onclick="switchKbTab('indirect')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+          Indirect Sources KB ({{ indirect_kb.parts|length }})
+        </button>
+        <button type="button" id="tab-btn-components" onclick="switchKbTab('components')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
           Components ({{ components|length }})
         </button>
-        <button type="button" id="tab-btn-spectra" onclick="switchKbTab('spectra')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+        <button type="button" id="tab-btn-spectra" onclick="switchKbTab('spectra')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
           Reference Spectra ({{ reference_spectra|length }})
         </button>
-        <button type="button" id="tab-btn-gates" onclick="switchKbTab('gates')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Element Rules & Gates ({{ all_gates|length }})
+        <button type="button" id="tab-btn-gates" onclick="switchKbTab('gates')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+          Ratio Gates ({{ all_gates|length }})
         </button>
       </div>
     </div>
@@ -42,28 +45,39 @@
     <!-- Prominent Universal Search Bar -->
     <div class="relative">
       <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-      <input type="text" id="kb-search-input" oninput="handleKbSearch(this.value)" placeholder="Search across material families, 48 components, element rules, aliases, and reference spectra (e.g. 100Cr6, Armature, AISI 304, Cr/Ni, Sl2 B1)..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
+      <input type="text" id="kb-search-input" oninput="handleKbSearch(this.value)" placeholder="Search across direct material families, indirect cleaning-area sources (SS 304, IC Stud Tray, Durr Basket), components, element rules, and reference spectra..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
     </div>
   </div>
 
   <!-- =========================================================================
-       TAB 1: MATERIAL FAMILIES
+       TAB 1: DIRECT MATERIAL FAMILIES (CUSTOMIZABLE)
        ========================================================================= -->
   <div id="kb-view-families" class="grid grid-cols-1 lg:grid-cols-12 gap-6 scroll-reveal">
     <!-- Left Column: Families Navigation List (4 cols) -->
     <div class="lg:col-span-4 bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-2 fluid-card">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Alloy Taxonomy</span>
-        <span class="text-xs font-mono-code text-slate-500">{{ families|length }} Families</span>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Direct Alloy Taxonomy</span>
+          <span class="text-[11px] font-mono-code text-slate-400">{{ families|length }} Families Configured</span>
+        </div>
+        <button type="button" onclick="openCustomizeFamilyModal(true)" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#ED0007] text-white hover:bg-[#c90006] flex items-center gap-1 transition-colors shadow-2xs">
+          <span class="material-symbols-outlined text-[14px]">add</span>
+          <span>New Family</span>
+        </button>
       </div>
 
-      <div id="families-list-container" class="space-y-1.5">
+      <div id="families-list-container" class="space-y-1.5 max-h-[760px] overflow-y-auto pr-1">
         {% for fam in families %}
-          <div data-code="{{ fam.code }}" data-name="{{ fam.name }}" data-desc="{{ fam.description }}" onclick="selectFamily('{{ fam.code }}')" class="family-item p-3 rounded-lg border cursor-pointer transition-all {% if fam.code == active_family.code %}border-[#ED0007] bg-[#FFF1F2] border-l-4 border-l-[#ED0007]{% else %}border-slate-200 hover:border-slate-300 bg-white{% endif %}">
+          <div data-code="{{ fam.code }}" data-name="{{ fam.name }}" data-desc="{{ fam.description }} {{ fam.gradeHint }}" onclick="selectFamily('{{ fam.code }}')" class="family-item p-3 rounded-lg border cursor-pointer transition-all {% if fam.code == active_family.code %}border-[#ED0007] bg-[#FFF1F2] border-l-4 border-l-[#ED0007]{% else %}border-slate-200 hover:border-slate-300 bg-white{% endif %}">
             <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="text-xs font-mono-code font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
-                {{ fam.code }}
-              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-mono-code font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                  {{ fam.code }}
+                </span>
+                <span class="text-[10px] font-mono-code text-slate-500">
+                  {{ fam.components|length }} parts
+                </span>
+              </div>
               {% if fam.status == 'FIRM' %}
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">FIRM</span>
               {% else %}
@@ -86,30 +100,50 @@
       <!-- Family Overview Hero Card -->
       <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs border-l-4 border-l-[#ED0007] fluid-card">
         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div>
-            <div class="flex items-center gap-2 mb-1.5">
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2">
               <span id="detail-code-pill" class="text-xs font-mono-code font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                 {{ active_family.code }}
               </span>
-              <span id="detail-status-pill" class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+              <span id="detail-status-pill" class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider {% if active_family.status == 'FIRM' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
                 {{ active_family.status }} SPECIFICATION
               </span>
+              <span id="detail-spectra-pill" class="px-2 py-0.5 rounded text-[11px] font-mono-code bg-slate-100 text-slate-600">
+                {{ active_family.nSpectra }} Reference Spectra
+              </span>
             </div>
-            <h2 id="detail-family-name" class="text-2xl font-black text-slate-900 tracking-tight">
+            <h2 id="detail-family-name" class="text-2xl font-black text-slate-900 tracking-tight pt-1">
               {{ active_family.name }}
             </h2>
-            <p id="detail-grade-hint" class="text-xs font-semibold text-slate-600 mt-1">
+            <p id="detail-grade-hint" class="text-xs font-semibold text-slate-600">
               Grade hint: {{ active_family.gradeHint }}
             </p>
-            <p id="detail-description" class="text-xs text-slate-600 mt-3 leading-relaxed">
+            <p id="detail-description" class="text-xs text-slate-600 pt-1 leading-relaxed">
               {{ active_family.description }}
             </p>
+            <!-- Discriminators -->
+            <div class="pt-2 flex flex-wrap items-center gap-1.5">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">Key Discriminators:</span>
+              <div id="detail-discriminators-list" class="flex flex-wrap gap-1.5">
+                {% for d in active_family.discriminators %}
+                  <span class="px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-blue-50 text-blue-800 border border-blue-200">{{ d }}</span>
+                {% empty %}
+                  <span class="text-xs text-slate-400">Standard band profile</span>
+                {% endfor %}
+              </div>
+            </div>
           </div>
 
-          <a id="btn-edit-profile" href="{% url 'gate_editor' fid=active_family.code %}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs shrink-0">
-            <span class="material-symbols-outlined text-[15px]">edit</span>
-            <span>Edit Ratio Gates</span>
-          </a>
+          <div class="flex flex-wrap sm:flex-col items-end gap-2 shrink-0">
+            <button type="button" onclick="openCustomizeFamilyModal(false)" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-[#ED0007] text-white hover:bg-[#c90006] flex items-center gap-1.5 transition-colors shadow-xs">
+              <span class="material-symbols-outlined text-[16px]">tune</span>
+              <span>Customize Family &amp; Bands</span>
+            </button>
+            <a id="btn-edit-profile" href="{% url 'gate_editor' fid=active_family.code %}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
+              <span class="material-symbols-outlined text-[15px]">calculate</span>
+              <span>Edit Ratio Gates</span>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -118,9 +152,12 @@
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[20px] text-slate-700">tune</span>
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Elemental Concentration Bands (wt%)</h3>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Elemental Concentration Bands (Metal-Basis wt%)</h3>
           </div>
-          <span class="text-xs text-slate-500 font-mono-code">Standard ASTM / ISO Range</span>
+          <button type="button" onclick="openCustomizeFamilyModal(false)" class="text-xs font-semibold text-[#ED0007] hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">edit</span>
+            <span>Edit Element Bands</span>
+          </button>
         </div>
 
         <div class="overflow-x-auto">
@@ -131,13 +168,19 @@
                 <th class="py-2.5 px-4">Role</th>
                 <th class="py-2.5 px-4 text-right">Min wt%</th>
                 <th class="py-2.5 px-4 text-right">Max wt%</th>
-                <th class="py-2.5 px-4 w-44">Specification Range</th>
+                <th class="py-2.5 px-4 text-right">Mean wt%</th>
+                <th class="py-2.5 px-4 w-40">Specification Band</th>
               </tr>
             </thead>
             <tbody id="bands-table-body" class="divide-y divide-slate-100 font-mono-code">
               {% for band in active_family.elementBands %}
                 <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="py-2.5 px-4 font-bold text-slate-900">{{ band.element }}</td>
+                  <td class="py-2.5 px-4 font-bold text-slate-900">
+                    {{ band.element }}
+                    {% if band.isDiscriminator %}
+                      <span class="ml-1 px-1.5 py-0.2 rounded text-[9px] font-sans font-bold bg-blue-50 text-blue-700 border border-blue-200" title="Primary Family Discriminator">DISC</span>
+                    {% endif %}
+                  </td>
                   <td class="py-2.5 px-4 font-sans">
                     {% if band.role == 'Required' %}
                       <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Required</span>
@@ -147,21 +190,54 @@
                       <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">Allowed</span>
                     {% endif %}
                   </td>
-                  <td class="py-2.5 px-4 text-right">{{ band.min_wt_pct|floatformat:1 }}%</td>
-                  <td class="py-2.5 px-4 text-right">{{ band.max_wt_pct|floatformat:1 }}%</td>
+                  <td class="py-2.5 px-4 text-right">{{ band.min_wt_pct|floatformat:2 }}%</td>
+                  <td class="py-2.5 px-4 text-right">{{ band.max_wt_pct|floatformat:2 }}%</td>
+                  <td class="py-2.5 px-4 text-right text-slate-500">{{ band.mean_wt_pct|floatformat:2 }}%</td>
                   <td class="py-2.5 px-4">
                     <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                      <div class="bg-slate-700 h-full" style="width: 75%"></div>
+                      <div class="bg-[#ED0007] h-full rounded-full" style="width: {{ band.barWidthPct|default:65 }}%"></div>
                     </div>
                   </td>
                 </tr>
               {% empty %}
                 <tr>
-                  <td colspan="5" class="py-4 text-center text-slate-500 font-sans">No concentration bands mapped.</td>
+                  <td colspan="6" class="py-4 text-center text-slate-500 font-sans">No concentration bands mapped.</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Associated Components -->
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px] text-slate-700">precision_manufacturing</span>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Associated Components in Reference Library</h3>
+            <span id="family-components-count" class="px-2 py-0.5 rounded-full text-xs font-mono-code font-bold bg-slate-100 text-slate-700">
+              {{ active_family.components|length }} parts
+            </span>
+          </div>
+          <button type="button" onclick="openCustomizeFamilyModal(false)" class="text-xs font-semibold text-[#ED0007] hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">edit</span>
+            <span>Add / Edit Components</span>
+          </button>
+        </div>
+
+        <div id="family-components-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+          {% for comp in active_family.components %}
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between gap-2">
+              <span class="font-semibold text-slate-800 truncate">{{ comp }}</span>
+              <span class="text-[10px] font-mono-code text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+                {{ active_family.code }}
+              </span>
+            </div>
+          {% empty %}
+            <div class="col-span-3 p-4 text-center text-slate-500">
+              No components explicitly mapped to this family. Click "Add / Edit Components" to assign parts.
+            </div>
+          {% endfor %}
         </div>
       </div>
 
@@ -172,7 +248,10 @@
             <span class="material-symbols-outlined text-[20px] text-slate-700">calculate</span>
             <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Stoichiometric Gates for This Family</h3>
           </div>
-          <span class="text-xs text-slate-500 font-mono-code">Deterministic Rules</span>
+          <a id="link-calibrate-gates" href="{% url 'gate_editor' fid=active_family.code %}" class="text-xs font-semibold text-[#ED0007] hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">tune</span>
+            <span>Calibrate Gates</span>
+          </a>
         </div>
 
         <div id="family-ratio-gates-list" class="space-y-3">
@@ -196,50 +275,177 @@
           {% endfor %}
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Associated Components -->
-      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+  <!-- =========================================================================
+       TAB 2: INDIRECT MATERIAL SOURCE KNOWLEDGE BASE (CLEANING AREA)
+       ========================================================================= -->
+  <div id="kb-view-indirect" class="hidden space-y-6">
+    <!-- Tolerance Formula Reference Banner -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-bold uppercase bg-blue-100 text-blue-800">Stage 1 &rarr; Stage 2 Engine</span>
+          <h2 class="text-base font-bold text-slate-900">Indirect Material Source Reference Library (Cleaning Area)</h2>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+          Independent reference dataset (<code class="font-mono-code">{{ indirect_kb.source_file }}</code>) governing Probable Indirect Source predictions. Customize family names, part names, locations, or elemental reference values below.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 text-xs font-mono-code shrink-0">
+        <div class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+          <span class="text-slate-500">Ref &lt; 1%:</span> <strong class="text-slate-900">&plusmn;25%</strong>
+        </div>
+        <div class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+          <span class="text-slate-500">1% &le; Ref &le; 5%:</span> <strong class="text-slate-900">&plusmn;20%</strong>
+        </div>
+        <div class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+          <span class="text-slate-500">Ref &gt; 5%:</span> <strong class="text-slate-900">&plusmn;10%</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Column: Indirect Material Families (4 cols) -->
+      <div class="lg:col-span-4 bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] text-slate-700">precision_manufacturing</span>
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Associated Components in Reference Library</h3>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Indirect Material Families</span>
+            <span id="indirect-families-count-label" class="text-[11px] font-mono-code text-slate-400">{{ indirect_kb.families|length }} Classifications</span>
           </div>
-          <span id="family-components-count" class="text-xs font-mono-code text-slate-500">
-            {{ active_family.components|length }} parts
-          </span>
+          <button type="button" onclick="openCustomizeIndirectFamilyModal('')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#ED0007] text-white hover:bg-[#c90006] flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[14px]">add</span>
+            <span>New Family</span>
+          </button>
         </div>
 
-        <div id="family-components-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          {% for comp in active_family.components %}
-            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between">
-              <span class="font-semibold text-slate-800 truncate">{{ comp }}</span>
-              <span class="text-[10px] font-mono-code text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                {{ active_family.code }}
-              </span>
-            </div>
-          {% empty %}
-            <div class="col-span-2 p-4 text-center text-slate-500">
-              No components explicitly mapped to this family.
+        <!-- Filter Button: All Indirect Families -->
+        <button type="button" id="indirect-fam-btn-ALL" onclick="filterIndirectByFamily('ALL')" class="w-full text-left p-3 rounded-lg border border-[#ED0007] bg-[#FFF1F2] border-l-4 border-l-[#ED0007] transition-all flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-900">All Cleaning Area Indirect Sources</div>
+            <div class="text-[11px] text-slate-500">Show all {{ indirect_kb.parts|length }} reference parts across all families</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-xs font-mono-code font-bold bg-slate-100 text-slate-800">{{ indirect_kb.parts|length }}</span>
+        </button>
+
+        <div id="indirect-families-list" class="space-y-2">
+          {% for ifam in indirect_kb.families %}
+            <div data-ifam="{{ ifam.name }}" onclick="filterIndirectByFamily('{{ ifam.name|escapejs }}')" class="indirect-family-card p-3 rounded-lg border border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-slate-900">{{ ifam.name }}</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono-code font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                      {{ ifam.parts_count }} part{{ ifam.parts_count|pluralize }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-slate-500 mt-0.5">{{ ifam.label }}</div>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); openCustomizeIndirectFamilyModal('{{ ifam.name|escapejs }}')" class="px-2 py-1 rounded border border-slate-200 text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 flex items-center gap-1 shrink-0" title="Customize Indirect Family Name">
+                  <span class="material-symbols-outlined text-[13px]">edit</span>
+                  <span>Edit</span>
+                </button>
+              </div>
+              <div class="flex flex-wrap gap-1 pt-1">
+                {% for er in ifam.element_ranges %}
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-mono-code bg-slate-50 border border-slate-200 text-slate-600">
+                    <strong>{{ er.element }}</strong>: {{ er.min_value }}–{{ er.max_value }}%
+                  </span>
+                {% endfor %}
+              </div>
             </div>
           {% endfor %}
+        </div>
+      </div>
+
+      <!-- Right Column: Indirect Parts / Sources Table (8 cols) -->
+      <div class="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div>
+            <h3 id="indirect-parts-heading" class="text-base font-bold text-slate-900">
+              All Indirect Material Sources ({{ indirect_kb.parts|length }} Parts)
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Each element displays <code class="font-mono-code">Ref wt% (&plusmn;Tol%) [Min – Max wt%]</code>. Blank elements are never treated as zero.
+            </p>
+          </div>
+          <button type="button" onclick="openCustomizeIndirectPartModal(null)" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-[#ED0007] text-white hover:bg-[#c90006] flex items-center gap-1.5 transition-colors shrink-0 shadow-xs">
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            <span>Add Indirect Source Part</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="py-2.5 px-3 w-12">S.N.</th>
+                <th class="py-2.5 px-3">Indirect Source / Part Name</th>
+                <th class="py-2.5 px-3">Material Family</th>
+                <th class="py-2.5 px-3">Reference Elements &amp; Tolerance Bands (wt%)</th>
+                <th class="py-2.5 px-3 text-right w-28">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="indirect-parts-tbody" class="divide-y divide-slate-100">
+              {% for pt in indirect_kb.parts %}
+                <tr class="indirect-part-row hover:bg-slate-50 transition-colors" data-sn="{{ pt.sn }}" data-name="{{ pt.part_name }}" data-mat="{{ pt.material }}" data-loc="{{ pt.location }}">
+                  <td class="py-3 px-3 font-mono-code font-bold text-slate-500">#{{ pt.sn }}</td>
+                  <td class="py-3 px-3">
+                    <div class="font-bold text-slate-900 text-sm">{{ pt.part_name }}</div>
+                    <div class="text-[11px] text-slate-500">{{ pt.location }}</div>
+                  </td>
+                  <td class="py-3 px-3 whitespace-nowrap">
+                    <span class="px-2 py-0.5 rounded text-xs font-mono-code font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                      {{ pt.material }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="flex flex-wrap gap-1.5">
+                      {% for el in pt.elements_list %}
+                        <div class="px-2 py-1 rounded bg-slate-50 border border-slate-200 font-mono-code text-[11px]">
+                          <strong class="text-slate-900">{{ el.element }}</strong>: {{ el.reference_value }}%
+                          <span class="text-blue-700 font-semibold">({{ el.tolerance_label }})</span>
+                          <span class="text-slate-500">[{{ el.min_value }}–{{ el.max_value }}]</span>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </td>
+                  <td class="py-3 px-3 text-right whitespace-nowrap">
+                    <button type="button" onclick="openCustomizeIndirectPartModal({{ pt.sn }})" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-2xs transition-colors inline-flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">edit</span>
+                      <span>Customize</span>
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 
   <!-- =========================================================================
-       TAB 2: COMPONENTS (48 CANONICAL EMPIRICAL FINGERPRINTS)
+       TAB 3: COMPONENTS (CANONICAL EMPIRICAL FINGERPRINTS — CUSTOMIZABLE)
        ========================================================================= -->
   <div id="kb-view-components" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
       <div>
         <h2 class="text-lg font-bold text-slate-900">Canonical Component Library</h2>
         <p class="text-xs text-slate-500 mt-0.5">
-          48 components characterized by robust empirical medians, interquartile range (IQR) dispersion bounds, and historical sample counts.
+          Components characterized by empirical medians, interquartile range (IQR) dispersion bounds, and family mappings. Click <strong>Customize</strong> on any row to edit its name, material body, family mapping, or element stats.
         </p>
       </div>
-      <div class="text-xs font-mono-code text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-        Total Components: <strong>{{ components|length }}</strong>
+      <div class="flex items-center gap-3">
+        <div class="text-xs font-mono-code text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+          Total Components: <strong>{{ components|length }}</strong>
+        </div>
+        <button type="button" onclick="openCustomizeComponentModal(null)" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-[#ED0007] text-white hover:bg-[#c90006] flex items-center gap-1.5 transition-colors shadow-xs">
+          <span class="material-symbols-outlined text-[16px]">add</span>
+          <span>Add Component</span>
+        </button>
       </div>
     </div>
 
@@ -248,7 +454,8 @@
         <thead>
           <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
             <th class="py-2.5 px-4">Component Name</th>
-            <th class="py-2.5 px-4">Quality & Spectra</th>
+            <th class="py-2.5 px-4">Families</th>
+            <th class="py-2.5 px-4">Quality &amp; Spectra</th>
             <th class="py-2.5 px-4">Material Body</th>
             <th class="py-2.5 px-4">Known Aliases</th>
             <th class="py-2.5 px-4 text-right font-mono-code">Fe Median</th>
@@ -260,10 +467,13 @@
         </thead>
         <tbody id="component-library-tbody" class="divide-y divide-slate-100">
           {% for c in components %}
-            <tr class="component-row hover:bg-slate-50 transition-colors" data-name="{{ c.display_name }}" data-id="{{ c.component_id }}" data-mat="{{ c.material_body }}" data-aliases="{{ c.aliases }}">
+            <tr class="component-row hover:bg-slate-50 transition-colors" data-name="{{ c.display_name }}" data-id="{{ c.component_id }}" data-mat="{{ c.material_body }}" data-aliases="{{ c.aliases }} {{ c.family_ids_str }}">
               <td class="py-3 px-4">
                 <div class="font-bold text-slate-900 text-sm">{{ c.display_name }}</div>
                 <div class="text-[11px] font-mono-code text-slate-500">{{ c.component_id }}</div>
+              </td>
+              <td class="py-3 px-4 font-mono-code font-bold text-xs text-slate-700">
+                {{ c.family_ids_str|default:"F4" }}
               </td>
               <td class="py-3 px-4">
                 <span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-bold {% if c.fingerprint_quality == 'HIGH' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif c.fingerprint_quality == 'MEDIUM' %}bg-blue-100 text-blue-800 border border-blue-200{% else %}bg-slate-100 text-slate-600 border border-slate-200{% endif %}">
@@ -280,9 +490,13 @@
               <td class="py-3 px-4 text-right font-mono-code text-slate-900">{{ c.cr_median|floatformat:1 }}%</td>
               <td class="py-3 px-4 text-right font-mono-code text-slate-900">{{ c.ni_median|floatformat:1 }}%</td>
               <td class="py-3 px-4 text-right font-mono-code text-slate-900">{{ c.mn_median|floatformat:1 }}%</td>
-              <td class="py-3 px-4 text-right">
-                <button type="button" onclick='openComponentDetailModal({ component_id: "{{ c.component_id }}", name: "{{ c.display_name }}" })' class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-xs transition-colors">
+              <td class="py-3 px-4 text-right whitespace-nowrap space-x-1">
+                <button type="button" onclick='openComponentDetailModal({ component_id: "{{ c.component_id }}", name: "{{ c.display_name|escapejs }}" })' class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-2xs transition-colors">
                   Inspect
+                </button>
+                <button type="button" onclick='openCustomizeComponentModal("{{ c.component_id }}")' class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-2xs transition-colors inline-flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[13px]">edit</span>
+                  <span>Customize</span>
                 </button>
               </td>
             </tr>
@@ -293,7 +507,7 @@
   </div>
 
   <!-- =========================================================================
-       TAB 3: REFERENCE SPECTRA (171 EMPIRICAL SPECTRA ARCHIVE)
+       TAB 4: REFERENCE SPECTRA (173 EMPIRICAL SPECTRA ARCHIVE)
        ========================================================================= -->
   <div id="kb-view-spectra" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -339,12 +553,12 @@
   </div>
 
   <!-- =========================================================================
-       TAB 4: ELEMENT RULES & RATIO GATES
+       TAB 5: ELEMENT RULES & RATIO GATES
        ========================================================================= -->
   <div id="kb-view-gates" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
       <div>
-        <h2 class="text-lg font-bold text-slate-900">Stoichiometric Ratio Gates & Validation Logic</h2>
+        <h2 class="text-lg font-bold text-slate-900">Stoichiometric Ratio Gates &amp; Validation Logic</h2>
         <p class="text-xs text-slate-500 mt-0.5">
           Deterministic phase stability and metallurgical element ratio gates across all alloy specifications.
         </p>
@@ -397,12 +611,48 @@
 
 </div>
 
+<!-- =========================================================================
+     INTERACTIVE CUSTOMIZATION MODAL (WIDE SCROLLABLE WORKBENCH)
+     ========================================================================= -->
+<div id="kb-customize-modal" class="hidden fixed inset-0 z-50 bg-black/65 flex items-center justify-center p-4">
+  <div class="w-full max-w-3xl bg-white border border-slate-200 rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+      <div>
+        <h3 id="kb-customize-title" class="text-base font-bold text-slate-900">Customize Knowledge Base Entry</h3>
+        <p id="kb-customize-subtitle" class="text-xs text-slate-500 mt-0.5">Changes immediately update the active rule engine and reference library.</p>
+      </div>
+      <button type="button" onclick="closeKbCustomizeModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <div id="kb-customize-body" class="p-6 overflow-y-auto space-y-5 text-xs flex-1">
+      <!-- Populated dynamically by static/js/knowledge.js -->
+    </div>
+
+    <div id="kb-customize-footer" class="px-6 py-4 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0 bg-slate-50 rounded-b-xl">
+      <div id="kb-customize-left-actions"></div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="closeKbCustomizeModal()" class="px-4 py-2 rounded-lg text-xs font-semibold border border-slate-300 text-slate-700 bg-white hover:bg-slate-50">
+          Cancel
+        </button>
+        <button type="button" id="kb-customize-save-btn" class="px-5 py-2 rounded-lg text-xs font-bold bg-[#ED0007] text-white hover:bg-[#c90006] shadow-xs flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  window.KB_FAMILIES = {{ families|safe }};
-  window.ACTIVE_FAMILY = {{ active_family|safe }};
+  window.KB_FAMILIES = {{ families_json|safe }};
+  window.ACTIVE_FAMILY = {{ active_family_json|safe }};
+  window.KB_COMPONENTS = {{ components_json|safe }};
+  window.INDIRECT_KB = {{ indirect_kb_json|safe }};
 </script>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/knowledge.js' %}"></script>
+<script src="{% static 'js/knowledge.js' %}?v=2.2"></script>
 {% endblock %}
