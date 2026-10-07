@@ -7,22 +7,11 @@
 // Theme Management
 function toggleTheme() {
   const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('spectral_theme', isDark ? 'dark' : 'light');
-  updateThemeIcon(isDark);
-}
-
-function updateThemeIcon(isDark) {
-  const icon = document.getElementById('theme-icon');
-  if (icon) {
-    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  localStorage.setItem('dhatu_theme', isDark ? 'dark' : 'light');
+  if (typeof updateThemeUI === 'function') {
+    updateThemeUI();
   }
 }
-
-// Initial theme icon sync
-document.addEventListener('DOMContentLoaded', () => {
-  const isDark = document.documentElement.classList.contains('dark');
-  updateThemeIcon(isDark);
-});
 
 // CSRF Token Helper
 function getCSRFToken() {

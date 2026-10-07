@@ -290,6 +290,101 @@
     background-color: #EFF6FF !important;
     border-left: 4px solid #ED0007;
   }
+
+  /* Dark Mode Overrides for History & Results View */
+  html.dark .history-run-active,
+  html.dark tr.history-run-active td {
+    background-color: rgba(30, 58, 138, 0.32) !important;
+  }
+  html.dark .results-topbar,
+  html.dark .summary-card,
+  html.dark .spectrum-card {
+    background: #131A2A !important;
+    border-color: #223048 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  }
+  html.dark .spectrum-card-header {
+    background: #0E1524 !important;
+    border-bottom-color: #223048 !important;
+  }
+  html.dark .meta-pill {
+    background: #0E1524 !important;
+    border-color: #223048 !important;
+    color: #CBD5E1 !important;
+  }
+  html.dark .meta-pill strong {
+    color: #F8FAFC !important;
+  }
+  html.dark .summary-table th {
+    background: #0E1524 !important;
+    color: #94A3B8 !important;
+    border-bottom-color: #223048 !important;
+  }
+  html.dark .summary-table td {
+    border-bottom-color: #1A2538 !important;
+    color: #E2E8F0;
+  }
+  html.dark .summary-table tr:hover td {
+    background: #182236 !important;
+  }
+  html.dark .el-val-box {
+    background: #0E1524 !important;
+    border-color: #223048 !important;
+  }
+  html.dark .el-val-box .el-sym {
+    color: #94A3B8 !important;
+  }
+  html.dark .el-val-box .el-num {
+    color: #F8FAFC !important;
+  }
+  html.dark .el-editor-panel {
+    background: #0E1524 !important;
+    border-color: #3B82F6 !important;
+  }
+  html.dark .el-edit-item {
+    background: #131A2A !important;
+    border-color: #273752 !important;
+  }
+  html.dark .el-edit-item input {
+    background: #090D16 !important;
+    color: #F8FAFC !important;
+    border-color: #334155 !important;
+  }
+  html.dark .pred-three-col {
+    border-top-color: #223048 !important;
+  }
+  html.dark .pred-box {
+    background: #0E1524 !important;
+    border-color: #223048 !important;
+  }
+  html.dark .pred-box-indirect {
+    background: rgba(30, 58, 138, 0.22) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+  }
+  html.dark .status-pill.identified {
+    background: rgba(6, 78, 59, 0.55) !important;
+    color: #6EE7B7 !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+  }
+  html.dark .status-pill.ambiguous {
+    background: rgba(120, 53, 15, 0.55) !important;
+    color: #FCD34D !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+  }
+  html.dark .status-pill.unknown {
+    background: #182236 !important;
+    color: #94A3B8 !important;
+    border-color: #273752 !important;
+  }
+  html.dark .btn-outline {
+    background: #182236 !important;
+    color: #F8FAFC !important;
+    border-color: #273752 !important;
+  }
+  html.dark .btn-outline:hover {
+    background: #202D47 !important;
+    border-color: #384C6E !important;
+  }
 </style>
 
 <div id="history-screen-container" class="results-shell space-y-6">
@@ -342,7 +437,7 @@
           <select id="saved-run-select" onchange="selectHistoryRunById(this.value)" class="flex-1 max-w-xl rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white">
             {% for r in history_records %}
               <option value="{{ r.id }}" {% if r.id == selected_history_id %}selected{% endif %}>
-                [{{ r.timestamp }}] {{ r.filename|default:r.source_type }} — {{ r.material_family }} | Direct: {{ r.top_component_name }} | Indirect: {{ r.top_indirect_source_name }} ({{ r.spectra_count }} spectra)
+                [{{ r.timestamp }}] {{ r.filename|default:r.source_type }} ({{ r.spectra_count }} spectra)
               </option>
             {% empty %}
               <option value="">No saved analysis runs in database yet</option>
@@ -367,32 +462,23 @@
         <table class="w-full text-left border-collapse text-xs">
           <thead class="sticky top-0 bg-slate-100 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10.5px]">
             <tr>
-              <th class="py-2 px-3">Timestamp</th>
-              <th class="py-2 px-3">Report / File Name</th>
-              <th class="py-2 px-3 text-center">Spectra</th>
-              <th class="py-2 px-3">Predicted Material Family</th>
-              <th class="py-2 px-3">Probable Component / Source(s)</th>
-              <th class="py-2 px-3">Probable Indirect Source</th>
-              <th class="py-2 px-3 text-center">Status</th>
-              <th class="py-2 px-3 text-right">Action</th>
+              <th class="py-2 px-4">Timestamp</th>
+              <th class="py-2 px-4">Report / File Name</th>
+              <th class="py-2 px-4 text-center">Spectra</th>
+              <th class="py-2 px-4 text-center">Status</th>
+              <th class="py-2 px-4 text-right">Action</th>
             </tr>
           </thead>
           <tbody id="analyses-table-body" class="divide-y divide-slate-100">
             {% for r in history_records %}
-              <tr id="history-row-{{ r.id }}" onclick="selectHistoryRunById('{{ r.id }}')" class="analysis-row cursor-pointer hover:bg-slate-50 transition-colors {% if r.id == selected_history_id %}history-run-active{% endif %}" data-id="{{ r.id }}" data-family="{{ r.material_family }}" data-decision="{{ r.decision }}" data-source="{{ r.filename|default:r.source_type }} {{ r.top_component_name }} {{ r.top_indirect_source_name }}">
-                <td class="py-2.5 px-3 font-mono-code text-slate-500 whitespace-nowrap text-[11px]">{{ r.timestamp }}</td>
-                <td class="py-2.5 px-3">
-                  <span class="font-bold text-slate-900 block truncate max-w-[200px]">{{ r.filename|default:r.source_type }}</span>
+              <tr id="history-row-{{ r.id }}" onclick="selectHistoryRunById('{{ r.id }}')" class="analysis-row cursor-pointer hover:bg-slate-50 transition-colors {% if r.id == selected_history_id %}history-run-active{% endif %}" data-id="{{ r.id }}" data-family="{{ r.material_family }}" data-decision="{{ r.decision }}" data-source="{{ r.filename|default:r.source_type }}">
+                <td class="py-2.5 px-4 font-mono-code text-slate-500 whitespace-nowrap text-[11px]">{{ r.timestamp }}</td>
+                <td class="py-2.5 px-4">
+                  <span class="font-bold text-slate-900 block">{{ r.filename|default:r.source_type }}</span>
                   <span class="text-[10px] text-slate-400 font-mono-code">{{ r.id }}</span>
                 </td>
-                <td class="py-2.5 px-3 text-center font-mono-code font-bold text-slate-700">{{ r.spectra_count }}</td>
-                <td class="py-2.5 px-3">
-                  <div class="font-bold text-slate-900">{{ r.material_family }}</div>
-                  <div class="text-[10.5px] text-slate-500">Compatibility: {{ r.compatibility_pct }}%</div>
-                </td>
-                <td class="py-2.5 px-3 font-semibold text-slate-800">{{ r.top_component_name }}</td>
-                <td class="py-2.5 px-3 font-semibold text-blue-900">{{ r.top_indirect_source_name }}</td>
-                <td class="py-2.5 px-3 text-center">
+                <td class="py-2.5 px-4 text-center font-mono-code font-bold text-slate-700">{{ r.spectra_count }}</td>
+                <td class="py-2.5 px-4 text-center">
                   {% if r.decision == 'identified' %}
                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Identified</span>
                   {% elif r.decision == 'ambiguous' %}
@@ -401,7 +487,7 @@
                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Needs Review</span>
                   {% endif %}
                 </td>
-                <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                <td class="py-2.5 px-4 text-right whitespace-nowrap">
                   <button type="button" onclick="event.stopPropagation(); selectHistoryRunById('{{ r.id }}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-[#0B2239] text-white hover:bg-slate-800 transition-colors">
                     Load Results
                   </button>
@@ -409,7 +495,7 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="8" class="py-6 text-center text-slate-500">
+                <td colspan="5" class="py-6 text-center text-slate-500">
                   No past analysis records logged yet.
                 </td>
               </tr>

@@ -7,10 +7,10 @@
   <title>{% block title %}DHATU BODH — EDS Material Intelligence{% endblock %}</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/touch-icon.png' %}">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}?v=2.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}?v=2.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}?v=2.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/touch-icon.png' %}?v=2.2">
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,8 +25,8 @@
       darkMode: 'class',
     };
   </script>
-  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
-  <link rel="stylesheet" href="{% static 'css/fluid_motion.css' %}">
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}?v=2.1">
+  <link rel="stylesheet" href="{% static 'css/fluid_motion.css' %}?v=2.1">
 
   <!-- Early Theme Detection to prevent theme flicker before paint -->
   <script>
@@ -149,6 +149,15 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #94A3B8;
     }
+    html.dark ::-webkit-scrollbar-track {
+      background: #090D16;
+    }
+    html.dark ::-webkit-scrollbar-thumb {
+      background: #273752;
+    }
+    html.dark ::-webkit-scrollbar-thumb:hover {
+      background: #384C6E;
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -166,16 +175,9 @@
       <!-- Left: Logo & Wordmark -->
       <div class="flex items-center gap-4">
         <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-          <!-- Circular Armature / Precision Logo Mark -->
-          <div class="w-10 h-10 rounded-full border-2 border-slate-900 flex items-center justify-center p-1 bg-white group-hover:border-[#ED0007] transition-colors shrink-0">
-            <svg viewBox="0 0 40 40" class="w-full h-full text-slate-900 group-hover:text-[#ED0007] transition-colors" fill="none" stroke="currentColor" stroke-width="2.5">
-              <circle cx="20" cy="20" r="16" />
-              <circle cx="20" cy="20" r="7" stroke-width="2" />
-              <line x1="20" y1="4" x2="20" y2="13" />
-              <line x1="20" y1="27" x2="20" y2="36" />
-              <line x1="4" y1="20" x2="13" y2="20" />
-              <line x1="27" y1="20" x2="36" y2="20" />
-            </svg>
+          <!-- Official DHATU BODH Spectral D Logo Mark -->
+          <div class="w-11 h-11 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
+            <img src="{% static 'images/logo.png' %}?v=2.2" alt="DHATU BODH Logo" class="w-full h-full object-contain" />
           </div>
           <div>
             <div class="flex items-baseline gap-1.5 leading-none">
@@ -322,7 +324,7 @@
             <div class="hidden md:flex items-center gap-4 opacity-90 pr-4">
               <div class="h-20 w-72 rounded-lg overflow-hidden border border-slate-200 shadow-xs relative">
                 <img src="{% static 'images/footer_facility.jpg' %}" alt="Industrial Engineering Center" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-white/40 dark:from-slate-950/60 to-transparent"></div>
               </div>
             </div>
           </div>
