@@ -439,46 +439,6 @@ def run_prediction(
             f"({top_candidate.get('sampleCount', 0)} spectra); match should be reviewed."
         )
 
-    # Persist to AnalysisHistory
-    try:
-        hist_id = f"hist-{int(time.time() * 1000)}"
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        AnalysisHistory.objects.create(
-            id=hist_id,
-            timestamp=now_str,
-            source_type=f"{source_type}_pooled" if is_pooled else source_type,
-            filename=source_filename or f"Manual Entry ({len(spectra_list)} spectra)",
-            composition_json=json.dumps(pooled_average),
-            decision=decision_val,
-            material_family=top_score.label if top_score else "Unknown",
-            grade_hint=top_score.grade_hint if top_score else "",
-            compatibility=top_score.compatibility if top_score else 0.0,
-            candidate_components_json=json.dumps([c["name"] for c in candidates_list]),
-            processing_time_s=elapsed_s,
-        )
-
-        top_comp_str = f" -> Predicted Component: {top_candidate['name']}" if top_candidate else ""
-        log_event(
-            user_name="Lab Operator",
-            user_role="Snr. Metallurgist",
-            action=f"Particle Microanalysis: {decision_val.upper()} {top_score.label if top_score else 'Unknown'}{top_comp_str} ({len(spectra_list)} spectra pooled)",
-            action_type="Calibration",
-            entity_id=top_score.family_id if top_score else "None",
-            details={
-                "source": source_filename or "wt% input",
-                "spectra_count": len(spectra_list),
-                "is_pooled": is_pooled,
-                "compatibility": f"{comp_pct}%",
-                "top_candidate": top_candidate["name"] if top_candidate else None,
-                "candidates_count": len(candidates_list),
-                "component_decision": comp_decision_str,
-                "conflict": conflict_result.has_conflict,
-            },
-            impact_type="positive" if decision_val == "identified" else "neutral",
-        )
-    except Exception as db_err:
-        print(f"Warning: Failed to write analysis record to DB: {db_err}")
-
     # Evidence details
     evidence_data = {
         "matched_elements": [e for e in analysed_elements if pooled_average.get(e, 0) > 0],
@@ -510,8 +470,12 @@ def run_prediction(
     except Exception as ind_err:
         print(f"Warning: Indirect Source Engine error: {ind_err}")
 
-    return {
-        # Standardized modern structure
+    hist_id = f"hist-{int(time.time() * 1000)}"
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    full_payload = {
+        "analysisId": hist_id,
+        "timestamp": now_str,
         "status": decision_val,
         "decision": decision_val,
         "materialFamily": top_score.label if top_score else "Unclassified Material",
@@ -534,7 +498,6 @@ def run_prediction(
         "topFamily": top_family_mapped,
         "extractedComposition": pooled_average,
         "allFamiliesScored": [f.to_dict() for f in prediction.families],
-        # Component & Evidence additions
         "material_family": {
             "id": top_score.family_id if top_score else None,
             "name": top_score.label if top_score else "Unclassified Material",
@@ -561,6 +524,65 @@ def run_prediction(
         "warnings": warnings_list,
         "internal_source_prediction": isp_result,
         "indirectSourcePrediction": indirect_pooled_result,
-        "sourceFilename": source_filename or "Manual Spectrum Input",
+        "sourceFilename": source_filename or f"Manual Entry ({len(spectra_list)} spectra)",
         "reportMetadata": report_metadata or {},
     }
+
+    # Persist full prediction to AnalysisHistory in SQLite database
+    try:
+        from database import init_db, get_connection
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(analysis_history)")
+            cols = {row[1] for row in cur.fetchall()}
+            if "full_result_json" not in cols:
+                cur.execute("ALTER TABLE analysis_history ADD COLUMN full_result_json TEXT")
+                conn.commit()
+            conn.close()
+        except Exception:
+            init_db()
+
+        AnalysisHistory.objects.create(
+            id=hist_id,
+            timestamp=now_str,
+            source_type=f"{source_type}_pooled" if is_pooled else source_type,
+            filename=source_filename or f"Manual Entry ({len(spectra_list)} spectra)",
+            composition_json=json.dumps(pooled_average),
+            decision=decision_val,
+            material_family=top_score.label if top_score else "Unknown",
+            grade_hint=top_score.grade_hint if top_score else "",
+            compatibility=float(comp_pct),
+            candidate_components_json=json.dumps(candidates_list),
+            processing_time_s=elapsed_s,
+            full_result_json=json.dumps(full_payload),
+        )
+
+        top_comp_str = f" -> Predicted Component: {top_candidate['name']}" if top_candidate else ""
+        ind_top = (indirect_pooled_result or {}).get("topIndirectSource")
+        ind_str = f" | Indirect Source: {ind_top['partName']}" if isinstance(ind_top, dict) and ind_top.get("partName") else ""
+        log_event(
+            user_name="Lab Operator",
+            user_role="Snr. Metallurgist",
+            action=f"Particle Microanalysis: {decision_val.upper()} {top_score.label if top_score else 'Unknown'}{top_comp_str}{ind_str} ({len(spectra_list)} spectra)",
+            action_type="Calibration",
+            entity_id=top_score.family_id if top_score else "None",
+            details={
+                "analysis_id": hist_id,
+                "source": source_filename or "wt% input",
+                "spectra_count": len(spectra_list),
+                "is_pooled": is_pooled,
+                "compatibility": f"{comp_pct}%",
+                "top_candidate": top_candidate["name"] if top_candidate else None,
+                "indirect_source": ind_top["partName"] if isinstance(ind_top, dict) else None,
+                "candidates_count": len(candidates_list),
+                "component_decision": comp_decision_str,
+                "conflict": conflict_result.has_conflict,
+            },
+            impact_type="positive" if decision_val == "identified" else "neutral",
+        )
+    except Exception as db_err:
+        print(f"Warning: Failed to write analysis record to DB: {db_err}")
+
+    return full_payload
+

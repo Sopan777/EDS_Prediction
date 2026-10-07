@@ -205,3 +205,26 @@ def test_indirect_predict_api_and_analyze_integration():
     res_index = client.get("/analyzer/")
     assert res_index.status_code == 200
     assert "Probable Indirect Source" in res_index.content.decode("utf-8")
+
+    # 4. Verify the full multi-spectrum result was saved to AnalysisHistory in the database
+    from apps.history.models import AnalysisHistory
+
+    analysis_id = full_data.get("analysisId")
+    assert analysis_id is not None
+    saved_rec = AnalysisHistory.objects.filter(id=analysis_id).first()
+    assert saved_rec is not None
+    saved_full = saved_rec.get_full_result()
+    assert saved_full is not None
+    assert len(saved_full["perSpectrum"]) == 2
+    assert saved_full["perSpectrum"][0]["indirectSourcePrediction"]["topIndirectSource"]["partName"] == "IC Stud Tray"
+    assert saved_full["perSpectrum"][1]["indirectSourcePrediction"]["topIndirectSource"]["partName"] == "Valve Set removing Base"
+
+    # 5. Verify /history/?id=<analysis_id> renders the exact Results UI with the saved prediction
+    res_hist = client.get(f"/history/?id={analysis_id}")
+    assert res_hist.status_code == 200
+    hist_html = res_hist.content.decode("utf-8")
+    assert "All Extracted Spectra — Prediction Overview" in hist_html
+    assert "Probable Indirect Source" in hist_html
+    assert "Detailed Per-Spectrum Predictions" in hist_html
+    assert analysis_id in hist_html
+

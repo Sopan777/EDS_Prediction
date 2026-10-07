@@ -406,9 +406,10 @@
 <script>
   window.DATASET_ELEMENTS = {{ dataset_elements_json|safe }};
   window.INITIAL_PREDICTION_DATA = {{ initial_prediction_json|safe }};
+  window.FORCE_SERVER_PREDICTION = {{ force_server_prediction|default:"false"|safe }};
 </script>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/results.js' %}?v=20261007_v2"></script>
+<script src="{% static 'js/results.js' %}?v=20261007_v3"></script>
 {% endblock %}

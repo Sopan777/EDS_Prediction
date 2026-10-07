@@ -77,22 +77,88 @@ def analyzer_view(request: HttpRequest) -> HttpResponse:
 from services.prediction.engine import run_prediction, predict_single_spectrum_full
 
 
+def _reconstruct_full_result_from_history_record(rec) -> dict:
+    """Return stored full_result_json if present, or reconstruct a complete result payload from legacy columns."""
+    full = rec.get_full_result()
+    if isinstance(full, dict) and isinstance(full.get('perSpectrum'), list) and len(full['perSpectrum']) > 0:
+        full.setdefault('analysisId', rec.id)
+        full.setdefault('timestamp', rec.timestamp)
+        return full
+
+    comp = rec.get_composition() or {}
+    kb = get_kb()
+    spec_res = predict_single_spectrum_full(
+        spec=comp,
+        spec_index=1,
+        spec_meta={'label': 'Spectrum 1', 'site_name': 'Site 1', 'page': 1},
+        fallback_elements=sorted(list(comp.keys())),
+        kb=kb,
+    )
+    return {
+        'analysisId': rec.id,
+        'timestamp': rec.timestamp,
+        'status': rec.decision or spec_res.get('decision', 'unknown'),
+        'decision': rec.decision or spec_res.get('decision', 'unknown'),
+        'materialFamily': rec.material_family or spec_res.get('family', 'Unclassified Material'),
+        'familyCode': spec_res.get('familyCode'),
+        'gradeHint': rec.grade_hint or spec_res.get('gradeHint'),
+        'compatibility': rec.compatibility or spec_res.get('compatibility', 0.0),
+        'compatibilityPct': rec.compatibility_pct or spec_res.get('compatibilityPct', 0),
+        'processingTime': f"{(rec.processing_time_s or 0.02):.2f}s",
+        'isPooled': False,
+        'spectraCount': 1,
+        'allSpectra': [comp],
+        'perSpectrum': [spec_res],
+        'pooledAverage': comp,
+        'topCandidate': (spec_res.get('candidateComponents') or [None])[0],
+        'candidateComponents': spec_res.get('candidateComponents') or [],
+        'extractedComposition': comp,
+        'indirectSourcePrediction': spec_res.get('indirectSourcePrediction'),
+        'sourceFilename': rec.filename or rec.source_type or 'Saved Analysis Run',
+        'reportMetadata': {},
+    }
+
+
 def prediction_results_view(request: HttpRequest) -> HttpResponse:
     """Dedicated multi-spectrum prediction & interactive spectrum editing page."""
+    from apps.history.models import AnalysisHistory
+
     dataset_elements = get_dataset_supported_elements()
     latest_pred = None
-    try:
-        latest_pred = request.session.get('latest_prediction')
-    except Exception:
-        latest_pred = None
+    history_id = request.GET.get('id') or request.GET.get('analysis_id')
+
+    if history_id:
+        try:
+            rec = AnalysisHistory.objects.filter(id=history_id).first()
+            if rec:
+                latest_pred = _reconstruct_full_result_from_history_record(rec)
+                request.session['latest_prediction'] = latest_pred
+        except Exception:
+            pass
+
+    if not latest_pred:
+        try:
+            latest_pred = request.session.get('latest_prediction')
+        except Exception:
+            latest_pred = None
+
+    if not latest_pred:
+        try:
+            rec = AnalysisHistory.objects.first()
+            if rec:
+                latest_pred = _reconstruct_full_result_from_history_record(rec)
+        except Exception:
+            latest_pred = None
 
     context = {
         'dataset_elements': dataset_elements,
         'dataset_elements_json': json.dumps(dataset_elements),
         'initial_prediction_json': json.dumps(latest_pred) if latest_pred else 'null',
-        'current_section': 'analyzer',
+        'force_server_prediction': 'true' if history_id else 'false',
+        'current_section': 'history' if history_id else 'analyzer',
     }
     return render(request, 'analyzer/results.html', context)
+
 
 
 def download_excel_template_api(request: HttpRequest) -> HttpResponse:
@@ -297,7 +363,8 @@ class PredictSingleSpectrumAPIView(View):
                 surface_coating=spec_meta.get('surface_coating'),
                 location=spec_meta.get('location'),
             )
-            # Also update session if latest_prediction exists
+            # Also update session and AnalysisHistory DB record if present
+            analysis_id = body.get('analysis_id') or body.get('analysisId')
             try:
                 latest = request.session.get('latest_prediction')
                 if isinstance(latest, dict) and isinstance(latest.get('perSpectrum'), list):
@@ -307,8 +374,27 @@ class PredictSingleSpectrumAPIView(View):
                         if isinstance(latest.get('allSpectra'), list) and idx_0 < len(latest['allSpectra']):
                             latest['allSpectra'][idx_0] = clean_spec
                         request.session['latest_prediction'] = latest
+                        if not analysis_id:
+                            analysis_id = latest.get('analysisId')
             except Exception:
                 pass
+
+            if analysis_id:
+                try:
+                    from apps.history.models import AnalysisHistory
+                    rec = AnalysisHistory.objects.filter(id=analysis_id).first()
+                    if rec:
+                        full_db = rec.get_full_result() or {}
+                        if isinstance(full_db.get('perSpectrum'), list):
+                            idx_0 = spec_index - 1
+                            if 0 <= idx_0 < len(full_db['perSpectrum']):
+                                full_db['perSpectrum'][idx_0] = spec_result
+                                if isinstance(full_db.get('allSpectra'), list) and idx_0 < len(full_db['allSpectra']):
+                                    full_db['allSpectra'][idx_0] = clean_spec
+                                rec.full_result_json = json.dumps(full_db)
+                                rec.save(update_fields=['full_result_json'])
+                except Exception:
+                    pass
 
             return JsonResponse({
                 'status': 'ok',

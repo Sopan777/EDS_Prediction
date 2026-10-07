@@ -9,11 +9,26 @@ from django.utils.decorators import method_decorator
 
 from apps.history.models import AuditLog, AnalysisHistory
 from apps.feedback.models import PredictionFeedback
+from apps.analyzer.views import _reconstruct_full_result_from_history_record
+from services.eds.extractor import get_dataset_supported_elements
 from services.audit.logger import log_event, get_audit_logs
 
 
 def history_view(request: HttpRequest) -> HttpResponse:
     try:
+        from database import init_db, get_connection
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(analysis_history)")
+            cols = {row[1] for row in cur.fetchall()}
+            if "full_result_json" not in cols:
+                cur.execute("ALTER TABLE analysis_history ADD COLUMN full_result_json TEXT")
+                conn.commit()
+            conn.close()
+        except Exception:
+            init_db()
+
         logs = [l.to_frontend_dict() for l in AuditLog.objects.all()[:200]]
         history_records = list(AnalysisHistory.objects.all()[:100])
         feedback_records = list(PredictionFeedback.objects.all()[:100])
@@ -27,6 +42,27 @@ def history_view(request: HttpRequest) -> HttpResponse:
         except Exception:
             logs, history_records, feedback_records = [], [], []
 
+    history_payloads = []
+    for rec in history_records:
+        try:
+            payload = _reconstruct_full_result_from_history_record(rec)
+            payload['analysisId'] = rec.id
+            payload['timestamp'] = rec.timestamp
+            payload['sourceFilename'] = rec.filename or rec.source_type or 'Saved Analysis Run'
+            history_payloads.append(payload)
+        except Exception:
+            pass
+
+    selected_id = request.GET.get('id') or (history_payloads[0]['analysisId'] if history_payloads else None)
+    selected_payload = None
+    for p in history_payloads:
+        if p.get('analysisId') == selected_id:
+            selected_payload = p
+            break
+    if not selected_payload and history_payloads:
+        selected_payload = history_payloads[0]
+
+    dataset_elements = get_dataset_supported_elements()
     users = sorted(list(set(l['user'] for l in logs)))
     action_types = sorted(list(set(l['actionType'] for l in logs)))
     families = sorted(list(set(l['familyCode'] for l in logs if l['familyCode'] != 'All')))
@@ -34,6 +70,11 @@ def history_view(request: HttpRequest) -> HttpResponse:
     context = {
         'logs': logs,
         'history_records': history_records,
+        'history_payloads_json': json.dumps(history_payloads),
+        'selected_prediction_json': json.dumps(selected_payload) if selected_payload else 'null',
+        'selected_history_id': selected_id or '',
+        'dataset_elements': dataset_elements,
+        'dataset_elements_json': json.dumps(dataset_elements),
         'feedback_records': feedback_records,
         'users': users,
         'action_types': action_types,
@@ -81,9 +122,17 @@ class AuditLogsAPIView(View):
 
 class AnalysisHistoryAPIView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
+        history_id = request.GET.get('id')
+        if history_id:
+            rec = AnalysisHistory.objects.filter(id=history_id).first()
+            if not rec:
+                return JsonResponse({'error': 'Analysis history record not found'}, status=404)
+            return JsonResponse(_reconstruct_full_result_from_history_record(rec))
+
         records = AnalysisHistory.objects.all()[:100]
         data = []
         for r in records:
+            full_res = _reconstruct_full_result_from_history_record(r)
             data.append({
                 'id': r.id,
                 'timestamp': r.timestamp,
@@ -93,8 +142,13 @@ class AnalysisHistoryAPIView(View):
                 'decision': r.decision,
                 'material_family': r.material_family,
                 'grade_hint': r.grade_hint,
-                'compatibility': r.compatibility,
+                'compatibility': r.compatibility_pct,
                 'candidates': r.get_candidates(),
+                'top_component': r.top_component_name,
+                'top_indirect_source': r.top_indirect_source_name,
+                'spectra_count': r.spectra_count,
                 'processing_time_s': r.processing_time_s,
+                'full_result': full_res,
             })
         return JsonResponse(data, safe=False)
+

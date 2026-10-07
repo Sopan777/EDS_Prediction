@@ -46,17 +46,21 @@ function getSupportedElements() {
 
 document.addEventListener('DOMContentLoaded', () => {
   let loaded = null;
-  try {
-    const rawSession = sessionStorage.getItem('DHATU_LATEST_PREDICTION');
-    if (rawSession) {
-      loaded = JSON.parse(rawSession);
-    }
-  } catch (e) {
-    console.warn('Could not read sessionStorage prediction:', e);
-  }
-
-  if (!loaded && window.INITIAL_PREDICTION_DATA) {
+  if (window.FORCE_SERVER_PREDICTION && window.INITIAL_PREDICTION_DATA) {
     loaded = window.INITIAL_PREDICTION_DATA;
+  } else {
+    try {
+      const rawSession = sessionStorage.getItem('DHATU_LATEST_PREDICTION');
+      if (rawSession) {
+        loaded = JSON.parse(rawSession);
+      }
+    } catch (e) {
+      console.warn('Could not read sessionStorage prediction:', e);
+    }
+
+    if (!loaded && window.INITIAL_PREDICTION_DATA) {
+      loaded = window.INITIAL_PREDICTION_DATA;
+    }
   }
 
   if (!loaded || !Array.isArray(loaded.perSpectrum) || loaded.perSpectrum.length === 0) {
@@ -720,6 +724,7 @@ async function saveAndRepredictSingleSpectrum(specIdx) {
         'X-CSRFToken': getCSRFToken(),
       },
       body: JSON.stringify({
+        analysis_id: reportPredictionState ? reportPredictionState.analysisId : undefined,
         spectrum: sp.composition,
         spectrum_index: specIdx + 1,
         spectrum_meta: {

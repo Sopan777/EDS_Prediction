@@ -163,9 +163,19 @@ def init_db(reset: bool = False) -> None:
             grade_hint TEXT,
             compatibility REAL,
             candidate_components_json TEXT,
-            processing_time_s REAL
+            processing_time_s REAL,
+            full_result_json TEXT
         )
     """)
+
+    # Safe column migration if analysis_history already existed without full_result_json
+    try:
+        cur.execute("PRAGMA table_info(analysis_history)")
+        existing_cols = {row[1] for row in cur.fetchall()}
+        if "full_result_json" not in existing_cols:
+            cur.execute("ALTER TABLE analysis_history ADD COLUMN full_result_json TEXT")
+    except Exception:
+        pass
 
     # Clean seed: Lead Metallurgist (Administrator account)
     cur.execute("SELECT COUNT(*) FROM users")

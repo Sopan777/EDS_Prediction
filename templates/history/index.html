@@ -1,143 +1,535 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Analysis History & Traceability — DHATU BODH{% endblock %}
+{% block title %}Analysis History & Saved Results | DHATU BODH{% endblock %}
 
 {% block content %}
-<div id="history-screen-container" class="space-y-6 pb-12">
+<style>
+  .results-shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 8px 0 48px;
+  }
+  .results-topbar {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    margin-bottom: 24px;
+  }
+  .results-meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #F1F5F9;
+  }
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    font-size: 11.5px;
+    color: #334155;
+  }
+  .meta-pill strong {
+    color: #0F172A;
+    font-weight: 700;
+  }
+  .summary-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    margin-bottom: 28px;
+  }
+  .summary-card-header {
+    padding: 16px 24px;
+    background: #0B2239;
+    color: #FFFFFF;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    text-align: left;
+  }
+  .summary-table th {
+    background: #F8FAFC;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .summary-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+  }
+  .summary-table tr:hover td {
+    background: #F8FAFC;
+  }
+  .spectrum-card {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-left: 6px solid #0B2239;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .spectrum-card.status-identified {
+    border-left-color: #059669;
+  }
+  .spectrum-card.status-ambiguous {
+    border-left-color: #D97706;
+  }
+  .spectrum-card.status-unknown {
+    border-left-color: #64748B;
+  }
+  .spectrum-card-header {
+    padding: 16px 24px;
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .spectrum-card-body {
+    padding: 20px 24px;
+  }
+  .el-badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .el-val-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 82px;
+    display: flex;
+    flex-direction: column;
+  }
+  .el-val-box .el-sym {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .el-val-box .el-num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0F172A;
+    margin-top: 2px;
+  }
+  .el-editor-panel {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 10px;
+    background: #F8FAFC;
+    border: 1.5px solid #3B82F6;
+  }
+  .el-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+  @media (max-width: 1024px) {
+    .el-editor-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .el-editor-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .el-edit-item {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .el-edit-item input {
+    width: 100%;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 4px 8px;
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+    margin-top: 4px;
+  }
+  .pred-three-col {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #E2E8F0;
+  }
+  @media (max-width: 1150px) {
+    .pred-three-col {
+      grid-template-columns: 1fr;
+    }
+  }
+  .pred-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .pred-box-indirect {
+    background: #F5F9FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .status-pill.identified {
+    background: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+  }
+  .status-pill.ambiguous {
+    background: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+  }
+  .status-pill.unknown {
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid #CBD5E1;
+  }
+  .btn-navy {
+    background: #0B2239;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-navy:hover {
+    background: #153454;
+  }
+  .btn-red {
+    background: #ED0007;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-red:hover {
+    background: #C90006;
+  }
+  .btn-outline {
+    background: #FFFFFF;
+    color: #1E293B;
+    border: 1px solid #CBD5E1;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 13px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .btn-outline:hover {
+    background: #F8FAFC;
+    border-color: #94A3B8;
+  }
+  .history-run-active {
+    background-color: #EFF6FF !important;
+    border-left: 4px solid #ED0007;
+  }
+</style>
+
+<div id="history-screen-container" class="results-shell space-y-6">
+
   <!-- =========================================================================
-       PAGE HEADER
+       1. SAVED DATABASE RUNS ARCHIVE BAR & SELECTOR
        ========================================================================= -->
-  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs scroll-reveal fluid-card">
+  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <span class="w-2.5 h-2.5 rounded-full bg-[#ED0007]"></span>
-          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Traceability & Quality Auditing</span>
+          <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Database Archive &bull; Traceability</span>
         </div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Analysis History & Feedback Log</h1>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Saved Analysis History &amp; Spectrum Predictions</h1>
         <p class="text-xs text-slate-500 mt-0.5">
-          Immutable records of EDS microanalysis, analyst verifications, and calibration audit events.
+          Every EDS analysis run is automatically persisted in SQLite (<code class="font-mono-code">spectral_lab.db</code>). Select any saved run below to view and interact with its full Results view.
         </p>
       </div>
 
-      <!-- Export & Actions -->
-      <div class="flex items-center gap-2">
-        <button onclick="exportHistoryCSV()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
-          <span class="material-symbols-outlined text-[16px]">download</span>
-          <span>Export CSV</span>
-        </button>
-        <button onclick="exportHistoryJSON()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs">
-          <span class="material-symbols-outlined text-[16px]">data_object</span>
-          <span>Export JSON</span>
-        </button>
+      <!-- Navigation Tabs & Export -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold">
+          <button type="button" id="tab-btn-analyses" onclick="switchHistoryTab('analyses')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
+            Saved Analysis Results ({{ history_records|length }})
+          </button>
+          <button type="button" id="tab-btn-feedback" onclick="switchHistoryTab('feedback')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+            Analyst Feedback ({{ feedback_records|length }})
+          </button>
+          <button type="button" id="tab-btn-audit" onclick="switchHistoryTab('audit')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
+            Audit Trail ({{ logs|length }})
+          </button>
+        </div>
+
+        <a href="{% url 'analyzer_page' %}" class="btn-red">
+          <span class="material-symbols-outlined text-[16px]">add_circle</span>
+          <span>New Analysis</span>
+        </a>
       </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs font-semibold">
-        <button type="button" id="tab-btn-analyses" onclick="switchHistoryTab('analyses')" class="px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold">
-          Analysis Runs ({{ history_records|length }})
-        </button>
-        <button type="button" id="tab-btn-feedback" onclick="switchHistoryTab('feedback')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          Analyst Feedback Log ({{ feedback_records|length }})
-        </button>
-        <button type="button" id="tab-btn-audit" onclick="switchHistoryTab('audit')" class="px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium">
-          System Audit Trail ({{ logs|length }})
-        </button>
+    <!-- Saved Runs Quick Selector & Collapsible Archive Table -->
+    <div id="saved-runs-selector-bar" class="space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-3 flex-1">
+          <label for="saved-run-select" class="text-xs font-bold uppercase tracking-wider text-slate-600 shrink-0 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px] text-[#ED0007]">history</span>
+            Active Saved Run:
+          </label>
+          <select id="saved-run-select" onchange="selectHistoryRunById(this.value)" class="flex-1 max-w-xl rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white">
+            {% for r in history_records %}
+              <option value="{{ r.id }}" {% if r.id == selected_history_id %}selected{% endif %}>
+                [{{ r.timestamp }}] {{ r.filename|default:r.source_type }} — {{ r.material_family }} | Direct: {{ r.top_component_name }} | Indirect: {{ r.top_indirect_source_name }} ({{ r.spectra_count }} spectra)
+              </option>
+            {% empty %}
+              <option value="">No saved analysis runs in database yet</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[16px]">search</span>
+            <input type="text" id="history-search-input" oninput="handleHistorySearch(this.value)" placeholder="Filter saved runs..." class="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600">
+          </div>
+          <button type="button" onclick="toggleSavedRunsTable()" class="btn-outline" style="padding: 6px 11px; font-size: 11.5px;">
+            <span class="material-symbols-outlined text-[15px]">list</span>
+            <span id="btn-toggle-runs-label">Show All Saved Runs ({{ history_records|length }})</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Filter Decision -->
-      <div class="flex items-center gap-2 text-xs">
-        <span class="text-slate-500 font-semibold">Decision:</span>
-        <select id="history-decision-filter" onchange="applyHistoryFilters()" class="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-slate-800 focus:outline-none focus:border-slate-600 text-xs font-medium">
-          <option value="All">All Decisions</option>
-          <option value="identified">Identified</option>
-          <option value="ambiguous">Ambiguous</option>
-          <option value="conflict">Conflict</option>
-          <option value="unknown">Unknown</option>
-        </select>
+      <!-- Compact Table of All Saved Database Runs -->
+      <div id="saved-runs-list-panel" class="overflow-x-auto border border-slate-200 rounded-lg max-h-64 overflow-y-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-slate-100 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10.5px]">
+            <tr>
+              <th class="py-2 px-3">Timestamp</th>
+              <th class="py-2 px-3">Report / File Name</th>
+              <th class="py-2 px-3 text-center">Spectra</th>
+              <th class="py-2 px-3">Predicted Material Family</th>
+              <th class="py-2 px-3">Probable Component / Source(s)</th>
+              <th class="py-2 px-3">Probable Indirect Source</th>
+              <th class="py-2 px-3 text-center">Status</th>
+              <th class="py-2 px-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="analyses-table-body" class="divide-y divide-slate-100">
+            {% for r in history_records %}
+              <tr id="history-row-{{ r.id }}" onclick="selectHistoryRunById('{{ r.id }}')" class="analysis-row cursor-pointer hover:bg-slate-50 transition-colors {% if r.id == selected_history_id %}history-run-active{% endif %}" data-id="{{ r.id }}" data-family="{{ r.material_family }}" data-decision="{{ r.decision }}" data-source="{{ r.filename|default:r.source_type }} {{ r.top_component_name }} {{ r.top_indirect_source_name }}">
+                <td class="py-2.5 px-3 font-mono-code text-slate-500 whitespace-nowrap text-[11px]">{{ r.timestamp }}</td>
+                <td class="py-2.5 px-3">
+                  <span class="font-bold text-slate-900 block truncate max-w-[200px]">{{ r.filename|default:r.source_type }}</span>
+                  <span class="text-[10px] text-slate-400 font-mono-code">{{ r.id }}</span>
+                </td>
+                <td class="py-2.5 px-3 text-center font-mono-code font-bold text-slate-700">{{ r.spectra_count }}</td>
+                <td class="py-2.5 px-3">
+                  <div class="font-bold text-slate-900">{{ r.material_family }}</div>
+                  <div class="text-[10.5px] text-slate-500">Compatibility: {{ r.compatibility_pct }}%</div>
+                </td>
+                <td class="py-2.5 px-3 font-semibold text-slate-800">{{ r.top_component_name }}</td>
+                <td class="py-2.5 px-3 font-semibold text-blue-900">{{ r.top_indirect_source_name }}</td>
+                <td class="py-2.5 px-3 text-center">
+                  {% if r.decision == 'identified' %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Identified</span>
+                  {% elif r.decision == 'ambiguous' %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">Candidate Pool</span>
+                  {% else %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Needs Review</span>
+                  {% endif %}
+                </td>
+                <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                  <button type="button" onclick="event.stopPropagation(); selectHistoryRunById('{{ r.id }}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-[#0B2239] text-white hover:bg-slate-800 transition-colors">
+                    Load Results
+                  </button>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" class="py-6 text-center text-slate-500">
+                  No past analysis records logged yet.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-    </div>
-
-    <!-- Prominent Universal Search Bar -->
-    <div class="relative mt-4">
-      <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-      <input type="text" id="history-search-input" oninput="handleHistorySearch(this.value)" placeholder="Search records by ID, material family, component, or analyst..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
     </div>
   </div>
 
   <!-- =========================================================================
-       TAB 1: ANALYSIS RUNS
+       TAB 1: FULL RESULTS VIEW (IDENTICAL TO /analyzer/results/)
        ========================================================================= -->
-  <div id="view-history-analyses" class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4 scroll-reveal fluid-card">
-    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h2 class="text-base font-bold text-slate-900">Historical EDS Analyses</h2>
-      <span class="text-xs text-slate-500 font-mono-code">{{ history_records|length }} Total Analyses Logged</span>
+  <div id="view-history-analyses">
+
+    <!-- TOP REPORT HEADER BAR -->
+    <div class="results-topbar">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="px-2.5 py-1 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-mono-code font-bold flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">database</span>
+              <span>Saved in Database</span>
+            </span>
+            <span class="text-xs font-bold uppercase tracking-widest text-[#ED0007]">Multi-Spectrum Report Analysis</span>
+          </div>
+          <h2 id="report-main-title" class="text-2xl font-black text-slate-900 tracking-tight mt-2">
+            EDS Spectrum Predictions
+          </h2>
+          <p id="report-subtitle" class="text-xs text-slate-500 mt-0.5">
+            Individual Material Family, Direct Component Source, and Separate Indirect Material Source predictions for all extracted spectra.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button type="button" onclick="repredictAllSpectra()" id="btn-repredict-all" class="btn-red">
+            <span class="material-symbols-outlined text-[16px]">autorenew</span>
+            <span id="repredict-all-text">Re-Predict All Spectra</span>
+          </button>
+          <button type="button" onclick="exportPredictionsJSON()" class="btn-outline">
+            <span class="material-symbols-outlined text-[16px]">download</span>
+            <span>Export JSON</span>
+          </button>
+          <button type="button" onclick="window.print()" class="btn-outline">
+            <span class="material-symbols-outlined text-[16px]">print</span>
+            <span>Print</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Metadata Pills Row -->
+      <div id="report-metadata-strip" class="results-meta-strip">
+        <span class="meta-pill">Spectra Extracted: <strong id="meta-spectra-count">0</strong></span>
+      </div>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
-            <th class="py-2.5 px-4">Timestamp</th>
-            <th class="py-2.5 px-4">Source / Sample</th>
-            <th class="py-2.5 px-4">Predicted Material Family</th>
-            <th class="py-2.5 px-4">Top Component Match</th>
-            <th class="py-2.5 px-4 text-right">Confidence</th>
-            <th class="py-2.5 px-4 text-center">Decision</th>
-            <th class="py-2.5 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody id="analyses-table-body" class="divide-y divide-slate-100">
-          {% for r in history_records %}
-            <tr class="analysis-row hover:bg-slate-50 transition-colors font-mono-code" data-family="{{ r.material_family }}" data-decision="{{ r.decision }}" data-source="{{ r.filename|default:r.source_type }}">
-              <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ r.timestamp }}</td>
-              <td class="py-3 px-4 font-sans">
-                <span class="font-bold text-slate-900 block truncate max-w-[180px]">{{ r.filename|default:r.source_type }}</span>
-                <span class="text-[11px] text-slate-400 font-mono-code">{{ r.id }}</span>
-              </td>
-              <td class="py-3 px-4 font-sans">
-                <div class="font-bold text-slate-900">{{ r.material_family }}</div>
-                <div class="text-[11px] text-slate-500">{{ r.grade_hint }}</div>
-              </td>
-              <td class="py-3 px-4 font-sans text-slate-700">
-                {% if r.get_candidates %}
-                  {{ r.get_candidates.0.name|default:"—" }}
-                {% else %}
-                  —
-                {% endif %}
-              </td>
-              <td class="py-3 px-4 text-right font-bold text-slate-900">
-                {{ r.compatibility|floatformat:0 }}%
-              </td>
-              <td class="py-3 px-4 text-center font-sans">
-                {% if r.decision == 'identified' %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">Identified</span>
-                {% elif r.decision == 'ambiguous' %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">Ambiguous</span>
-                {% elif r.decision == 'conflict' %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800">Conflict</span>
-                {% else %}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">Unknown</span>
-                {% endif %}
-              </td>
-              <td class="py-3 px-4 text-right font-sans">
-                <button type="button" onclick='viewAnalysisDetailsModal("{{ r.id }}", "{{ r.timestamp }}", "{{ r.material_family }}", "{{ r.grade_hint }}", {{ r.composition_json|safe }}, "{{ r.decision }}", {{ r.compatibility|floatformat:0 }})' class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 shadow-sm transition-colors">
-                  View Detail
-                </button>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="7" class="py-6 text-center text-slate-500 font-sans">
-                No past analysis records logged yet.
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <!-- EMPTY STATE IF NO DATA -->
+    <div id="results-empty-state" class="hidden bg-white border border-slate-200 rounded-xl p-12 text-center shadow-xs">
+      <span class="material-symbols-outlined text-[36px] text-slate-400">science</span>
+      <h2 class="text-base font-bold text-slate-800 mt-2">No Saved Spectrum Predictions Found</h2>
+      <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+        Upload an EDS report (.pdf, .docx, .doc, .xlsx, .xls) or enter elements on the Spectral Ingestion page and click <strong>Start Prediction</strong>.
+      </p>
+      <div class="mt-4">
+        <a href="{% url 'analyzer_page' %}" class="btn-red">Go to Spectral Ingestion</a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER (EXACT SAME LAYOUT AS /analyzer/results/) -->
+    <div id="results-main-content" class="space-y-6">
+
+      <!-- 1. EXECUTIVE SUMMARY TABLE OF ALL SPECTRA -->
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-[20px]">table_chart</span>
+            <div>
+              <h2 class="text-sm font-bold tracking-wide uppercase">All Extracted Spectra — Prediction Overview</h2>
+              <p class="text-[11px] text-slate-300">Click "Edit Values" on any spectrum to modify elemental wt% and re-run prediction.</p>
+            </div>
+          </div>
+          <span id="summary-badge-count" class="px-3 py-1 rounded-full text-xs font-mono-code font-bold bg-white/15 text-white">
+            0 Spectra
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Site / Spectrum</th>
+                <th>Measured Elemental Composition (wt%)</th>
+                <th>Predicted Material Family</th>
+                <th>Probable Component / Source(s)</th>
+                <th>Probable Indirect Source</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="all-spectra-summary-tbody">
+              <!-- Populated by results.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. DETAILED PER-SPECTRUM CARDS WITH INLINE VALUE EDITOR -->
+      <div class="flex items-center justify-between pt-2">
+        <h2 class="text-base font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px] text-[#ED0007]">analytics</span>
+          Detailed Per-Spectrum Predictions &amp; Interactive Value Editor
+        </h2>
+        <span class="text-xs text-slate-500">Direct Injector Component &amp; Cleaning Area Indirect Material Source evaluated independently</span>
+      </div>
+
+      <div id="per-spectrum-cards-container">
+        <!-- Populated by results.js -->
+      </div>
+
     </div>
   </div>
 
@@ -146,7 +538,7 @@
        ========================================================================= -->
   <div id="view-history-feedback" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h2 class="text-base font-bold text-slate-900">Analyst Confirmations & Corrections</h2>
+      <h2 class="text-base font-bold text-slate-900">Analyst Confirmations &amp; Corrections</h2>
       <span class="text-xs text-slate-500 font-mono-code">{{ feedback_records|length }} Total Feedback Events</span>
     </div>
 
@@ -253,20 +645,62 @@
       </table>
     </div>
   </div>
+
 </div>
 
 <script>
+  window.DATASET_ELEMENTS = {{ dataset_elements_json|safe }};
+  window.HISTORY_PAYLOADS = {{ history_payloads_json|safe }};
+  window.INITIAL_PREDICTION_DATA = {{ selected_prediction_json|safe }};
+  window.FORCE_SERVER_PREDICTION = true;
+
   function switchHistoryTab(tab) {
     document.getElementById('view-history-analyses').classList.toggle('hidden', tab !== 'analyses');
+    document.getElementById('saved-runs-selector-bar').classList.toggle('hidden', tab !== 'analyses');
     document.getElementById('view-history-feedback').classList.toggle('hidden', tab !== 'feedback');
     document.getElementById('view-history-audit').classList.toggle('hidden', tab !== 'audit');
 
-    const activeClass = 'px-4 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all font-bold';
-    const inactiveClass = 'px-4 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-semibold';
+    const activeClass = 'px-3.5 py-1.5 rounded-md bg-white text-slate-900 shadow-xs transition-all font-bold';
+    const inactiveClass = 'px-3.5 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all font-medium';
 
     document.getElementById('tab-btn-analyses').className = tab === 'analyses' ? activeClass : inactiveClass;
     document.getElementById('tab-btn-feedback').className = tab === 'feedback' ? activeClass : inactiveClass;
     document.getElementById('tab-btn-audit').className = tab === 'audit' ? activeClass : inactiveClass;
+  }
+
+  function selectHistoryRunById(runId) {
+    if (!runId || !Array.isArray(window.HISTORY_PAYLOADS)) return;
+    const found = window.HISTORY_PAYLOADS.find(p => p.analysisId === runId);
+    if (!found) return;
+
+    const selectEl = document.getElementById('saved-run-select');
+    if (selectEl && selectEl.value !== runId) {
+      selectEl.value = runId;
+    }
+
+    document.querySelectorAll('.analysis-row').forEach(row => {
+      if (row.getAttribute('data-id') === runId) {
+        row.classList.add('history-run-active');
+      } else {
+        row.classList.remove('history-run-active');
+      }
+    });
+
+    reportPredictionState = found;
+    openEditorIndices.clear();
+    saveStateToSessionStorage();
+    renderAllResultsPage();
+  }
+
+  function toggleSavedRunsTable() {
+    const panel = document.getElementById('saved-runs-list-panel');
+    const lbl = document.getElementById('btn-toggle-runs-label');
+    if (!panel) return;
+    const isHidden = panel.classList.toggle('hidden');
+    if (lbl) {
+      const count = Array.isArray(window.HISTORY_PAYLOADS) ? window.HISTORY_PAYLOADS.length : 0;
+      lbl.textContent = isHidden ? `Show All Saved Runs (${count})` : `Hide Saved Runs Table (${count})`;
+    }
   }
 
   function handleHistorySearch(query) {
@@ -274,72 +708,17 @@
     document.querySelectorAll('.analysis-row').forEach(row => {
       const fam = (row.getAttribute('data-family') || '').toLowerCase();
       const src = (row.getAttribute('data-source') || '').toLowerCase();
-      if (!q || fam.includes(q) || src.includes(q)) {
+      const id = (row.getAttribute('data-id') || '').toLowerCase();
+      if (!q || fam.includes(q) || src.includes(q) || id.includes(q)) {
         row.classList.remove('hidden');
       } else {
         row.classList.add('hidden');
       }
     });
-  }
-
-  function applyHistoryFilters() {
-    const decision = document.getElementById('history-decision-filter').value;
-    document.querySelectorAll('.analysis-row').forEach(row => {
-      const d = row.getAttribute('data-decision');
-      if (decision === 'All' || d === decision) {
-        row.classList.remove('hidden');
-      } else {
-        row.classList.add('hidden');
-      }
-    });
-  }
-
-  function viewAnalysisDetailsModal(id, timestamp, family, gradeHint, comp, decision, compPct) {
-    if (!window.openAppModal) return;
-
-    const compRows = Object.entries(comp || {}).map(([el, val]) => `
-      <div class="flex justify-between py-1 border-b border-slate-100 font-mono-code text-xs">
-        <span class="font-bold text-slate-800">${el}</span>
-        <span class="text-slate-900 font-semibold">${typeof val === 'number' ? val.toFixed(2) : val}%</span>
-      </div>
-    `).join('');
-
-    const content = `
-      <div class="space-y-4 text-xs">
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded">
-          <div class="text-slate-500">Analysis Run ID: ${id}</div>
-          <div class="text-lg font-bold text-slate-900 mt-1">${family}</div>
-          <div class="text-slate-600 font-medium">Grade hint: ${gradeHint}</div>
-          <div class="text-slate-500 font-mono-code mt-1">${timestamp} &bull; Decision: <strong>${decision.toUpperCase()}</strong> (${compPct}% Compatibility)</div>
-        </div>
-
-        <div>
-          <div class="font-bold uppercase tracking-wider text-slate-500 mb-2">Measured Elemental Composition</div>
-          <div class="bg-white border border-slate-200 rounded p-3 max-h-48 overflow-y-auto">
-            ${compRows || '<div class="text-slate-500">No composition details available.</div>'}
-          </div>
-        </div>
-      </div>
-    `;
-
-    window.openAppModal({
-      title: 'Analysis Run Details',
-      subtitle: `ID: ${id}`,
-      contentHtml: content,
-      actionsHtml: `
-        <button type="button" onclick="window.closeAppModal()" class="px-4 py-2 text-xs font-semibold rounded bg-slate-900 text-white hover:bg-slate-800">
-          Close
-        </button>
-      `,
-    });
-  }
-
-  function exportHistoryCSV() {
-    window.open('/api/history', '_blank');
-  }
-
-  function exportHistoryJSON() {
-    window.open('/api/history', '_blank');
   }
 </script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/results.js' %}?v=20261007_v3"></script>
 {% endblock %}
