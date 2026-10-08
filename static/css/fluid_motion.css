@@ -802,3 +802,15 @@ section,
 div {
   filter: none !important;
 }
+
+/* Prevent double-translation when Tailwind v3 transform and Tailwind v4 translate coexist */
+.-translate-y-1\/2 {
+  translate: none !important;
+  transform: translateY(-50%) !important;
+}
+
+.status-pill {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+

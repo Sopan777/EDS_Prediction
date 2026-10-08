@@ -43,9 +43,11 @@
     </div>
 
     <!-- Prominent Universal Search Bar -->
-    <div class="relative">
-      <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-      <input type="text" id="kb-search-input" oninput="handleKbSearch(this.value)" placeholder="Search across direct material families, indirect cleaning-area sources (SS 304, IC Stud Tray, Durr Basket), components, element rules, and reference spectra..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
+    <div class="relative flex items-center">
+      <span class="pointer-events-none text-slate-400" style="position: absolute; top: 0; bottom: 0; left: 14px; display: flex; align-items: center;">
+        <span class="material-symbols-outlined text-[20px]" style="line-height: 1; display: block;">search</span>
+      </span>
+      <input type="text" id="kb-search-input" oninput="handleKbSearch(this.value)" placeholder="Search across direct material families, indirect cleaning-area sources (SS 304, IC Stud Tray, Durr Basket), components, element rules, and reference spectra..." style="padding-left: 42px;" class="w-full pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600 focus:bg-white transition-colors">
     </div>
   </div>
 

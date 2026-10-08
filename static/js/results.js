@@ -148,12 +148,12 @@ function renderTopBar() {
 function getStatusBadgeHtml(decision) {
   const dec = (decision || '').toLowerCase();
   if (dec === 'identified') {
-    return `<span class="status-pill identified">● Identified</span>`;
+    return `<span class="status-pill identified"><span class="status-dot"></span><span>Identified</span></span>`;
   }
   if (dec === 'ambiguous') {
-    return `<span class="status-pill ambiguous">◐ Candidate Pool</span>`;
+    return `<span class="status-pill ambiguous"><span class="status-dot"></span><span>Candidate Pool</span></span>`;
   }
-  return `<span class="status-pill unknown">○ Needs Review</span>`;
+  return `<span class="status-pill unknown"><span class="status-dot"></span><span>Needs Review</span></span>`;
 }
 
 function buildOverviewIndirectCellHtml(sp) {
@@ -224,7 +224,7 @@ function renderSummaryTable() {
 
     return `
       <tr>
-        <td class="font-mono-code font-bold text-slate-700">#${idx + 1}</td>
+        <td class="font-mono-code font-bold text-slate-700 whitespace-nowrap">#${idx + 1}</td>
         <td>
           <div class="font-bold text-slate-900">${escapeHtml(sp.label || `Spectrum ${idx + 1}`)}</div>
           <div class="text-[11px] text-slate-500">Page ${sp.page || 1} • ${escapeHtml(sp.siteName || 'Site 1')}</div>
@@ -234,7 +234,7 @@ function renderSummaryTable() {
         </td>
         <td>
           <div class="flex items-center gap-1.5">
-            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-white font-mono-code text-[10.5px] font-bold">${escapeHtml(famCode)}</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-white font-mono-code text-[10.5px] font-bold shrink-0">${escapeHtml(famCode)}</span>
             <span class="font-bold text-slate-900">${escapeHtml(famName)}</span>
           </div>
           <div class="text-[11px] text-slate-500 mt-0.5">
@@ -244,9 +244,9 @@ function renderSummaryTable() {
         </td>
         <td>${compHtml}</td>
         <td>${indirectHtml}</td>
-        <td>${getStatusBadgeHtml(sp.decision)}</td>
-        <td style="text-align: right;">
-          <button type="button" onclick="jumpAndEditSpectrum(${idx})" class="btn-outline" style="padding: 5px 10px; font-size: 11.5px;">
+        <td class="whitespace-nowrap">${getStatusBadgeHtml(sp.decision)}</td>
+        <td class="whitespace-nowrap" style="text-align: right;">
+          <button type="button" onclick="jumpAndEditSpectrum(${idx})" class="btn-outline whitespace-nowrap" style="padding: 5px 10px; font-size: 11.5px; white-space: nowrap;">
             <span class="material-symbols-outlined text-[14px] text-blue-600">edit</span>
             <span>Edit Values</span>
           </button>

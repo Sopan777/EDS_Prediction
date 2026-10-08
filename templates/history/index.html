@@ -214,13 +214,24 @@
   .status-pill {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
+    gap: 6px;
+    padding: 4px 11px;
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+  .status-pill .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background-color: currentColor;
+    flex-shrink: 0;
+    display: inline-block;
   }
   .status-pill.identified {
     background: #D1FAE5;
@@ -249,6 +260,8 @@
     gap: 6px;
     cursor: pointer;
     border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .btn-navy:hover {
     background: #153454;
@@ -265,6 +278,8 @@
     gap: 6px;
     cursor: pointer;
     border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .btn-red:hover {
     background: #C90006;
@@ -281,6 +296,8 @@
     align-items: center;
     gap: 6px;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .btn-outline:hover {
     background: #F8FAFC;
@@ -446,9 +463,11 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <div class="relative">
-            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[16px]">search</span>
-            <input type="text" id="history-search-input" oninput="handleHistorySearch(this.value)" placeholder="Filter saved runs..." class="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600">
+          <div class="relative flex items-center">
+            <span class="pointer-events-none text-slate-400" style="position: absolute; top: 0; bottom: 0; left: 10px; display: flex; align-items: center;">
+              <span class="material-symbols-outlined text-[16px]" style="line-height: 1; display: block;">search</span>
+            </span>
+            <input type="text" id="history-search-input" oninput="handleHistorySearch(this.value)" placeholder="Filter saved runs..." style="padding-left: 32px;" class="pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-slate-600">
           </div>
           <button type="button" onclick="toggleSavedRunsTable()" class="btn-outline" style="padding: 6px 11px; font-size: 11.5px;">
             <span class="material-symbols-outlined text-[15px]">list</span>
@@ -806,5 +825,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/results.js' %}?v=20261007_v3"></script>
+<script src="{% static 'js/results.js' %}?v=20261008_v4"></script>
 {% endblock %}
